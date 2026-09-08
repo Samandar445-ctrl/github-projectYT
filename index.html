@@ -3,10 +3,360 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+
+    <title>GameCalc 🎮</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <h1>lol</h1>
-    <h2>hi</h2>
+
+<header>
+    <h1>🎮 GameCalc</h1>
+    <p>The Ultimate Gaming Calculator Hub</p>
+</header>
+
+<nav>
+    <button onclick="showPage('home')">🏠 Home</button>
+    <button onclick="showPage('blooket')">🟦 Blooket</button>
+    <button onclick="showPage('minecraft')">⛏️ Minecraft</button>
+    <button onclick="showPage('roblox')">🟩 Roblox</button>
+    <button onclick="showPage('brawl')">⭐ Brawl Stars</button>
+    <button onclick="showPage('universal')">🧮 Universal</button>
+    <button onclick="showPage('ai')">🤖 AI</button>
+</nav>
+
+<main>
+
+    <!-- HOME -->
+    <section id="home" class="page active">
+
+        <h2>Welcome to GameCalc! 🎮</h2>
+
+        <p>
+            Calculate XP, coins, games, resources, coordinates,
+            percentages and more!
+        </p>
+
+        <div class="cards">
+
+            <div onclick="showPage('blooket')">
+                <span>🟦</span>
+                <h3>Blooket</h3>
+                <p>Coins & games</p>
+            </div>
+
+            <div onclick="showPage('minecraft')">
+                <span>⛏️</span>
+                <h3>Minecraft</h3>
+                <p>Resources & coordinates</p>
+            </div>
+
+            <div onclick="showPage('roblox')">
+                <span>🟩</span>
+                <h3>Roblox</h3>
+                <p>Goals & rewards</p>
+            </div>
+
+            <div onclick="showPage('brawl')">
+                <span>⭐</span>
+                <h3>Brawl Stars</h3>
+                <p>Progress calculator</p>
+            </div>
+
+            <div onclick="showPage('universal')">
+                <span>🧮</span>
+                <h3>Universal</h3>
+                <p>Math calculator</p>
+            </div>
+
+            <div onclick="showPage('ai')">
+                <span>🤖</span>
+                <h3>GameCalc AI</h3>
+                <p>Ask the AI</p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- BLOOKET -->
+    <section id="blooket" class="page">
+
+        <h2>🟦 Blooket Calculator</h2>
+
+        <div class="calculator">
+
+            <h3>🎯 Games Needed</h3>
+
+            <input
+                id="bCurrent"
+                type="number"
+                placeholder="Current coins"
+            >
+
+            <input
+                id="bGoal"
+                type="number"
+                placeholder="Goal coins"
+            >
+
+            <input
+                id="bEarn"
+                type="number"
+                placeholder="Coins earned per game"
+            >
+
+            <button onclick="blooketCalculator()">
+                Calculate 🚀
+            </button>
+
+            <div id="bResult" class="result"></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- MINECRAFT -->
+    <section id="minecraft" class="page">
+
+        <h2>⛏️ Minecraft Calculator</h2>
+
+        <div class="calculator">
+
+            <h3>📦 Resource Calculator</h3>
+
+            <input
+                id="mNeed"
+                type="number"
+                placeholder="Items needed"
+            >
+
+            <input
+                id="mHave"
+                type="number"
+                placeholder="Items you have"
+            >
+
+            <button onclick="minecraftResources()">
+                Calculate
+            </button>
+
+            <div id="mResult" class="result"></div>
+
+        </div>
+
+
+        <div class="calculator">
+
+            <h3>🌋 Overworld → Nether</h3>
+
+            <input
+                id="overworldX"
+                type="number"
+                placeholder="Overworld X"
+            >
+
+            <input
+                id="overworldZ"
+                type="number"
+                placeholder="Overworld Z"
+            >
+
+            <button onclick="netherCoordinates()">
+                Convert
+            </button>
+
+            <div id="coordinateResult" class="result"></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ROBLOX -->
+    <section id="roblox" class="page">
+
+        <h2>🟩 Roblox Calculator</h2>
+
+        <div class="calculator">
+
+            <h3>🎯 Goal Calculator</h3>
+
+            <input
+                id="rCurrent"
+                type="number"
+                placeholder="Current amount"
+            >
+
+            <input
+                id="rGoal"
+                type="number"
+                placeholder="Goal amount"
+            >
+
+            <input
+                id="rEarn"
+                type="number"
+                placeholder="Earned per game"
+            >
+
+            <button onclick="robloxCalculator()">
+                Calculate 🚀
+            </button>
+
+            <div id="rResult" class="result"></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- BRAWL STARS -->
+    <section id="brawl" class="page">
+
+        <h2>⭐ Brawl Stars Calculator</h2>
+
+        <div class="calculator">
+
+            <h3>🏆 Trophy Goal</h3>
+
+            <input
+                id="bCurrent"
+                type="number"
+                placeholder="Current trophies"
+            >
+
+            <input
+                id="bGoalTrophies"
+                type="number"
+                placeholder="Goal trophies"
+            >
+
+            <input
+                id="bTrophiesGame"
+                type="number"
+                placeholder="Average trophies per game"
+            >
+
+            <button onclick="brawlCalculator()">
+                Calculate
+            </button>
+
+            <div id="brawlResult" class="result"></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- UNIVERSAL -->
+    <section id="universal" class="page">
+
+        <h2>🧮 Universal Calculator</h2>
+
+        <div class="calculator">
+
+            <input
+                id="number1"
+                type="number"
+                placeholder="Number 1"
+            >
+
+            <input
+                id="number2"
+                type="number"
+                placeholder="Number 2"
+            >
+
+            <select id="operation">
+
+                <option value="+">
+                    Addition (+)
+                </option>
+
+                <option value="-">
+                    Subtraction (-)
+                </option>
+
+                <option value="*">
+                    Multiplication (×)
+                </option>
+
+                <option value="/">
+                    Division (÷)
+                </option>
+
+                <option value="%">
+                    Percentage
+                </option>
+
+            </select>
+
+            <button onclick="universalCalculator()">
+                Calculate
+            </button>
+
+            <div id="universalResult" class="result"></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- AI -->
+    <section id="ai" class="page">
+
+        <h2>🤖 GameCalc AI</h2>
+
+        <p>
+            Ask GameCalc AI about gaming calculations!
+        </p>
+
+        <div class="calculator aiBox">
+
+            <div id="chat" class="chat">
+
+                <div class="aiMessage">
+                    🤖 AI: Hey! I'm GameCalc AI.
+                    Ask me about Blooket, Minecraft,
+                    Roblox, Brawl Stars or calculations!
+                </div>
+
+            </div>
+
+            <div class="aiInputArea">
+
+                <input
+                    id="aiInput"
+                    type="text"
+                    placeholder="Ask GameCalc AI..."
+                    onkeydown="if(event.key === 'Enter') askAI()"
+                >
+
+                <button onclick="askAI()">
+                    Send 🚀
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+    🎮 GameCalc © 2026
+    <br>
+    Made with HTML + CSS + JavaScript
+</footer>
+
+
+<script src="script.js"></script>
+
 </body>
 </html>
