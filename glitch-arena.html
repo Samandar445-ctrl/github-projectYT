@@ -1,0 +1,2982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glitch Arena</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+
+body{
+    background:#03040a;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+#game{
+    position:relative;
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+    background:
+        radial-gradient(circle at 50% 50%,#18234b,#080914 55%,#020207);
+}
+
+#game::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:
+        linear-gradient(#ffffff08 1px,transparent 1px),
+        linear-gradient(90deg,#ffffff08 1px,transparent 1px);
+    background-size:45px 45px;
+}
+
+/* HUD */
+
+#hud{
+    position:absolute;
+    z-index:100;
+    top:18px;
+    left:50%;
+    transform:translateX(-50%);
+
+    display:flex;
+    gap:25px;
+    padding:12px 22px;
+
+    background:#080c18e8;
+    border:1px solid #ffffff20;
+    border-radius:14px;
+
+    backdrop-filter:blur(12px);
+    font-weight:900;
+}
+
+.stat{
+    color:#69738f;
+}
+
+.stat span{
+    color:white;
+}
+
+#hp{
+    color:#49efff;
+}
+
+#score{
+    color:#ffe45c;
+}
+
+#wave{
+    color:#ff5f9a;
+}
+
+#weaponText{
+    color:#9d7cff;
+}
+
+/* PLAYER */
+
+#player{
+    position:absolute;
+    width:48px;
+    height:48px;
+
+    border:3px solid #8fffff;
+    border-radius:8px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff,
+            #2de7ff 35%,
+            #514bff
+        );
+
+    box-shadow:
+        0 0 15px #00eaff,
+        0 0 40px #4169ff,
+        0 0 80px #4169ff55;
+
+    z-index:20;
+}
+
+#player::before{
+    content:"";
+
+    position:absolute;
+    width:12px;
+    height:12px;
+
+    left:15px;
+    top:15px;
+
+    background:white;
+    border-radius:50%;
+
+    box-shadow:0 0 15px white;
+}
+
+/* GUN */
+
+#gun{
+    position:absolute;
+
+    width:60px;
+    height:12px;
+
+    left:24px;
+    top:24px;
+
+    transform-origin:5px 50%;
+
+    border:2px solid #cfffff;
+    border-radius:8px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #bfffff,
+            #00dfff,
+            #7657ff
+        );
+
+    box-shadow:
+        0 0 10px #00eaff,
+        0 0 25px #695cff;
+}
+
+/* BULLET */
+
+.bullet{
+    position:absolute;
+
+    width:8px;
+    height:8px;
+
+    border-radius:50%;
+
+    background:white;
+
+    box-shadow:
+        0 0 8px white,
+        0 0 20px #00eaff,
+        0 0 35px #00eaff;
+
+    z-index:15;
+}
+
+/* ENEMY */
+
+.enemy{
+    position:absolute;
+
+    width:40px;
+    height:40px;
+
+    border-radius:10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff6c9c,
+            #ff174f,
+            #76113d
+        );
+
+    border:2px solid #ff9dbb;
+
+    box-shadow:
+        0 0 15px #ff2266,
+        0 0 35px #ff226655;
+
+    z-index:12;
+}
+
+.enemy.fast{
+    background:
+        linear-gradient(
+            135deg,
+            #fff,
+            #ffce35,
+            #ff6a00
+        );
+
+    box-shadow:
+        0 0 18px #ffb000,
+        0 0 40px #ff650055;
+}
+
+.enemy.big{
+    width:60px;
+    height:60px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff7dff,
+            #8e28ff,
+            #36106f
+        );
+
+    box-shadow:
+        0 0 25px #b43cff,
+        0 0 60px #8c35ff66;
+}
+
+.enemy::before,
+.enemy::after{
+    content:"";
+
+    position:absolute;
+
+    width:7px;
+    height:7px;
+
+    top:11px;
+
+    border-radius:50%;
+
+    background:white;
+
+    box-shadow:0 0 8px white;
+}
+
+.enemy::before{
+    left:8px;
+}
+
+.enemy::after{
+    right:8px;
+}
+
+/* GLITCH LINES */
+
+.glitchLine{
+    position:absolute;
+
+    height:2px;
+
+    background:#00f6ff;
+
+    box-shadow:
+        0 0 12px #00f6ff,
+        0 0 25px #00f6ff;
+
+    pointer-events:none;
+
+    z-index:80;
+}
+
+/* HIT */
+
+.hit{
+    position:absolute;
+
+    width:10px;
+    height:10px;
+
+    border-radius:50%;
+
+    background:white;
+
+    pointer-events:none;
+
+    animation:hit .3s forwards;
+
+    z-index:50;
+}
+
+@keyframes hit{
+    from{
+        transform:scale(1);
+        opacity:1;
+    }
+
+    to{
+        transform:scale(7);
+        opacity:0;
+    }
+}
+
+/* PLAYER GLITCH */
+
+.glitch{
+    animation:glitch .16s;
+}
+
+@keyframes glitch{
+
+    0%{
+        transform:translate(0);
+        filter:none;
+    }
+
+    25%{
+        transform:translate(-8px,3px);
+        filter:hue-rotate(90deg);
+    }
+
+    50%{
+        transform:translate(8px,-3px);
+        filter:hue-rotate(180deg);
+    }
+
+    75%{
+        transform:translate(-4px,-4px);
+        filter:hue-rotate(270deg);
+    }
+
+    100%{
+        transform:translate(0);
+        filter:none;
+    }
+}
+
+/* LAG */
+
+.lag{
+    animation:lag .12s steps(2);
+}
+
+@keyframes lag{
+
+    0%{
+        transform:translate(0);
+    }
+
+    50%{
+        transform:translate(6px,-4px);
+    }
+
+    100%{
+        transform:translate(-5px,3px);
+    }
+}
+
+/* OVERLAYS */
+
+.overlay{
+    position:absolute;
+    inset:0;
+
+    z-index:500;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    background:#02030ddd;
+
+    backdrop-filter:blur(9px);
+}
+
+.hidden{
+    display:none!important;
+}
+
+/* PANEL */
+
+.panel{
+    width:min(480px,90%);
+
+    padding:35px;
+
+    text-align:center;
+
+    border:1px solid #ffffff22;
+    border-radius:24px;
+
+    background:#0a0e1df5;
+
+    box-shadow:
+        0 30px 100px #000,
+        0 0 50px #4b5cff22;
+}
+
+.panel h1{
+    font-size:42px;
+    margin-bottom:15px;
+}
+
+.panel p{
+    color:#8993b1;
+
+    line-height:1.7;
+
+    margin-bottom:20px;
+}
+
+/* BUTTONS */
+
+button{
+    width:100%;
+
+    padding:14px;
+
+    margin-top:9px;
+
+    border:0;
+
+    border-radius:11px;
+
+    color:white;
+
+    font-weight:900;
+
+    cursor:pointer;
+
+    background:
+        linear-gradient(
+            90deg,
+            #7355ff,
+            #16dfff
+        );
+
+    box-shadow:
+        0 0 25px #426cff55;
+
+    transition:.2s;
+}
+
+button:hover{
+    transform:translateY(-3px);
+}
+
+.exit{
+    background:#171b2c;
+
+    border:1px solid #ffffff18;
+
+    box-shadow:none;
+}
+
+/* EVENT */
+
+#event{
+    position:absolute;
+
+    z-index:90;
+
+    top:90px;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    padding:9px 18px;
+
+    border:1px solid #00eaff55;
+
+    border-radius:10px;
+
+    background:#06121ae8;
+
+    color:#65efff;
+
+    font-weight:900;
+
+    opacity:0;
+
+    transition:.25s;
+}
+
+#event.show{
+    opacity:1;
+}
+
+/* ADMIN */
+
+#admin{
+    position:absolute;
+
+    z-index:700;
+
+    top:20px;
+    right:20px;
+
+    width:280px;
+
+    padding:18px;
+
+    border:1px solid #ff4cff66;
+
+    border-radius:18px;
+
+    background:#080914f5;
+
+    box-shadow:
+        0 0 30px #a832ff44,
+        0 20px 70px #000;
+
+    backdrop-filter:blur(15px);
+
+    display:none;
+}
+
+#admin h2{
+    margin-bottom:12px;
+
+    color:#d06cff;
+}
+
+.adminStatus{
+    color:#77819d;
+
+    font-size:12px;
+
+    margin-bottom:10px;
+}
+
+.adminRow{
+    display:flex;
+    gap:7px;
+}
+
+.adminGreen{
+    background:
+        linear-gradient(
+            90deg,
+            #16c982,
+            #00cfff
+        );
+}
+
+.adminDanger{
+    background:
+        linear-gradient(
+            90deg,
+            #ff315d,
+            #ff6a3d
+        );
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+    #hud{
+        gap:8px;
+
+        padding:9px 10px;
+
+        font-size:10px;
+    }
+
+    #admin{
+        width:240px;
+
+        right:10px;
+
+        top:70px;
+    }
+
+    .panel h1{
+        font-size:32px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+    <!-- HUD -->
+
+    <div id="hud">
+
+        <div class="stat">
+            HP:
+            <span id="hp">100</span>
+        </div>
+
+        <div class="stat">
+            SCORE:
+            <span id="score">0</span>
+        </div>
+
+        <div class="stat">
+            WAVE:
+            <span id="wave">1</span>
+        </div>
+
+        <div class="stat">
+            WEAPON:
+            <span id="weaponText">BLASTER</span>
+        </div>
+
+    </div>
+
+
+    <!-- EVENT -->
+
+    <div id="event"></div>
+
+
+    <!-- PLAYER -->
+
+    <div id="player">
+
+        <div id="gun"></div>
+
+    </div>
+
+
+    <!-- START -->
+
+    <div
+        id="startScreen"
+        class="overlay"
+    >
+
+        <div class="panel">
+
+            <h1>
+                ⚡ GLITCH ARENA
+            </h1>
+
+            <p>
+                Enter the broken arena.<br>
+                Destroy the glitches and survive.
+                <br><br>
+
+                <b>WASD</b> — move<br>
+                <b>Mouse</b> — aim<br>
+                <b>Hold LMB</b> — shoot<br>
+                <b>F2</b> — admin panel<br>
+                <b>ESC</b> — exit
+            </p>
+
+            <button id="startButton">
+                ▶ ENTER ARENA
+            </button>
+
+            <button
+                class="exit"
+                id="exitStart"
+            >
+                🚪 EXIT
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- GAME OVER -->
+
+    <div
+        id="gameOver"
+        class="overlay hidden"
+    >
+
+        <div class="panel">
+
+            <h1>
+                💀 SYSTEM FAILURE
+            </h1>
+
+            <p id="finalText"></p>
+
+            <button id="restartButton">
+                🔄 RESTART
+            </button>
+
+            <button
+                class="exit"
+                id="exitGame"
+            >
+                🚪 EXIT
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ADMIN -->
+
+    <div id="admin">
+
+        <h2>
+            🛠 ADMIN PANEL
+        </h2>
+
+        <div class="adminStatus">
+            F2 — close panel
+        </div>
+
+        <button
+            id="adminHeal"
+            class="adminGreen"
+        >
+            ❤️ FULL HP
+        </button>
+
+        <button id="adminScore">
+            💰 +1000 SCORE
+        </button>
+
+        <button id="adminWave">
+            🌊 NEXT WAVE
+        </button>
+
+        <button id="adminSpawn">
+            👾 SPAWN 5 ENEMIES
+        </button>
+
+        <button
+            id="adminClear"
+            class="adminDanger"
+        >
+            🧹 CLEAR ENEMIES
+        </button>
+
+        <button id="adminGlitch">
+            ⚡ GLITCH EFFECT
+        </button>
+
+        <button id="adminTeleport">
+            🌀 TELEPORT ENEMIES
+        </button>
+
+        <button id="adminLag">
+            🐌 LAG GLITCH
+        </button>
+
+        <button id="adminShield">
+            🛡️ TOGGLE SHIELD
+        </button>
+
+        <button id="adminWeapon">
+            🔫 CHANGE WEAPON
+        </button>
+
+    </div>
+
+</div>
+
+
+<script src="gamehub-bridge.js"></script>
+<script>
+"use strict";
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const game =
+    document.getElementById("game");
+
+const player =
+    document.getElementById("player");
+
+const gun =
+    document.getElementById("gun");
+
+const hpText =
+    document.getElementById("hp");
+
+const scoreText =
+    document.getElementById("score");
+
+const waveText =
+    document.getElementById("wave");
+
+const weaponText =
+    document.getElementById("weaponText");
+
+const startScreen =
+    document.getElementById("startScreen");
+
+const gameOver =
+    document.getElementById("gameOver");
+
+const finalText =
+    document.getElementById("finalText");
+
+const eventText =
+    document.getElementById("event");
+
+const admin =
+    document.getElementById("admin");
+
+
+/* =====================================================
+   GAME STATE
+===================================================== */
+
+let running = false;
+
+let keys = {};
+
+let mouseX =
+    innerWidth / 2;
+
+let mouseY =
+    innerHeight / 2;
+
+let mouseDown = false;
+
+
+let playerX =
+    innerWidth / 2 - 24;
+
+let playerY =
+    innerHeight / 2 - 24;
+
+
+let hp = 100;
+
+let score = 0;
+
+let wave = 1;
+
+
+let enemies = [];
+
+let bullets = [];
+
+
+let lastTime = 0;
+
+let shootTimer = 0;
+
+let spawnTimer = 0;
+
+let eventTimer = 0;
+
+let waveSpawned = 0;
+
+
+let currentEvent = null;
+
+let shield = false;
+
+let lagEnabled = false;
+
+let glitchEnabled = true;
+
+let teleportEnabled = true;
+
+
+let weaponIndex = 0;
+
+
+/* =====================================================
+   WEAPONS
+===================================================== */
+
+const weapons = [
+
+    {
+        name:"BLASTER",
+        delay:.12,
+        speed:900,
+        damage:10
+    },
+
+    {
+        name:"RAPID",
+        delay:.055,
+        speed:1050,
+        damage:7
+    },
+
+    {
+        name:"HEAVY",
+        delay:.28,
+        speed:750,
+        damage:30
+    }
+
+];
+
+
+/* =====================================================
+   INPUT
+===================================================== */
+
+document.addEventListener(
+    "keydown",
+    function(e){
+
+        if(e.code === "Escape"){
+
+            e.preventDefault();
+
+            e.stopPropagation();
+
+            exitToHub();
+
+            return;
+        }
+
+
+        if(e.code === "F2"){
+
+            e.preventDefault();
+
+            toggleAdmin();
+
+            return;
+        }
+
+
+        keys[e.code] = true;
+
+
+        if(
+            e.code === "KeyW" ||
+            e.code === "KeyA" ||
+            e.code === "KeyS" ||
+            e.code === "KeyD"
+        ){
+
+            e.preventDefault();
+
+        }
+
+    },
+    true
+);
+
+
+document.addEventListener(
+    "keyup",
+    function(e){
+
+        keys[e.code] = false;
+
+    }
+);
+
+
+game.addEventListener(
+    "mousemove",
+    function(e){
+
+        mouseX = e.clientX;
+
+        mouseY = e.clientY;
+
+    }
+);
+
+
+game.addEventListener(
+    "mousedown",
+    function(e){
+
+        if(e.button === 0){
+
+            mouseDown = true;
+
+        }
+
+    }
+);
+
+
+document.addEventListener(
+    "mouseup",
+    function(e){
+
+        if(e.button === 0){
+
+            mouseDown = false;
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   EXIT
+===================================================== */
+
+function exitToHub(){
+
+    running = false;
+
+    mouseDown = false;
+
+    keys = {};
+
+    clearObjects();
+
+
+    /*
+       Если Game Hub находится в другом месте,
+       поменяй только эту строку.
+    */
+
+    window.location.href =
+        "../index.html";
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+function startGame(){
+
+    clearObjects();
+
+
+    running = true;
+
+
+    hp = 100;
+
+    score = 0;
+
+    wave = 1;
+
+
+    waveSpawned = 0;
+
+
+    spawnTimer = 0;
+
+    shootTimer = 0;
+
+    eventTimer = 0;
+
+
+    currentEvent = null;
+
+    shield = false;
+
+
+    playerX =
+        innerWidth / 2 - 24;
+
+    playerY =
+        innerHeight / 2 - 24;
+
+
+    startScreen.classList.add(
+        "hidden"
+    );
+
+    gameOver.classList.add(
+        "hidden"
+    );
+
+
+    player.style.display =
+        "block";
+
+
+    updateHUD();
+
+
+    lastTime =
+        performance.now();
+
+
+    requestAnimationFrame(
+        loop
+    );
+
+}
+
+
+/* =====================================================
+   ADMIN
+===================================================== */
+
+function toggleAdmin(){
+
+    if(
+        admin.style.display ===
+        "block"
+    ){
+
+        admin.style.display =
+            "none";
+
+    }
+    else{
+
+        admin.style.display =
+            "block";
+
+    }
+
+}
+
+
+function adminHeal(){
+
+    hp = 100;
+
+    updateHUD();
+
+    showEvent(
+        "❤️ HP RESTORED"
+    );
+
+}
+
+
+function adminAddScore(){
+
+    score += 1000;
+
+    updateHUD();
+
+    showEvent(
+        "💰 +1000 SCORE"
+    );
+
+}
+
+
+function adminNextWave(){
+
+    clearEnemies();
+
+    wave++;
+
+    waveSpawned = 0;
+
+    spawnTimer = 0;
+
+    waveText.textContent =
+        wave;
+
+    showEvent(
+        "🌊 WAVE " + wave
+    );
+
+}
+
+
+function adminSpawn(){
+
+    for(
+        let i = 0;
+        i < 5;
+        i++
+    ){
+
+        spawnEnemy();
+
+    }
+
+}
+
+
+function adminClear(){
+
+    clearEnemies();
+
+    showEvent(
+        "🧹 ENEMIES CLEARED"
+    );
+
+}
+
+
+function adminGlitch(){
+
+    triggerPlayerGlitch();
+
+    for(
+        let i = 0;
+        i < 8;
+        i++
+    ){
+
+        createGlitchLine();
+
+    }
+
+}
+
+
+function adminTeleport(){
+
+    enemies.forEach(
+        function(enemy){
+
+            teleportEnemy(enemy);
+
+        }
+    );
+
+}
+
+
+function adminLag(){
+
+    lagEnabled =
+        !lagEnabled;
+
+    showEvent(
+        lagEnabled
+        ? "🐌 LAG GLITCH ON"
+        : "⚡ LAG GLITCH OFF"
+    );
+
+}
+
+
+function adminShieldToggle(){
+
+    shield =
+        !shield;
+
+    showEvent(
+        shield
+        ? "🛡️ SHIELD ON"
+        : "🛡️ SHIELD OFF"
+    );
+
+}
+
+
+function adminChangeWeapon(){
+
+    weaponIndex++;
+
+
+    if(
+        weaponIndex >=
+        weapons.length
+    ){
+
+        weaponIndex = 0;
+
+    }
+
+
+    updateHUD();
+
+
+    showEvent(
+        "🔫 " +
+        weapons[weaponIndex].name
+    );
+
+}
+
+
+/* =====================================================
+   PLAYER MOVEMENT
+===================================================== */
+
+function updatePlayer(dt){
+
+    let dx = 0;
+
+    let dy = 0;
+
+
+    if(keys.KeyW)
+        dy--;
+
+    if(keys.KeyS)
+        dy++;
+
+    if(keys.KeyA)
+        dx--;
+
+    if(keys.KeyD)
+        dx++;
+
+
+    if(dx || dy){
+
+        const length =
+            Math.hypot(
+                dx,
+                dy
+            );
+
+        dx /= length;
+
+        dy /= length;
+
+    }
+
+
+    let speed = 320;
+
+
+    if(
+        currentEvent ===
+        "SLOW"
+    ){
+
+        speed = 170;
+
+    }
+
+
+    if(lagEnabled){
+
+        speed = 250;
+
+    }
+
+
+    playerX +=
+        dx *
+        speed *
+        dt;
+
+
+    playerY +=
+        dy *
+        speed *
+        dt;
+
+
+    playerX =
+        Math.max(
+            5,
+            Math.min(
+                innerWidth - 53,
+                playerX
+            )
+        );
+
+
+    playerY =
+        Math.max(
+            65,
+            Math.min(
+                innerHeight - 53,
+                playerY
+            )
+        );
+
+
+    player.style.left =
+        playerX + "px";
+
+
+    player.style.top =
+        playerY + "px";
+
+}
+
+
+/* =====================================================
+   GUN
+===================================================== */
+
+function updateGun(){
+
+    const cx =
+        playerX + 24;
+
+    const cy =
+        playerY + 24;
+
+
+    const angle =
+        Math.atan2(
+            mouseY - cy,
+            mouseX - cx
+        );
+
+
+    gun.style.transform =
+        `translateY(-50%) rotate(${angle}rad)`;
+
+}
+
+
+/* =====================================================
+   SHOOT
+===================================================== */
+
+function shoot(dt){
+
+    shootTimer -= dt;
+
+
+    if(!mouseDown)
+        return;
+
+
+    if(shootTimer > 0)
+        return;
+
+
+    const weapon =
+        weapons[weaponIndex];
+
+
+    shootTimer =
+        weapon.delay;
+
+
+    const cx =
+        playerX + 24;
+
+    const cy =
+        playerY + 24;
+
+
+    const angle =
+        Math.atan2(
+            mouseY - cy,
+            mouseX - cx
+        );
+
+
+    const bullet = {
+
+        x:
+            cx +
+            Math.cos(angle) *
+            32,
+
+        y:
+            cy +
+            Math.sin(angle) *
+            32,
+
+        vx:
+            Math.cos(angle) *
+            weapon.speed,
+
+        vy:
+            Math.sin(angle) *
+            weapon.speed,
+
+        life:1.2,
+
+        damage:
+            weapon.damage,
+
+        element:
+            document.createElement(
+                "div"
+            )
+
+    };
+
+
+    bullet.element.className =
+        "bullet";
+
+
+    game.appendChild(
+        bullet.element
+    );
+
+
+    bullets.push(
+        bullet
+    );
+
+}
+
+
+/* =====================================================
+   BULLET MOVEMENT
+===================================================== */
+
+function updateBullets(dt){
+
+    for(
+        let i =
+            bullets.length - 1;
+
+        i >= 0;
+
+        i--
+    ){
+
+        const bullet =
+            bullets[i];
+
+
+        bullet.x +=
+            bullet.vx *
+            dt;
+
+
+        bullet.y +=
+            bullet.vy *
+            dt;
+
+
+        bullet.life -= dt;
+
+
+        bullet.element.style.left =
+            bullet.x + "px";
+
+
+        bullet.element.style.top =
+            bullet.y + "px";
+
+
+        if(
+            bullet.life <= 0 ||
+
+            bullet.x < -50 ||
+
+            bullet.x >
+                innerWidth + 50 ||
+
+            bullet.y < -50 ||
+
+            bullet.y >
+                innerHeight + 50
+        ){
+
+            bullet.element.remove();
+
+            bullets.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   SPAWN ENEMY
+===================================================== */
+
+function spawnEnemy(){
+
+    if(!running)
+        return;
+
+
+    const element =
+        document.createElement(
+            "div"
+        );
+
+
+    element.className =
+        "enemy";
+
+
+    const random =
+        Math.random();
+
+
+    let size = 40;
+
+    let speed =
+        65 +
+        wave * 7;
+
+
+    if(random < .15){
+
+        element.classList.add(
+            "big"
+        );
+
+        size = 60;
+
+        speed =
+            35 +
+            wave * 4;
+
+    }
+
+    else if(random < .35){
+
+        element.classList.add(
+            "fast"
+        );
+
+        speed =
+            130 +
+            wave * 10;
+
+    }
+
+
+    let x;
+
+    let y;
+
+
+    const side =
+        Math.floor(
+            Math.random() * 4
+        );
+
+
+    if(side === 0){
+
+        x = -70;
+
+        y =
+            Math.random() *
+            innerHeight;
+
+    }
+
+    else if(side === 1){
+
+        x =
+            innerWidth + 70;
+
+        y =
+            Math.random() *
+            innerHeight;
+
+    }
+
+    else if(side === 2){
+
+        x =
+            Math.random() *
+            innerWidth;
+
+        y = -70;
+
+    }
+
+    else{
+
+        x =
+            Math.random() *
+            innerWidth;
+
+        y =
+            innerHeight + 70;
+
+    }
+
+
+    element.style.left =
+        x + "px";
+
+
+    element.style.top =
+        y + "px";
+
+
+    game.appendChild(
+        element
+    );
+
+
+    enemies.push({
+
+        x:x,
+
+        y:y,
+
+        size:size,
+
+        speed:speed,
+
+        element:element
+
+    });
+
+
+    waveSpawned++;
+
+}
+
+
+/* =====================================================
+   ENEMY MOVEMENT
+===================================================== */
+
+function updateEnemies(dt){
+
+    for(
+        let i =
+            enemies.length - 1;
+
+        i >= 0;
+
+        i--
+    ){
+
+        const enemy =
+            enemies[i];
+
+
+        const targetX =
+            playerX + 24;
+
+        const targetY =
+            playerY + 24;
+
+
+        const enemyCenterX =
+            enemy.x +
+            enemy.size / 2;
+
+        const enemyCenterY =
+            enemy.y +
+            enemy.size / 2;
+
+
+        let dx =
+            targetX -
+            enemyCenterX;
+
+        let dy =
+            targetY -
+            enemyCenterY;
+
+
+        const distance =
+            Math.hypot(
+                dx,
+                dy
+            );
+
+
+        if(distance > 0){
+
+            dx /= distance;
+
+            dy /= distance;
+
+
+            let speed =
+                enemy.speed;
+
+
+            if(
+                currentEvent ===
+                "SLOW"
+            ){
+
+                speed *= .6;
+
+            }
+
+
+            if(
+                currentEvent ===
+                "CHAOS"
+            ){
+
+                dx +=
+                    (Math.random()-.5)
+                    * .5;
+
+                dy +=
+                    (Math.random()-.5)
+                    * .5;
+
+
+                const len =
+                    Math.hypot(
+                        dx,
+                        dy
+                    ) || 1;
+
+
+                dx /= len;
+
+                dy /= len;
+
+            }
+
+
+            enemy.x +=
+                dx *
+                speed *
+                dt;
+
+
+            enemy.y +=
+                dy *
+                speed *
+                dt;
+
+        }
+
+
+        /*
+           TELEPORT GLITCH
+        */
+
+        if(
+            teleportEnabled &&
+            Math.random() < .0025
+        ){
+
+            teleportEnemy(
+                enemy
+            );
+
+        }
+
+
+        enemy.element.style.left =
+            enemy.x + "px";
+
+
+        enemy.element.style.top =
+            enemy.y + "px";
+
+
+        /*
+           ENEMY HITS PLAYER
+        */
+
+        if(
+            distance <
+            42 +
+            enemy.size / 2
+        ){
+
+            damagePlayer(
+
+                enemy.element
+                    .classList
+                    .contains("big")
+
+                ? 30
+                : 15
+
+            );
+
+
+            removeEnemy(i);
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   TELEPORT
+===================================================== */
+
+function teleportEnemy(enemy){
+
+    if(!enemy)
+        return;
+
+
+    enemy.x =
+        Math.random() *
+        Math.max(
+            1,
+            innerWidth
+        );
+
+
+    enemy.y =
+        80 +
+        Math.random() *
+        Math.max(
+            1,
+            innerHeight - 100
+        );
+
+
+    enemy.element.style.left =
+        enemy.x + "px";
+
+
+    enemy.element.style.top =
+        enemy.y + "px";
+
+
+    triggerPlayerGlitch();
+
+}
+
+
+/* =====================================================
+   COLLISIONS
+===================================================== */
+
+/*
+   IMPORTANT FIX:
+
+   We NEVER mutate the bullets array and then
+   continue using the deleted bullet.
+
+   We also save the enemy element before deleting it.
+
+   This completely avoids the old first-kill crash.
+*/
+
+function checkCollisions(){
+
+    for(
+        let bulletIndex =
+            bullets.length - 1;
+
+        bulletIndex >= 0;
+
+        bulletIndex--
+    ){
+
+        const bullet =
+            bullets[bulletIndex];
+
+
+        if(!bullet)
+            continue;
+
+
+        let bulletRemoved =
+            false;
+
+
+        for(
+            let enemyIndex =
+                enemies.length - 1;
+
+            enemyIndex >= 0;
+
+            enemyIndex--
+        ){
+
+            const enemy =
+                enemies[enemyIndex];
+
+
+            if(!enemy)
+                continue;
+
+
+            const centerX =
+                enemy.x +
+                enemy.size / 2;
+
+
+            const centerY =
+                enemy.y +
+                enemy.size / 2;
+
+
+            const dx =
+                bullet.x -
+                centerX;
+
+
+            const dy =
+                bullet.y -
+                centerY;
+
+
+            const distance =
+                Math.hypot(
+                    dx,
+                    dy
+                );
+
+
+            if(
+                distance <
+                enemy.size / 2 + 7
+            ){
+
+                /*
+                   Read class BEFORE removing enemy.
+                */
+
+                const isBig =
+                    enemy.element
+                    .classList
+                    .contains("big");
+
+
+                const isFast =
+                    enemy.element
+                    .classList
+                    .contains("fast");
+
+
+                /*
+                   EFFECT
+                */
+
+                createHit(
+                    centerX,
+                    centerY
+                );
+
+
+                /*
+                   REMOVE BULLET
+                */
+
+                if(
+                    bullet.element
+                ){
+
+                    bullet.element.remove();
+
+                }
+
+
+                bullets.splice(
+                    bulletIndex,
+                    1
+                );
+
+
+                bulletRemoved =
+                    true;
+
+
+                /*
+                   REMOVE ENEMY
+                */
+
+                removeEnemy(
+                    enemyIndex
+                );
+
+
+                /*
+                   SCORE
+                */
+
+                if(isBig){
+
+                    score += 30;
+
+                }
+                else if(isFast){
+
+                    score += 20;
+
+                }
+                else{
+
+                    score += 10;
+
+                }
+
+
+                updateHUD();
+
+
+                /*
+                   ONE BULLET = ONE HIT.
+                   Stop collision loop immediately.
+                */
+
+                break;
+
+            }
+
+        }
+
+
+        if(
+            bulletRemoved
+        ){
+
+            continue;
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   REMOVE ENEMY
+===================================================== */
+
+function removeEnemy(index){
+
+    if(
+        index < 0 ||
+        index >= enemies.length
+    ){
+
+        return;
+
+    }
+
+
+    const enemy =
+        enemies[index];
+
+
+    if(
+        enemy &&
+        enemy.element
+    ){
+
+        enemy.element.remove();
+
+    }
+
+
+    enemies.splice(
+        index,
+        1
+    );
+
+}
+
+
+/* =====================================================
+   CLEAR ENEMIES
+===================================================== */
+
+function clearEnemies(){
+
+    for(
+        let i =
+            enemies.length - 1;
+
+        i >= 0;
+
+        i--
+    ){
+
+        if(
+            enemies[i] &&
+            enemies[i].element
+        ){
+
+            enemies[i].element.remove();
+
+        }
+
+    }
+
+
+    enemies.length = 0;
+
+    waveSpawned = 0;
+
+}
+
+
+/* =====================================================
+   DAMAGE PLAYER
+===================================================== */
+
+function damagePlayer(amount){
+
+    if(shield)
+        return;
+
+
+    hp -= amount;
+
+
+    hp =
+        Math.max(
+            0,
+            hp
+        );
+
+
+    triggerPlayerGlitch();
+
+
+    updateHUD();
+
+
+    if(
+        hp <= 0
+    ){
+
+        endGame();
+
+    }
+
+}
+
+
+/* =====================================================
+   PLAYER GLITCH
+===================================================== */
+
+function triggerPlayerGlitch(){
+
+    player.classList.remove(
+        "glitch"
+    );
+
+
+    /*
+       Force animation restart.
+    */
+
+    void player.offsetWidth;
+
+
+    player.classList.add(
+        "glitch"
+    );
+
+
+    setTimeout(
+        function(){
+
+            player.classList.remove(
+                "glitch"
+            );
+
+        },
+        180
+    );
+
+}
+
+
+/* =====================================================
+   HIT EFFECT
+===================================================== */
+
+function createHit(x,y){
+
+    const element =
+        document.createElement(
+            "div"
+        );
+
+
+    element.className =
+        "hit";
+
+
+    element.style.left =
+        x + "px";
+
+
+    element.style.top =
+        y + "px";
+
+
+    game.appendChild(
+        element
+    );
+
+
+    setTimeout(
+        function(){
+
+            if(element){
+
+                element.remove();
+
+            }
+
+        },
+        300
+    );
+
+}
+
+
+/* =====================================================
+   EVENT TEXT
+===================================================== */
+
+function showEvent(text){
+
+    eventText.textContent =
+        text;
+
+
+    eventText.classList.add(
+        "show"
+    );
+
+
+    setTimeout(
+        function(){
+
+            eventText.classList.remove(
+                "show"
+            );
+
+        },
+        1500
+    );
+
+}
+
+
+/* =====================================================
+   GLITCH EVENT
+===================================================== */
+
+function triggerGlitchEvent(){
+
+    const events = [
+
+        "RAPID",
+
+        "SLOW",
+
+        "CHAOS",
+
+        "SHIELD"
+
+    ];
+
+
+    currentEvent =
+        events[
+            Math.floor(
+                Math.random() *
+                events.length
+            )
+        ];
+
+
+    const names = {
+
+        RAPID:
+            "⚡ RAPID FIRE!",
+
+        SLOW:
+            "🐌 SLOW MOTION!",
+
+        CHAOS:
+            "🌀 CHAOS MODE!",
+
+        SHIELD:
+            "🛡️ GLITCH SHIELD!"
+
+    };
+
+
+    showEvent(
+        names[currentEvent]
+    );
+
+
+    setTimeout(
+        function(){
+
+            currentEvent =
+                null;
+
+        },
+        8000
+    );
+
+}
+
+
+/* =====================================================
+   WAVE SYSTEM
+===================================================== */
+
+function updateWave(){
+
+    const target =
+        5 +
+        wave * 2;
+
+
+    if(
+        waveSpawned >= target &&
+        enemies.length === 0
+    ){
+
+        wave++;
+
+
+        waveSpawned = 0;
+
+
+        spawnTimer = 0;
+
+
+        waveText.textContent =
+            wave;
+
+
+        showEvent(
+            "🌊 WAVE " + wave
+        );
+
+
+        if(
+            wave % 3 === 0
+        ){
+
+            triggerGlitchEvent();
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   HUD
+===================================================== */
+
+function updateHUD(){
+
+    hpText.textContent =
+        hp;
+
+
+    scoreText.textContent =
+        score;
+
+
+    waveText.textContent =
+        wave;
+
+
+    weaponText.textContent =
+        weapons[
+            weaponIndex
+        ].name;
+
+}
+
+
+/* =====================================================
+   GAME OVER
+===================================================== */
+
+function endGame(){
+
+    running = false;
+
+    mouseDown = false;
+
+    keys = {};
+
+
+    clearObjects();
+
+
+    finalText.innerHTML =
+        `
+        Score:
+        <b>${score}</b>
+        <br>
+        Wave:
+        <b>${wave}</b>
+        `;
+
+    if(window.GameHub)
+        GameHub.reportScore("glitch-arena", score);
+
+    gameOver.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+/* =====================================================
+   CLEAR EVERYTHING
+===================================================== */
+
+function clearObjects(){
+
+    for(
+        let i =
+            enemies.length - 1;
+
+        i >= 0;
+
+        i--
+    ){
+
+        if(
+            enemies[i] &&
+            enemies[i].element
+        ){
+
+            enemies[i].element.remove();
+
+        }
+
+    }
+
+
+    for(
+        let i =
+            bullets.length - 1;
+
+        i >= 0;
+
+        i--
+    ){
+
+        if(
+            bullets[i] &&
+            bullets[i].element
+        ){
+
+            bullets[i].element.remove();
+
+        }
+
+    }
+
+
+    document
+        .querySelectorAll(
+            ".glitchLine"
+        )
+        .forEach(
+            function(element){
+
+                element.remove();
+
+            }
+        );
+
+
+    enemies.length = 0;
+
+    bullets.length = 0;
+
+    waveSpawned = 0;
+
+}
+
+
+/* =====================================================
+   GLITCH LINES
+===================================================== */
+
+function createGlitchLine(){
+
+    if(
+        !running ||
+        !glitchEnabled
+    ){
+
+        return;
+
+    }
+
+
+    const line =
+        document.createElement(
+            "div"
+        );
+
+
+    line.className =
+        "glitchLine";
+
+
+    line.style.top =
+        Math.random() *
+        innerHeight +
+        "px";
+
+
+    line.style.left =
+        Math.random() *
+        innerWidth +
+        "px";
+
+
+    line.style.width =
+        30 +
+        Math.random() *
+        200 +
+        "px";
+
+
+    game.appendChild(
+        line
+    );
+
+
+    setTimeout(
+        function(){
+
+            line.remove();
+
+        },
+        150 +
+        Math.random() *
+        500
+    );
+
+}
+
+
+/* =====================================================
+   MAIN LOOP
+===================================================== */
+
+function loop(time){
+
+    if(!running)
+        return;
+
+
+    let dt =
+        (time - lastTime) /
+        1000;
+
+
+    lastTime =
+        time;
+
+
+    dt =
+        Math.min(
+            dt,
+            .03
+        );
+
+
+    /*
+       FAKE LAG
+
+       Important:
+       We NEVER stop the animation loop.
+       We only modify dt.
+    */
+
+    if(
+        lagEnabled &&
+        Math.random() < .08
+    ){
+
+        dt *= .35;
+
+
+        game.classList.add(
+            "lag"
+        );
+
+
+        setTimeout(
+            function(){
+
+                game.classList.remove(
+                    "lag"
+                );
+
+            },
+            120
+        );
+
+    }
+
+
+    updatePlayer(dt);
+
+    updateGun();
+
+    shoot(dt);
+
+    updateBullets(dt);
+
+    updateEnemies(dt);
+
+    checkCollisions();
+
+
+    /* SPAWN */
+
+    spawnTimer += dt;
+
+
+    const spawnDelay =
+        Math.max(
+            .25,
+            1 -
+            wave * .035
+        );
+
+
+    const target =
+        5 +
+        wave * 2;
+
+
+    if(
+        waveSpawned < target &&
+        spawnTimer >= spawnDelay
+    ){
+
+        spawnTimer = 0;
+
+        spawnEnemy();
+
+    }
+
+
+    updateWave();
+
+
+    /* GLITCH LINES */
+
+    eventTimer += dt;
+
+
+    if(
+        eventTimer >= 1.2
+    ){
+
+        eventTimer = 0;
+
+
+        if(
+            glitchEnabled &&
+            Math.random() < .35
+        ){
+
+            createGlitchLine();
+
+        }
+
+    }
+
+
+    /*
+       THE LOOP ALWAYS CONTINUES.
+    */
+
+    requestAnimationFrame(
+        loop
+    );
+
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+document
+    .getElementById(
+        "startButton"
+    )
+    .addEventListener(
+        "click",
+        startGame
+    );
+
+
+document
+    .getElementById(
+        "restartButton"
+    )
+    .addEventListener(
+        "click",
+        startGame
+    );
+
+
+document
+    .getElementById(
+        "exitStart"
+    )
+    .addEventListener(
+        "click",
+        exitToHub
+    );
+
+
+document
+    .getElementById(
+        "exitGame"
+    )
+    .addEventListener(
+        "click",
+        exitToHub
+    );
+
+
+/* =====================================================
+   ADMIN BUTTONS
+===================================================== */
+
+document
+    .getElementById(
+        "adminHeal"
+    )
+    .addEventListener(
+        "click",
+        adminHeal
+    );
+
+
+document
+    .getElementById(
+        "adminScore"
+    )
+    .addEventListener(
+        "click",
+        adminAddScore
+    );
+
+
+document
+    .getElementById(
+        "adminWave"
+    )
+    .addEventListener(
+        "click",
+        adminNextWave
+    );
+
+
+document
+    .getElementById(
+        "adminSpawn"
+    )
+    .addEventListener(
+        "click",
+        adminSpawn
+    );
+
+
+document
+    .getElementById(
+        "adminClear"
+    )
+    .addEventListener(
+        "click",
+        adminClear
+    );
+
+
+document
+    .getElementById(
+        "adminGlitch"
+    )
+    .addEventListener(
+        "click",
+        adminGlitch
+    );
+
+
+document
+    .getElementById(
+        "adminTeleport"
+    )
+    .addEventListener(
+        "click",
+        adminTeleport
+    );
+
+
+document
+    .getElementById(
+        "adminLag"
+    )
+    .addEventListener(
+        "click",
+        adminLag
+    );
+
+
+document
+    .getElementById(
+        "adminShield"
+    )
+    .addEventListener(
+        "click",
+        adminShieldToggle
+    );
+
+
+document
+    .getElementById(
+        "adminWeapon"
+    )
+    .addEventListener(
+        "click",
+        adminChangeWeapon
+    );
+
+
+/* =====================================================
+   INITIAL
+===================================================== */
+
+player.style.left =
+    playerX + "px";
+
+
+player.style.top =
+    playerY + "px";
+
+
+updateHUD();
+
+updateGun();
+
+
+/* =====================================================
+   RESIZE
+===================================================== */
+
+window.addEventListener(
+    "resize",
+    function(){
+
+        playerX =
+            Math.max(
+                5,
+                Math.min(
+                    innerWidth - 53,
+                    playerX
+                )
+            );
+
+
+        playerY =
+            Math.max(
+                65,
+                Math.min(
+                    innerHeight - 53,
+                    playerY
+                )
+            );
+
+    }
+);
+
+</script>
+
+</body>
+</html>

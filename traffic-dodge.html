@@ -1,0 +1,2357 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traffic Dodge</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#05070d;
+    color:white;
+}
+
+button{
+    font-family:inherit;
+}
+
+#game{
+    position:relative;
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+    background:#11151c;
+}
+
+/* =========================
+   ROAD
+========================= */
+
+#road{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+
+    background:
+        linear-gradient(
+            90deg,
+            #151a21 0%,
+            #252a31 8%,
+            #252a31 92%,
+            #151a21 100%
+        );
+}
+
+.roadLine{
+    position:absolute;
+    width:8px;
+    height:90px;
+    left:50%;
+    transform:translateX(-50%);
+    background:white;
+    opacity:.85;
+    border-radius:5px;
+}
+
+#road::before,
+#road::after{
+    content:"";
+    position:absolute;
+    top:0;
+    bottom:0;
+    width:7px;
+    background:#f5d84d;
+    box-shadow:0 0 12px #f5d84d55;
+}
+
+#road::before{
+    left:8%;
+}
+
+#road::after{
+    right:8%;
+}
+
+/* =========================
+   HUD
+========================= */
+
+#hud{
+    position:absolute;
+    z-index:100;
+
+    top:15px;
+    left:50%;
+    transform:translateX(-50%);
+
+    display:flex;
+    align-items:center;
+    gap:20px;
+
+    padding:13px 18px;
+
+    border:1px solid #ffffff20;
+    border-radius:16px;
+
+    background:#070b14e8;
+    backdrop-filter:blur(15px);
+
+    box-shadow:0 15px 45px #0008;
+}
+
+.stat{
+    color:#7e8aa5;
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:1px;
+}
+
+.stat span{
+    color:white;
+    margin-left:4px;
+}
+
+#score{
+    color:#5eeaff;
+}
+
+#coins{
+    color:#ffd34f;
+}
+
+#speed{
+    color:#70ff9a;
+}
+
+.hudExit{
+    padding:8px 13px;
+
+    border:1px solid #ff526d;
+    border-radius:9px;
+
+    background:#351421;
+    color:#ff7185;
+
+    font-weight:900;
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.hudExit:hover{
+    background:#ff3157;
+    color:white;
+    transform:translateY(-2px);
+}
+
+/* =========================
+   PLAYER
+========================= */
+
+#player{
+    position:absolute;
+    z-index:50;
+
+    width:55px;
+    height:90px;
+
+    border-radius:13px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #354dff,
+            #6d7cff,
+            #2735c9
+        );
+
+    border:2px solid #aeb7ff;
+
+    box-shadow:
+        0 0 15px #405aff,
+        0 0 35px #405aff88;
+}
+
+#player.redCar{
+    background:
+        linear-gradient(
+            90deg,
+            #ff304e,
+            #ff7888
+        );
+}
+
+#player.greenCar{
+    background:
+        linear-gradient(
+            90deg,
+            #13c976,
+            #75ffbd
+        );
+}
+
+#player.goldCar{
+    background:
+        linear-gradient(
+            90deg,
+            #d38d00,
+            #ffe36c
+        );
+}
+
+#player::before{
+    content:"";
+
+    position:absolute;
+    left:8px;
+    top:10px;
+
+    width:35px;
+    height:25px;
+
+    border-radius:7px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #c9f8ff,
+            #456b87
+        );
+
+    border:1px solid #ffffff88;
+}
+
+#player::after{
+    content:"";
+
+    position:absolute;
+    left:7px;
+    bottom:10px;
+
+    width:41px;
+    height:12px;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            #ff4f66,
+            #ff1838 55%,
+            transparent 70%
+        );
+
+    box-shadow:0 0 10px #ff1838;
+}
+
+/* wheels */
+
+.wheel{
+    position:absolute;
+
+    width:9px;
+    height:22px;
+
+    background:#090b0f;
+    border-radius:5px;
+
+    z-index:3;
+}
+
+.wheel.left{
+    left:-6px;
+}
+
+.wheel.right{
+    right:-6px;
+}
+
+.wheel.top{
+    top:17px;
+}
+
+.wheel.bottom{
+    bottom:17px;
+}
+
+/* =========================
+   OBSTACLES
+========================= */
+
+.obstacle{
+    position:absolute;
+
+    width:58px;
+    height:88px;
+
+    border-radius:12px;
+
+    z-index:40;
+
+    box-shadow:0 8px 20px #0009;
+}
+
+.obstacle.red{
+    background:
+        linear-gradient(
+            135deg,
+            #ff4058,
+            #99162c
+        );
+
+    border:2px solid #ff8290;
+
+    box-shadow:0 0 18px #ff304555;
+}
+
+.obstacle.yellow{
+    background:
+        linear-gradient(
+            135deg,
+            #ffd83d,
+            #b37b00
+        );
+
+    border:2px solid #ffe98b;
+}
+
+.obstacle.green{
+    background:
+        linear-gradient(
+            135deg,
+            #43ff9a,
+            #087f50
+        );
+
+    border:2px solid #86ffc1;
+}
+
+.obstacle::before{
+    content:"";
+
+    position:absolute;
+
+    left:8px;
+    right:8px;
+    top:15px;
+
+    height:18px;
+
+    border-radius:5px;
+
+    background:#9ee9ff66;
+    border:1px solid #ffffff55;
+}
+
+/* =========================
+   COINS
+========================= */
+
+.coin{
+    position:absolute;
+
+    width:28px;
+    height:28px;
+
+    border-radius:50%;
+
+    z-index:45;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #fff7a3,
+            #ffd43b 35%,
+            #d89400 75%
+        );
+
+    border:2px solid #fff0a0;
+
+    box-shadow:
+        0 0 10px #ffd43b,
+        0 0 25px #ffb30099;
+
+    animation:coinSpin .55s linear infinite;
+}
+
+.coin::after{
+    content:"$";
+
+    position:absolute;
+    inset:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:#9b6500;
+
+    font-size:15px;
+    font-weight:1000;
+}
+
+@keyframes coinSpin{
+    from{
+        transform:rotateY(0deg);
+    }
+
+    to{
+        transform:rotateY(360deg);
+    }
+}
+
+/* =========================
+   FLASH
+========================= */
+
+#flash{
+    position:absolute;
+    inset:0;
+
+    z-index:300;
+    pointer-events:none;
+
+    background:#ff1f3d;
+    opacity:0;
+}
+
+/* =========================
+   OVERLAYS
+========================= */
+
+.overlay{
+    position:absolute;
+    inset:0;
+
+    z-index:500;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    background:#02040adf;
+
+    backdrop-filter:blur(12px);
+}
+
+.hidden{
+    display:none !important;
+}
+
+.panel{
+    width:min(470px,92%);
+
+    padding:35px;
+
+    text-align:center;
+
+    border-radius:25px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #101827f5,
+            #070d18f5
+        );
+
+    border:1px solid #ffffff20;
+
+    box-shadow:0 30px 100px #000;
+}
+
+.panel h1{
+    font-size:38px;
+    margin-bottom:15px;
+}
+
+.panel p{
+    color:#8793aa;
+    line-height:1.7;
+    margin-bottom:20px;
+}
+
+.mainButton{
+    width:100%;
+
+    padding:14px;
+    margin-top:8px;
+
+    border:0;
+    border-radius:12px;
+
+    color:white;
+
+    font-weight:900;
+    font-size:15px;
+
+    cursor:pointer;
+
+    background:
+        linear-gradient(
+            90deg,
+            #465cff,
+            #1ddcff
+        );
+
+    box-shadow:0 0 25px #396bff55;
+
+    transition:.2s;
+}
+
+.mainButton:hover{
+    transform:translateY(-3px);
+}
+
+.secondary{
+    background:#161e2c;
+}
+
+.danger{
+    background:
+        linear-gradient(
+            90deg,
+            #ff3157,
+            #a91635
+        );
+}
+
+/* =========================
+   SHOP
+========================= */
+
+#shopPanel,
+#adminPanel{
+    display:none;
+}
+
+.shopGrid{
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:12px;
+
+    margin:20px 0;
+}
+
+.carOption{
+    padding:15px;
+
+    border:1px solid #ffffff18;
+    border-radius:14px;
+
+    background:#ffffff07;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.carOption:hover{
+    transform:translateY(-3px);
+    border-color:#ffffff40;
+}
+
+.carPreview{
+    width:38px;
+    height:60px;
+
+    margin:0 auto 10px;
+
+    border-radius:10px;
+}
+
+.carPreview.blue{
+    background:
+        linear-gradient(
+            90deg,
+            #3049ff,
+            #7d8aff
+        );
+}
+
+.carPreview.redCar{
+    background:
+        linear-gradient(
+            90deg,
+            #ff304e,
+            #ff7888
+        );
+}
+
+.carPreview.greenCar{
+    background:
+        linear-gradient(
+            90deg,
+            #13c976,
+            #75ffbd
+        );
+}
+
+.carPreview.goldCar{
+    background:
+        linear-gradient(
+            90deg,
+            #d38d00,
+            #ffe36c
+        );
+}
+
+.carOption strong{
+    display:block;
+    margin-bottom:5px;
+}
+
+.carOption small{
+    color:#7c88a1;
+}
+
+/* =========================
+   ADMIN
+========================= */
+
+.adminInput{
+    width:100%;
+
+    padding:12px;
+
+    margin-top:8px;
+
+    border-radius:10px;
+
+    border:1px solid #ffffff18;
+
+    background:#050912;
+
+    color:white;
+
+    outline:none;
+}
+
+.adminInput:focus{
+    border-color:#5eeaff;
+}
+
+.adminStatus{
+    margin-top:15px;
+
+    min-height:20px;
+
+    color:#62eaff;
+
+    font-size:13px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:650px){
+
+    #hud{
+        gap:8px;
+        padding:9px 10px;
+    }
+
+    .stat{
+        font-size:9px;
+    }
+
+    .hudExit{
+        padding:7px 9px;
+        font-size:11px;
+    }
+
+}
+
+.hudShop{
+    padding:8px 14px;
+
+    border:1px solid #ffd34f;
+    border-radius:9px;
+
+    background:#352b0d;
+    color:#ffd34f;
+
+    font-weight:900;
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.hudShop:hover{
+    background:#ffd34f;
+    color:#111;
+    transform:translateY(-2px);
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+    <div id="road"></div>
+
+<div id="hud">
+
+    <div class="stat">
+        SCORE:
+        <span id="score">0</span>
+    </div>
+
+    <div class="stat">
+        🪙:
+        <span id="coins">0</span>
+    </div>
+
+    <div class="stat">
+        SPEED:
+        <span id="speed">1.0x</span>
+    </div>
+
+    <button id="shopButton" class="hudShop">
+        🛒 SHOP
+    </button>
+
+    <button id="hudExit" class="hudExit">
+        🚪 EXIT
+    </button>
+
+</div>
+
+
+    <!-- PLAYER -->
+
+    <div id="player">
+
+        <div class="wheel left top"></div>
+        <div class="wheel right top"></div>
+        <div class="wheel left bottom"></div>
+        <div class="wheel right bottom"></div>
+
+    </div>
+
+
+    <div id="flash"></div>
+
+
+    <!-- START -->
+
+    <div
+        id="startScreen"
+        class="overlay"
+    >
+
+        <div class="panel">
+
+            <h1>
+                🚗 TRAFFIC DODGE
+            </h1>
+
+            <p>
+                Уворачивайся от машин,
+                собирай монеты и продержись
+                как можно дольше!
+                <br><br>
+
+                <b>WASD / стрелки</b> — движение<br>
+                <b>P</b> — магазин<br>
+                <b>F2</b> — админка<br>
+                <b>ESC</b> — EXIT
+            </p>
+
+            <button
+                type="button"
+                class="mainButton"
+                id="startButton"
+            >
+                ▶ НАЧАТЬ
+            </button>
+
+            <button
+                type="button"
+                class="mainButton secondary"
+                id="exitStart"
+            >
+                🚪 EXIT
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- GAME OVER -->
+
+    <div
+        id="gameOver"
+        class="overlay hidden"
+    >
+
+        <div class="panel">
+
+            <h1>
+                💥 АВАРИЯ
+            </h1>
+
+            <p id="finalText"></p>
+
+            <button
+                type="button"
+                class="mainButton"
+                id="restartButton"
+            >
+                🔄 ЕЩЁ РАЗ
+            </button>
+
+            <button
+                type="button"
+                class="mainButton secondary"
+                id="menuButton"
+            >
+                🏠 В МЕНЮ
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- SHOP -->
+
+    <div
+        id="shopPanel"
+        class="overlay"
+    >
+
+        <div class="panel">
+
+            <h1>
+                🛒 МАГАЗИН
+            </h1>
+
+            <p>
+                Твои монеты:
+                <b id="shopCoins">0</b> 🪙
+            </p>
+
+            <div class="shopGrid">
+
+                <div
+                    class="carOption"
+                    data-color="blue"
+                    data-price="0"
+                >
+                    <div class="carPreview blue"></div>
+                    <strong>Blue</strong>
+                    <small>Бесплатно</small>
+                </div>
+
+                <div
+                    class="carOption"
+                    data-color="redCar"
+                    data-price="100"
+                >
+                    <div class="carPreview redCar"></div>
+                    <strong>Red</strong>
+                    <small>100 🪙</small>
+                </div>
+
+                <div
+                    class="carOption"
+                    data-color="greenCar"
+                    data-price="250"
+                >
+                    <div class="carPreview greenCar"></div>
+                    <strong>Neon</strong>
+                    <small>250 🪙</small>
+                </div>
+
+                <div
+                    class="carOption"
+                    data-color="goldCar"
+                    data-price="500"
+                >
+                    <div class="carPreview goldCar"></div>
+                    <strong>Gold</strong>
+                    <small>500 🪙</small>
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                class="mainButton secondary"
+                id="closeShop"
+            >
+                ✕ ЗАКРЫТЬ
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ADMIN -->
+
+    <div
+        id="adminPanel"
+        class="overlay"
+    >
+
+        <div class="panel">
+
+            <h1>
+                👑 ADMIN PANEL
+            </h1>
+
+            <p>
+                Только для владельца игры.
+            </p>
+
+            <input
+                id="adminPassword"
+                class="adminInput"
+                type="password"
+                placeholder="Пароль"
+            >
+
+            <button
+                type="button"
+                class="mainButton"
+                id="adminLogin"
+            >
+                🔐 ВОЙТИ
+            </button>
+
+            <div
+                id="adminControls"
+                class="hidden"
+            >
+
+                <input
+                    id="coinAmount"
+                    class="adminInput"
+                    type="number"
+                    placeholder="Количество монет"
+                >
+
+                <button
+                    type="button"
+                    class="mainButton"
+                    id="addCoins"
+                >
+                    🪙 ДОБАВИТЬ МОНЕТЫ
+                </button>
+
+                <button
+                    type="button"
+                    class="mainButton"
+                    id="removeCoins"
+                >
+                    🗑 УБРАТЬ МОНЕТЫ
+                </button>
+
+                <button
+                    type="button"
+                    class="mainButton"
+                    id="maxScore"
+                >
+                    💯 MAX SCORE
+                </button>
+
+                <button
+                    type="button"
+                    class="mainButton"
+                    id="godMode"
+                >
+                    🛡 GOD MODE
+                </button>
+
+                <button
+                    type="button"
+                    class="mainButton danger"
+                    id="resetData"
+                >
+                    ⚠ СБРОСИТЬ ДАННЫЕ
+                </button>
+
+            </div>
+
+            <div
+                class="adminStatus"
+                id="adminStatus"
+            ></div>
+
+            <button
+                type="button"
+                class="mainButton secondary"
+                id="closeAdmin"
+            >
+                ✕ ЗАКРЫТЬ
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="gamehub-bridge.js"></script>
+<script>
+"use strict";
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const game = document.getElementById("game");
+const road = document.getElementById("road");
+const player = document.getElementById("player");
+
+const scoreText = document.getElementById("score");
+const coinsText = document.getElementById("coins");
+const speedText = document.getElementById("speed");
+
+const startScreen = document.getElementById("startScreen");
+const gameOver = document.getElementById("gameOver");
+const finalText = document.getElementById("finalText");
+
+const flash = document.getElementById("flash");
+
+const shopPanel = document.getElementById("shopPanel");
+const shopCoins = document.getElementById("shopCoins");
+
+const adminPanel = document.getElementById("adminPanel");
+const adminPassword = document.getElementById("adminPassword");
+const adminControls = document.getElementById("adminControls");
+const adminStatus = document.getElementById("adminStatus");
+const coinAmount = document.getElementById("coinAmount");
+
+
+/* =========================
+   GAME STATE
+========================= */
+
+let running = false;
+
+let keys = {};
+
+let playerX = innerWidth / 2 - 27;
+let playerY = innerHeight - 140;
+
+let score = 0;
+
+let coins = Number(
+    localStorage.getItem("trafficCoins") || 0
+);
+
+let speedMultiplier = 1;
+
+let obstacleTimer = 0;
+let coinTimer = 0;
+
+let lastTime = 0;
+
+let obstacles = [];
+let coinObjects = [];
+
+let roadOffset = 0;
+
+let godMode = false;
+
+let currentCar =
+    localStorage.getItem("trafficCar") || "blue";
+
+
+/* =========================
+   ADMIN PASSWORD
+========================= */
+
+const ADMIN_PASSWORD = "1234";
+
+
+/* =========================
+   CAR
+========================= */
+
+function setCarColor(color){
+
+    player.classList.remove(
+        "redCar",
+        "greenCar",
+        "goldCar"
+    );
+
+    if(color !== "blue"){
+        player.classList.add(color);
+    }
+
+    currentCar = color;
+
+    localStorage.setItem(
+        "trafficCar",
+        color
+    );
+}
+
+setCarColor(currentCar);
+
+
+/* =========================
+   HUD
+========================= */
+
+function updateHUD(){
+
+    scoreText.textContent = score;
+    coinsText.textContent = coins;
+
+    shopCoins.textContent = coins;
+
+    speedText.textContent =
+        speedMultiplier.toFixed(1) + "x";
+
+    localStorage.setItem(
+        "trafficCoins",
+        String(coins)
+    );
+}
+
+
+/* =========================
+   CLEAR OBJECTS
+========================= */
+
+function clearObjects(){
+
+    for(const obstacle of obstacles){
+        if(obstacle.element){
+            obstacle.element.remove();
+        }
+    }
+
+    for(const coin of coinObjects){
+        if(coin.element){
+            coin.element.remove();
+        }
+    }
+
+    obstacles = [];
+    coinObjects = [];
+}
+
+
+/* =========================
+   CLOSE PANELS
+========================= */
+
+function closeShop(){
+    shopPanel.style.display = "none";
+}
+
+function closeAdmin(){
+    adminPanel.style.display = "none";
+}
+
+
+function exitGame(){
+
+    running = false;
+
+    keys = {};
+
+    clearObjects();
+
+    shopPanel.style.display = "none";
+    adminPanel.style.display = "none";
+
+    gameOver.classList.add("hidden");
+    startScreen.classList.add("hidden");
+
+    player.style.display = "none";
+
+    /*
+       Реальный выход из игры.
+       Браузер не даст закрыть обычную вкладку
+       через window.close(), поэтому переходим
+       на пустую страницу.
+    */
+
+    window.location.replace("index.html");
+}
+
+
+/* =========================
+   KEYBOARD
+========================= */
+
+document.addEventListener(
+    "keydown",
+    function(e){
+
+        if(e.code === "Escape"){
+
+            e.preventDefault();
+
+            if(shopPanel.style.display === "flex"){
+                closeShop();
+                return;
+            }
+
+            if(adminPanel.style.display === "flex"){
+                closeAdmin();
+                return;
+            }
+
+            exitGame();
+
+            return;
+        }
+
+
+        if(e.code === "KeyP"){
+
+            e.preventDefault();
+
+            if(running){
+                openShop();
+            }
+
+            return;
+        }
+
+
+        if(e.code === "F2"){
+
+            e.preventDefault();
+
+            openAdmin();
+
+            return;
+        }
+
+
+        keys[e.code] = true;
+    }
+);
+
+
+document.addEventListener(
+    "keyup",
+    function(e){
+        keys[e.code] = false;
+    }
+);
+
+
+/* =========================
+   PLAYER
+========================= */
+
+function updatePlayer(dt){
+
+    let dx = 0;
+    let dy = 0;
+
+
+    if(keys.KeyA || keys.ArrowLeft){
+        dx--;
+    }
+
+    if(keys.KeyD || keys.ArrowRight){
+        dx++;
+    }
+
+    if(keys.KeyW || keys.ArrowUp){
+        dy--;
+    }
+
+    if(keys.KeyS || keys.ArrowDown){
+        dy++;
+    }
+
+
+    if(dx !== 0 || dy !== 0){
+
+        const length = Math.hypot(dx,dy);
+
+        dx /= length;
+        dy /= length;
+    }
+
+
+    const playerSpeed = 380;
+
+
+    playerX +=
+        dx *
+        playerSpeed *
+        dt;
+
+    playerY +=
+        dy *
+        playerSpeed *
+        dt;
+
+
+    const minX =
+        innerWidth * .08 + 8;
+
+    const maxX =
+        innerWidth * .92 - 63;
+
+
+    playerX = Math.max(
+        minX,
+        Math.min(maxX,playerX)
+    );
+
+
+    playerY = Math.max(
+        90,
+        Math.min(
+            innerHeight - 105,
+            playerY
+        )
+    );
+
+
+    player.style.left =
+        playerX + "px";
+
+    player.style.top =
+        playerY + "px";
+}
+
+
+/* =========================
+   ROAD
+========================= */
+
+function updateRoad(dt){
+
+    roadOffset +=
+        350 *
+        speedMultiplier *
+        dt;
+
+
+    if(roadOffset >= 180){
+        roadOffset = 0;
+    }
+
+
+    road.innerHTML = "";
+
+
+    for(
+        let i = -2;
+        i < 10;
+        i++
+    ){
+
+        const line =
+            document.createElement("div");
+
+        line.className =
+            "roadLine";
+
+        line.style.top =
+            (
+                i * 180 +
+                roadOffset -
+                180
+            ) + "px";
+
+        road.appendChild(line);
+    }
+}
+
+
+/* =========================
+   OBSTACLE
+========================= */
+
+function spawnObstacle(){
+
+    const obstacle =
+        document.createElement("div");
+
+    obstacle.className =
+        "obstacle";
+
+
+    const colors = [
+        "red",
+        "yellow",
+        "green"
+    ];
+
+
+    obstacle.classList.add(
+        colors[
+            Math.floor(
+                Math.random() *
+                colors.length
+            )
+        ]
+    );
+
+
+    const roadLeft =
+        innerWidth * .08 + 10;
+
+    const roadRight =
+        innerWidth * .92 - 68;
+
+
+    const x =
+        roadLeft +
+        Math.random() *
+        (
+            roadRight -
+            roadLeft
+        );
+
+
+    const y = -110;
+
+
+    obstacle.style.left =
+        x + "px";
+
+    obstacle.style.top =
+        y + "px";
+
+
+    game.appendChild(obstacle);
+
+
+    obstacles.push({
+
+        element: obstacle,
+
+        x: x,
+
+        y: y,
+
+        speed:
+            280 +
+            Math.random() * 130
+    });
+}
+
+
+/* =========================
+   COIN
+========================= */
+
+function spawnCoin(){
+
+    const coin =
+        document.createElement("div");
+
+    coin.className =
+        "coin";
+
+
+    const roadLeft =
+        innerWidth * .08 + 15;
+
+    const roadRight =
+        innerWidth * .92 - 43;
+
+
+    const x =
+        roadLeft +
+        Math.random() *
+        (
+            roadRight -
+            roadLeft
+        );
+
+
+    const y = -50;
+
+
+    coin.style.left =
+        x + "px";
+
+    coin.style.top =
+        y + "px";
+
+
+    game.appendChild(coin);
+
+
+    coinObjects.push({
+
+        element: coin,
+
+        x: x,
+
+        y: y,
+
+        speed:
+            280 +
+            Math.random() * 70
+    });
+}
+
+
+/* =========================
+   COLLISION
+========================= */
+
+function isColliding(
+    ax,
+    ay,
+    aw,
+    ah,
+    bx,
+    by,
+    bw,
+    bh
+){
+
+    return (
+        ax < bx + bw &&
+        ax + aw > bx &&
+        ay < by + bh &&
+        ay + ah > by
+    );
+}
+
+
+/* =========================
+   OBSTACLES UPDATE
+========================= */
+
+function updateObstacles(dt){
+
+    for(
+        let i = obstacles.length - 1;
+        i >= 0;
+        i--
+    ){
+
+        const obstacle =
+            obstacles[i];
+
+
+        obstacle.y +=
+            obstacle.speed *
+            speedMultiplier *
+            dt;
+
+
+        obstacle.element.style.top =
+            obstacle.y + "px";
+
+
+        if(
+            !godMode &&
+            isColliding(
+                playerX,
+                playerY,
+                55,
+                90,
+                obstacle.x,
+                obstacle.y,
+                58,
+                88
+            )
+        ){
+
+            crash();
+
+            return;
+        }
+
+
+        if(
+            obstacle.y >
+            innerHeight + 120
+        ){
+
+            obstacle.element.remove();
+
+            obstacles.splice(i,1);
+
+            score +=
+                Math.floor(
+                    10 *
+                    speedMultiplier
+                );
+        }
+    }
+}
+
+
+/* =========================
+   COINS UPDATE
+========================= */
+
+function updateCoins(dt){
+
+    for(
+        let i = coinObjects.length - 1;
+        i >= 0;
+        i--
+    ){
+
+        const coin =
+            coinObjects[i];
+
+
+        coin.y +=
+            coin.speed *
+            speedMultiplier *
+            dt;
+
+
+        coin.element.style.top =
+            coin.y + "px";
+
+
+        if(
+            isColliding(
+                playerX,
+                playerY,
+                55,
+                90,
+                coin.x,
+                coin.y,
+                28,
+                28
+            )
+        ){
+
+            coins++;
+            score += 50;
+
+            coin.element.remove();
+
+            coinObjects.splice(i,1);
+
+            updateHUD();
+
+            continue;
+        }
+
+
+        if(
+            coin.y >
+            innerHeight + 60
+        ){
+
+            coin.element.remove();
+
+            coinObjects.splice(i,1);
+        }
+    }
+}
+
+
+/* =========================
+   CRASH
+========================= */
+
+function crash(){
+
+    if(!running || godMode){
+        return;
+    }
+
+
+    running = false;
+
+
+    flash.style.opacity =
+        "0.75";
+
+
+    setTimeout(
+        function(){
+
+            flash.style.opacity =
+                "0";
+
+        },
+        150
+    );
+
+
+    clearObjects();
+
+
+    finalText.innerHTML =
+        `
+        💥 Ты врезался!<br><br>
+        🏆 Счёт:
+        <b>${score}</b><br>
+        🪙 Монеты:
+        <b>${coins}</b>
+        `;
+
+    if(window.GameHub)
+        GameHub.reportScore("traffic-dodge", score);
+
+    gameOver.classList.remove(
+        "hidden"
+    );
+}
+
+
+/* =========================
+   START GAME
+========================= */
+
+function startGame(){
+
+    console.log("ИГРА ЗАПУЩЕНА");
+
+    clearObjects();
+
+    running = true;
+
+    score = 0;
+
+    speedMultiplier = 1;
+
+    obstacleTimer = 0;
+
+    coinTimer = 0;
+
+
+    playerX =
+        innerWidth / 2 - 27;
+
+    playerY =
+        innerHeight - 140;
+
+
+    startScreen.classList.add(
+        "hidden"
+    );
+
+    gameOver.classList.add(
+        "hidden"
+    );
+
+    shopPanel.style.display =
+        "none";
+
+    adminPanel.style.display =
+        "none";
+
+
+    player.style.display =
+        "block";
+
+
+    player.style.left =
+        playerX + "px";
+
+    player.style.top =
+        playerY + "px";
+
+
+    updateHUD();
+
+
+    lastTime =
+        performance.now();
+
+
+    requestAnimationFrame(
+        gameLoop
+    );
+}
+
+
+/* =========================
+   GAME LOOP
+========================= */
+
+function gameLoop(time){
+
+    if(!running){
+        return;
+    }
+
+
+    let dt =
+        (time - lastTime) /
+        1000;
+
+
+    lastTime = time;
+
+
+    dt =
+        Math.min(dt,.05);
+
+
+    speedMultiplier +=
+        dt * .035;
+
+
+    speedMultiplier =
+        Math.min(
+            4,
+            speedMultiplier
+        );
+
+
+    obstacleTimer += dt;
+
+    coinTimer += dt;
+
+
+    const obstacleDelay =
+        Math.max(
+            .28,
+            1.05 -
+            speedMultiplier * .13
+        );
+
+
+    if(
+        obstacleTimer >=
+        obstacleDelay
+    ){
+
+        obstacleTimer = 0;
+
+        spawnObstacle();
+    }
+
+
+    if(
+        coinTimer >= .8
+    ){
+
+        coinTimer = 0;
+
+        spawnCoin();
+    }
+
+
+    updatePlayer(dt);
+
+    updateRoad(dt);
+
+    updateObstacles(dt);
+
+    updateCoins(dt);
+
+    updateHUD();
+
+
+    requestAnimationFrame(
+        gameLoop
+    );
+}
+
+
+/* =========================
+   SHOP
+========================= */
+
+function openShop(){
+
+    if(!running){
+        return;
+    }
+
+
+    shopPanel.style.display =
+        "flex";
+
+
+    shopCoins.textContent =
+        coins;
+}
+
+
+function closeShop(){
+
+    shopPanel.style.display =
+        "none";
+}
+
+
+document.getElementById(
+    "closeShop"
+).addEventListener(
+    "click",
+    closeShop
+);
+
+
+document.querySelectorAll(
+    ".carOption"
+).forEach(
+    function(option){
+
+        option.addEventListener(
+            "click",
+            function(){
+
+                const color =
+                    option.dataset.color;
+
+                const price =
+                    Number(
+                        option.dataset.price
+                    );
+
+
+                const ownedKey =
+                    "car_" + color;
+
+
+                const owned =
+                    localStorage.getItem(
+                        ownedKey
+                    );
+
+
+                if(
+                    price > 0 &&
+                    owned !== "true"
+                ){
+
+                    if(coins < price){
+
+                        alert(
+                            "Недостаточно монет! 🪙"
+                        );
+
+                        return;
+                    }
+
+
+                    coins -= price;
+
+
+                    localStorage.setItem(
+                        ownedKey,
+                        "true"
+                    );
+                }
+
+
+                setCarColor(color);
+
+                updateHUD();
+
+                closeShop();
+            }
+        );
+    }
+);
+
+
+/* =========================
+   ADMIN
+========================= */
+
+function openAdmin(){
+
+    adminPanel.style.display =
+        "flex";
+
+
+    adminPassword.value =
+        "";
+
+
+    adminControls.classList.add(
+        "hidden"
+    );
+
+
+    adminStatus.textContent =
+        "";
+
+
+    setTimeout(
+        function(){
+
+            adminPassword.focus();
+
+        },
+        50
+    );
+}
+
+
+function closeAdmin(){
+
+    adminPanel.style.display =
+        "none";
+}
+
+
+document.getElementById(
+    "closeAdmin"
+).addEventListener(
+    "click",
+    closeAdmin
+);
+
+
+/* LOGIN */
+
+document.getElementById(
+    "adminLogin"
+).addEventListener(
+    "click",
+    function(){
+
+        if(
+            adminPassword.value ===
+            ADMIN_PASSWORD
+        ){
+
+            adminControls.classList.remove(
+                "hidden"
+            );
+
+            adminStatus.textContent =
+                "✅ Админка открыта.";
+
+        }else{
+
+            adminStatus.textContent =
+                "❌ Неверный пароль.";
+        }
+    }
+);
+
+
+/* ENTER = LOGIN */
+
+adminPassword.addEventListener(
+    "keydown",
+    function(e){
+
+        if(e.key === "Enter"){
+
+            e.preventDefault();
+
+            document.getElementById(
+                "adminLogin"
+            ).click();
+        }
+    }
+);
+
+
+/* ADD COINS */
+
+document.getElementById(
+    "addCoins"
+).addEventListener(
+    "click",
+    function(){
+
+        const amount =
+            Number(
+                coinAmount.value
+            );
+
+
+        if(
+            !Number.isFinite(amount) ||
+            amount <= 0
+        ){
+
+            adminStatus.textContent =
+                "❌ Введи нормальное число.";
+
+            return;
+        }
+
+
+        coins +=
+            Math.floor(amount);
+
+
+        updateHUD();
+
+
+        adminStatus.textContent =
+            "✅ Монеты добавлены.";
+    }
+);
+
+
+/* REMOVE COINS */
+
+document.getElementById(
+    "removeCoins"
+).addEventListener(
+    "click",
+    function(){
+
+        const amount =
+            Number(
+                coinAmount.value
+            );
+
+
+        if(
+            !Number.isFinite(amount) ||
+            amount <= 0
+        ){
+
+            adminStatus.textContent =
+                "❌ Введи нормальное число.";
+
+            return;
+        }
+
+
+        coins =
+            Math.max(
+                0,
+                coins -
+                Math.floor(amount)
+            );
+
+
+        updateHUD();
+
+
+        adminStatus.textContent =
+            "🗑 Монеты убраны.";
+    }
+);
+
+
+/* MAX SCORE */
+
+document.getElementById(
+    "maxScore"
+).addEventListener(
+    "click",
+    function(){
+
+        score = 999999999;
+
+        updateHUD();
+
+        adminStatus.textContent =
+            "💯 SCORE установлен на максимум.";
+    }
+);
+
+
+/* GOD MODE */
+
+document.getElementById(
+    "godMode"
+).addEventListener(
+    "click",
+    function(){
+
+        godMode = !godMode;
+
+
+        adminStatus.textContent =
+            godMode
+                ? "🛡 GOD MODE: ON"
+                : "🛡 GOD MODE: OFF";
+    }
+);
+
+
+/* RESET */
+
+document.getElementById(
+    "resetData"
+).addEventListener(
+    "click",
+    function(){
+
+        const confirmed =
+            confirm(
+                "Точно сбросить все данные?"
+            );
+
+
+        if(!confirmed){
+            return;
+        }
+
+
+        localStorage.clear();
+
+
+        coins = 0;
+
+        currentCar = "blue";
+
+        setCarColor("blue");
+
+        updateHUD();
+
+
+        adminStatus.textContent =
+            "⚠ Данные сброшены.";
+    }
+);
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+/*
+   ВАЖНО:
+   Кнопка НАЧАТЬ теперь
+   подключается напрямую.
+*/
+
+document.getElementById(
+    "startButton"
+).addEventListener(
+    "click",
+    function(e){
+
+        e.preventDefault();
+
+        e.stopPropagation();
+
+        startGame();
+    }
+);
+
+
+/* RESTART */
+
+document.getElementById(
+    "restartButton"
+).addEventListener(
+    "click",
+    function(){
+
+        startGame();
+    }
+);
+
+
+/* MENU */
+
+document.getElementById(
+    "menuButton"
+).addEventListener(
+    "click",
+    function(){
+
+        exitGame();
+    }
+);
+
+
+/* START EXIT */
+
+document.getElementById(
+    "exitStart"
+).addEventListener(
+    "click",
+    function(){
+
+        exitGame();
+    }
+);
+
+
+/* HUD EXIT */
+
+document.getElementById(
+    "hudExit"
+).addEventListener(
+    "click",
+    function(){
+
+        exitGame();
+    }
+);
+
+
+/* =========================
+   RESIZE
+========================= */
+
+window.addEventListener(
+    "resize",
+    function(){
+
+        if(!running){
+            return;
+        }
+
+
+        playerX =
+            Math.max(
+                innerWidth * .08,
+                Math.min(
+                    innerWidth * .92 - 63,
+                    playerX
+                )
+            );
+
+
+        playerY =
+            Math.min(
+                innerHeight - 105,
+                playerY
+            );
+    }
+);
+
+
+/* =========================
+   INITIAL
+========================= */
+
+updateHUD();
+
+player.style.display =
+    "none";
+
+console.log(
+    "Traffic Dodge загружен. Пароль админки: 1234"
+);
+
+const shopButton =
+    document.getElementById("shopButton");
+
+shopButton.onclick = () => {
+    openShop();
+};
+</script>
+
+</body>
+</html>

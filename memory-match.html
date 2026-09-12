@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Hub - Memory Match</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#050711;
+    color:white;
+    user-select:none;
+}
+
+#game{
+    position:relative;
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+    background:radial-gradient(circle at 50% 50%, #17234b 0%, #080b18 45%, #03040b 100%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:22px;
+}
+
+#game::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+        linear-gradient(#ffffff08 1px, transparent 1px),
+        linear-gradient(90deg, #ffffff08 1px, transparent 1px);
+    background-size:45px 45px;
+}
+
+#hud{
+    position:absolute;
+    z-index:50;
+    top:18px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:25px;
+    padding:12px 20px;
+    border:1px solid #ffffff1c;
+    border-radius:14px;
+    background:#080c1ce8;
+    backdrop-filter:blur(12px);
+    font-weight:900;
+}
+
+.stat{
+    color:#8e99b8;
+}
+
+.stat span{
+    color:white;
+}
+
+#moves{ color:#ffe45c; }
+#timer{ color:#42eaff; }
+#pairs{ color:#47e0a7; }
+
+#exitTop{
+    position:absolute;
+    z-index:50;
+    top:18px;
+    left:18px;
+    padding:10px 16px;
+    border-radius:10px;
+    border:1px solid #ffffff1c;
+    background:#080c1ce8;
+    color:#8e99b8;
+    text-decoration:none;
+    font-weight:900;
+    font-size:13px;
+}
+
+#exitTop:hover{
+    color:white;
+    border-color:#42eaff88;
+}
+
+#board{
+    position:relative;
+    z-index:5;
+    display:grid;
+    grid-template-columns:repeat(4, 80px);
+    grid-gap:12px;
+}
+
+.card{
+    width:80px;
+    height:80px;
+    border-radius:12px;
+    cursor:pointer;
+    position:relative;
+    transform-style:preserve-3d;
+    transition:transform .3s;
+}
+
+.card.flipped,.card.matched{
+    transform:rotateY(180deg);
+}
+
+.cardFace{
+    position:absolute;
+    inset:0;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:34px;
+    backface-visibility:hidden;
+}
+
+.cardBack{
+    background:linear-gradient(135deg,#172039,#0a0e1f);
+    border:1px solid #42eaff44;
+}
+
+.cardFront{
+    background:linear-gradient(135deg,#1c2a52,#0d1226);
+    border:1px solid #47e0a755;
+    transform:rotateY(180deg);
+}
+
+.card.matched .cardFront{
+    border-color:#ffd43b88;
+    box-shadow:0 0 18px #ffd43b44;
+}
+
+.overlay{
+    position:absolute;
+    inset:0;
+    z-index:80;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#03040bcc;
+    backdrop-filter:blur(6px);
+}
+
+.overlay.hidden{
+    display:none;
+}
+
+.panel{
+    background:#0d0f20;
+    border:1px solid #42eaff44;
+    border-radius:18px;
+    padding:34px 40px;
+    text-align:center;
+    max-width:340px;
+    box-shadow:0 0 60px #000c;
+}
+
+.panel h1{
+    font-size:26px;
+    margin-bottom:10px;
+}
+
+.panel p{
+    color:#a9b3d4;
+    margin-bottom:18px;
+    line-height:1.6;
+}
+
+.panel button{
+    display:block;
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:10px;
+    border:none;
+    font-weight:900;
+    font-size:14px;
+    cursor:pointer;
+}
+
+#startButton, #restartButton{
+    background:linear-gradient(90deg,#42eaff,#5c55ff);
+    color:#020212;
+}
+
+.exit{
+    background:#ffffff10;
+    color:#c8d0ee;
+    border:1px solid #ffffff22 !important;
+}
+
+.exit:hover{
+    background:#ffffff1c;
+}
+</style>
+</head>
+<body>
+
+<div id="game">
+
+    <a href="index.html" id="exitTop">🚪 EXIT</a>
+
+    <div id="hud">
+        <div class="stat">ХОДЫ <span id="moves">0</span></div>
+        <div class="stat">ВРЕМЯ <span id="timer">0</span>с</div>
+        <div class="stat">ПАРЫ <span id="pairs">0/8</span></div>
+    </div>
+
+    <div id="board"></div>
+
+    <!-- START -->
+
+    <div class="overlay" id="startScreen">
+
+        <div class="panel">
+
+            <h1>🧠 MEMORY MATCH</h1>
+
+            <p>
+                Найди все 8 пар одинаковых карточек.
+                Чем меньше ходов и времени — тем выше счёт.
+            </p>
+
+            <button id="startButton">▶ ИГРАТЬ</button>
+
+            <button class="exit" id="exitStart">🚪 EXIT</button>
+
+        </div>
+
+    </div>
+
+    <!-- GAME OVER -->
+
+    <div class="overlay hidden" id="gameOver">
+
+        <div class="panel">
+
+            <h1>🏆 ПОБЕДА!</h1>
+
+            <p id="finalText"></p>
+
+            <button id="restartButton">🔄 ЕЩЁ РАЗ</button>
+
+            <button class="exit" id="exitGame">🚪 EXIT</button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="gamehub-bridge.js"></script>
+<script>
+"use strict";
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const board = document.getElementById("board");
+const movesEl = document.getElementById("moves");
+const timerEl = document.getElementById("timer");
+const pairsEl = document.getElementById("pairs");
+
+const startScreen = document.getElementById("startScreen");
+const gameOverScreen = document.getElementById("gameOver");
+const finalText = document.getElementById("finalText");
+
+
+/* =========================
+   CONFIG
+========================= */
+
+const ICONS = ["🚀","🐉","👾","🔥","⚡","🌟","🦄","💎"];
+
+let cards, flipped, matchedCount, moves, seconds, timerInterval, locked;
+
+
+/* =========================
+   INIT
+========================= */
+
+function shuffle(arr){
+
+    for(let i = arr.length - 1; i > 0; i--){
+
+        const j = Math.floor(Math.random() * (i+1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+
+    }
+
+    return arr;
+
+}
+
+function buildBoard(){
+
+    const deck =
+        shuffle(
+            [...ICONS, ...ICONS]
+                .map((icon, i) => ({ icon, id:i }))
+        );
+
+    board.innerHTML = "";
+
+    cards = deck.map(d => {
+
+        const el = document.createElement("div");
+        el.className = "card";
+        el.dataset.icon = d.icon;
+
+        el.innerHTML = `
+            <div class="cardFace cardBack">❓</div>
+            <div class="cardFace cardFront">${d.icon}</div>
+        `;
+
+        el.onclick = () => flipCard(el);
+
+        board.appendChild(el);
+
+        return el;
+
+    });
+
+    flipped = [];
+    matchedCount = 0;
+    moves = 0;
+    seconds = 0;
+    locked = false;
+
+    movesEl.textContent = moves;
+    timerEl.textContent = seconds;
+    pairsEl.textContent = `0/${ICONS.length}`;
+
+    clearInterval(timerInterval);
+
+    timerInterval = setInterval(() => {
+
+        seconds++;
+        timerEl.textContent = seconds;
+
+    }, 1000);
+
+}
+
+
+/* =========================
+   FLIP LOGIC
+========================= */
+
+function flipCard(el){
+
+    if(locked)
+        return;
+
+    if(el.classList.contains("flipped") || el.classList.contains("matched"))
+        return;
+
+    if(flipped.length === 2)
+        return;
+
+    el.classList.add("flipped");
+    flipped.push(el);
+
+    if(flipped.length === 2){
+
+        moves++;
+        movesEl.textContent = moves;
+
+        const [a, b] = flipped;
+
+        if(a.dataset.icon === b.dataset.icon){
+
+            a.classList.add("matched");
+            b.classList.add("matched");
+
+            matchedCount++;
+            pairsEl.textContent = `${matchedCount}/${ICONS.length}`;
+
+            flipped = [];
+
+            if(matchedCount === ICONS.length)
+                endGame();
+
+        }else{
+
+            locked = true;
+
+            setTimeout(() => {
+
+                a.classList.remove("flipped");
+                b.classList.remove("flipped");
+
+                flipped = [];
+                locked = false;
+
+            }, 700);
+
+        }
+
+    }
+
+}
+
+
+/* =========================
+   GAME OVER
+========================= */
+
+function endGame(){
+
+    clearInterval(timerInterval);
+
+    const score =
+        Math.max(
+            0,
+            1000 - (moves * 10) - (seconds * 5)
+        );
+
+    finalText.innerHTML =
+        `Ходы: <b>${moves}</b><br>
+        Время: <b>${seconds}с</b><br>
+        Счёт: <b>${score}</b>`;
+
+    if(window.GameHub)
+        GameHub.reportScore("memory-match", score);
+
+    setTimeout(() => {
+
+        gameOverScreen.classList.remove("hidden");
+
+    }, 500);
+
+}
+
+
+/* =========================
+   START / RESTART
+========================= */
+
+function startRun(){
+
+    startScreen.classList.add("hidden");
+    gameOverScreen.classList.add("hidden");
+
+    buildBoard();
+
+}
+
+document.getElementById("startButton").onclick = startRun;
+document.getElementById("restartButton").onclick = startRun;
+
+document.getElementById("exitStart").onclick =
+    () => location.href = "index.html";
+
+document.getElementById("exitGame").onclick =
+    () => location.href = "index.html";
+
+</script>
+</body>
+</html>

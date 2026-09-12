@@ -1,0 +1,1595 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Hub - Shooter</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #050711;
+    color: white;
+    user-select: none;
+}
+
+#game {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+
+    background:
+        radial-gradient(circle at 50% 50%, #17234b 0%, #080b18 45%, #03040b 100%);
+}
+
+#game::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background-image:
+        linear-gradient(#ffffff08 1px, transparent 1px),
+        linear-gradient(90deg, #ffffff08 1px, transparent 1px);
+
+    background-size: 45px 45px;
+}
+
+/* HUD */
+
+#hud {
+    position: absolute;
+    z-index: 50;
+
+    top: 18px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    display: flex;
+    gap: 25px;
+
+    padding: 12px 20px;
+
+    border: 1px solid #ffffff1c;
+    border-radius: 14px;
+
+    background: #080c1ce8;
+    backdrop-filter: blur(12px);
+
+    font-weight: 900;
+}
+
+.stat {
+    color: #8e99b8;
+}
+
+.stat span {
+    color: white;
+}
+
+#hp {
+    color: #45eaff;
+}
+
+#score {
+    color: #ffe45c;
+}
+
+#wave {
+    color: #ff6d9b;
+}
+
+/* PLAYER */
+
+#player {
+    position: absolute;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #ffffff,
+            #62efff 12%,
+            #12bce7 42%,
+            #1764ff 100%
+        );
+
+    border: 3px solid #b9f9ff;
+
+    box-shadow:
+        0 0 12px #21eaff,
+        0 0 35px #168cff,
+        0 0 75px #168cff55;
+
+    z-index: 20;
+}
+
+#player::after {
+    content: "";
+
+    position: absolute;
+
+    width: 8px;
+    height: 8px;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    background: white;
+    border-radius: 50%;
+
+    box-shadow: 0 0 12px white;
+}
+
+/* GUN */
+
+#gun {
+    position: absolute;
+
+    width: 55px;
+    height: 12px;
+
+    left: 50%;
+    top: 50%;
+
+    transform-origin: 5px 50%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #e7faff,
+            #50dfff,
+            #6d5cff
+        );
+
+    border-radius: 7px;
+
+    border: 2px solid #d8fbff;
+
+    box-shadow:
+        0 0 10px #43eaff,
+        0 0 25px #5c55ff88;
+
+    z-index: 19;
+}
+
+#gun::after {
+    content: "";
+
+    position: absolute;
+
+    right: -5px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    width: 10px;
+    height: 16px;
+
+    border-radius: 4px;
+
+    background: #ffffff;
+
+    box-shadow: 0 0 12px #fff;
+}
+
+/* BULLET */
+
+.bullet {
+    position: absolute;
+
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+
+    background: #fff;
+
+    box-shadow:
+        0 0 8px #fff,
+        0 0 20px #42eaff,
+        0 0 35px #42eaff;
+
+    z-index: 15;
+}
+
+/* ENEMY */
+
+.enemy {
+    position: absolute;
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 9px;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #ffb1c6,
+            #ff376e 40%,
+            #a90039
+        );
+
+    border: 2px solid #ff9ab5;
+
+    box-shadow:
+        0 0 15px #ff326b,
+        0 0 35px #ff1f5c55;
+
+    z-index: 12;
+}
+
+.enemy::before,
+.enemy::after {
+    content: "";
+
+    position: absolute;
+
+    width: 7px;
+    height: 7px;
+
+    top: 10px;
+
+    background: #fff;
+
+    border-radius: 50%;
+
+    box-shadow: 0 0 7px white;
+}
+
+.enemy::before {
+    left: 8px;
+}
+
+.enemy::after {
+    right: 8px;
+}
+
+/* HIT */
+
+.hit {
+    position: absolute;
+
+    width: 10px;
+    height: 10px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    pointer-events: none;
+
+    animation: hit .25s forwards;
+
+    z-index: 30;
+}
+
+@keyframes hit {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(6);
+        opacity: 0;
+    }
+}
+
+/* OVERLAY */
+
+.overlay {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 100;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #02030add;
+
+    backdrop-filter: blur(8px);
+}
+
+/* PANEL */
+
+.panel {
+    width: min(470px, 90%);
+
+    padding: 35px;
+
+    text-align: center;
+
+    border-radius: 24px;
+
+    border: 1px solid #ffffff20;
+
+    background: #0b1020f5;
+
+    box-shadow:
+        0 25px 90px #000,
+        0 0 50px #3f50ff22;
+}
+
+.panel h1 {
+    font-size: 38px;
+
+    margin-bottom: 15px;
+}
+
+.panel p {
+    color: #8e98b5;
+
+    line-height: 1.7;
+
+    margin-bottom: 20px;
+}
+
+/* BUTTON */
+
+button {
+    width: 100%;
+
+    padding: 14px;
+
+    margin-top: 9px;
+
+    border: 0;
+
+    border-radius: 11px;
+
+    color: white;
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+    background:
+        linear-gradient(
+            90deg,
+            #7657ff,
+            #20dfff
+        );
+
+    box-shadow: 0 0 25px #4678ff55;
+
+    transition: .2s;
+}
+
+button:hover {
+    transform: translateY(-3px);
+
+    box-shadow: 0 0 35px #4678ff88;
+}
+
+.exit {
+    background: #151a2b;
+
+    border: 1px solid #ffffff1c;
+
+    box-shadow: none;
+}
+
+@media(max-width:600px) {
+    #hud {
+        gap: 10px;
+        padding: 9px 12px;
+        font-size: 11px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+    <!-- HUD -->
+
+    <div id="hud">
+
+        <div class="stat">
+            HP:
+            <span id="hp">100</span>
+        </div>
+
+        <div class="stat">
+            SCORE:
+            <span id="score">0</span>
+        </div>
+
+        <div class="stat">
+            WAVE:
+            <span id="wave">1</span>
+        </div>
+
+    </div>
+
+
+    <!-- PLAYER -->
+
+    <div id="player">
+        <div id="gun"></div>
+    </div>
+
+
+    <!-- START -->
+
+    <div class="overlay" id="startScreen">
+
+        <div class="panel">
+
+            <h1>🔵 SHOOTER</h1>
+
+            <p>
+                Move with <b>WASD</b>.<br>
+                Aim with your mouse.<br>
+                Hold <b>Left Mouse</b> to shoot.<br>
+                Survive as many waves as possible.<br><br>
+                Press <b>ESC</b> to exit.
+            </p>
+
+            <button id="startButton">
+                ▶ START GAME
+            </button>
+
+            <button class="exit" id="exitStart">
+                🚪 EXIT
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- GAME OVER -->
+
+    <div
+        class="overlay"
+        id="gameOver"
+        style="display:none;"
+    >
+
+        <div class="panel">
+
+            <h1>💀 GAME OVER</h1>
+
+            <p id="finalText"></p>
+
+            <button id="restartButton">
+                🔄 RESTART
+            </button>
+
+            <button
+                class="exit"
+                id="exitGame"
+            >
+                🚪 EXIT
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="gamehub-bridge.js"></script>
+<script>
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const game =
+    document.getElementById("game");
+
+const player =
+    document.getElementById("player");
+
+const gun =
+    document.getElementById("gun");
+
+const hpText =
+    document.getElementById("hp");
+
+const scoreText =
+    document.getElementById("score");
+
+const waveText =
+    document.getElementById("wave");
+
+const startScreen =
+    document.getElementById("startScreen");
+
+const gameOver =
+    document.getElementById("gameOver");
+
+const finalText =
+    document.getElementById("finalText");
+
+
+/* =========================
+   GAME STATE
+========================= */
+
+let running = false;
+
+let keys = {};
+
+let mouseX = innerWidth / 2;
+let mouseY = innerHeight / 2;
+
+let mouseDown = false;
+
+let lastTime = 0;
+
+let shootTimer = 0;
+
+let spawnTimer = 0;
+
+let enemies = [];
+let bullets = [];
+
+let score = 0;
+let hp = 100;
+let wave = 1;
+
+let playerX = 0;
+let playerY = 0;
+
+let waveSpawning = false;
+
+
+/* =========================
+   INPUT
+========================= */
+
+document.addEventListener("keydown", function(e) {
+
+    /* ESC */
+
+    if (
+        e.code === "Escape" ||
+        e.key === "Escape" ||
+        e.keyCode === 27
+    ) {
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        exitGame();
+
+        return;
+    }
+
+
+    keys[e.code] = true;
+
+
+    if (
+        [
+            "KeyW",
+            "KeyA",
+            "KeyS",
+            "KeyD"
+        ].includes(e.code)
+    ) {
+
+        e.preventDefault();
+
+    }
+
+});
+
+
+document.addEventListener("keyup", function(e) {
+
+    keys[e.code] = false;
+
+});
+
+
+game.addEventListener("mousemove", function(e) {
+
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+
+});
+
+
+game.addEventListener("mousedown", function(e) {
+
+    if (
+        e.button === 0 &&
+        running
+    ) {
+
+        mouseDown = true;
+
+    }
+
+});
+
+
+document.addEventListener("mouseup", function(e) {
+
+    if (e.button === 0) {
+
+        mouseDown = false;
+
+    }
+
+});
+
+
+/* =========================
+   START
+========================= */
+
+function startGame() {
+
+    clearGameObjects();
+
+    running = true;
+
+    mouseDown = false;
+
+    score = 0;
+
+    hp = 100;
+
+    wave = 1;
+
+    waveSpawning = false;
+
+    spawnTimer = 0;
+
+    shootTimer = 0;
+
+
+    playerX =
+        innerWidth / 2 - 24;
+
+    playerY =
+        innerHeight / 2 - 24;
+
+
+    startScreen.style.display =
+        "none";
+
+    gameOver.style.display =
+        "none";
+
+
+    player.style.display =
+        "block";
+
+
+    updateHUD();
+
+    lastTime =
+        performance.now();
+
+
+    spawnWave();
+
+
+    requestAnimationFrame(loop);
+
+}
+
+
+/* =========================
+   PLAYER
+========================= */
+
+function updatePlayer(dt) {
+
+    const speed = 320;
+
+    let dx = 0;
+    let dy = 0;
+
+
+    if (keys["KeyW"])
+        dy -= 1;
+
+    if (keys["KeyS"])
+        dy += 1;
+
+    if (keys["KeyA"])
+        dx -= 1;
+
+    if (keys["KeyD"])
+        dx += 1;
+
+
+    if (dx !== 0 || dy !== 0) {
+
+        const length =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+        dx /= length;
+        dy /= length;
+
+    }
+
+
+    playerX +=
+        dx * speed * dt;
+
+    playerY +=
+        dy * speed * dt;
+
+
+    /*
+       IMPORTANT:
+       Стена теперь НЕ убивает.
+       Игрок просто остаётся внутри экрана.
+    */
+
+    playerX =
+        Math.max(
+            5,
+            Math.min(
+                innerWidth - 53,
+                playerX
+            )
+        );
+
+
+    playerY =
+        Math.max(
+            65,
+            Math.min(
+                innerHeight - 53,
+                playerY
+            )
+        );
+
+
+    player.style.left =
+        playerX + "px";
+
+    player.style.top =
+        playerY + "px";
+
+}
+
+
+/* =========================
+   GUN
+========================= */
+
+function updateGun() {
+
+    const centerX =
+        playerX + 24;
+
+    const centerY =
+        playerY + 24;
+
+
+    const angle =
+        Math.atan2(
+            mouseY - centerY,
+            mouseX - centerX
+        );
+
+
+    gun.style.transform =
+        `translateY(-50%) rotate(${angle}rad)`;
+
+}
+
+
+/* =========================
+   SHOOT
+========================= */
+
+function shoot(dt) {
+
+    shootTimer -= dt;
+
+
+    if (!mouseDown)
+        return;
+
+
+    if (shootTimer > 0)
+        return;
+
+
+    shootTimer = 0.12;
+
+
+    const centerX =
+        playerX + 24;
+
+    const centerY =
+        playerY + 24;
+
+
+    const angle =
+        Math.atan2(
+            mouseY - centerY,
+            mouseX - centerX
+        );
+
+
+    const speed = 850;
+
+
+    const bullet = {
+
+        x:
+            centerX +
+            Math.cos(angle) * 30,
+
+        y:
+            centerY +
+            Math.sin(angle) * 30,
+
+        vx:
+            Math.cos(angle) *
+            speed,
+
+        vy:
+            Math.sin(angle) *
+            speed,
+
+        life: 1.2,
+
+        element:
+            document.createElement("div")
+
+    };
+
+
+    bullet.element.className =
+        "bullet";
+
+
+    game.appendChild(
+        bullet.element
+    );
+
+
+    bullets.push(bullet);
+
+}
+
+
+/* =========================
+   BULLETS
+========================= */
+
+function updateBullets(dt) {
+
+    for (
+        let i = bullets.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const b =
+            bullets[i];
+
+
+        b.x +=
+            b.vx * dt;
+
+        b.y +=
+            b.vy * dt;
+
+        b.life -= dt;
+
+
+        b.element.style.left =
+            b.x + "px";
+
+        b.element.style.top =
+            b.y + "px";
+
+
+        if (
+            b.life <= 0 ||
+            b.x < -30 ||
+            b.x > innerWidth + 30 ||
+            b.y < -30 ||
+            b.y > innerHeight + 30
+        ) {
+
+            b.element.remove();
+
+            bullets.splice(i, 1);
+
+        }
+
+    }
+
+}
+
+
+/* =========================
+   SPAWN WAVE
+========================= */
+
+function spawnWave() {
+
+    if (!running)
+        return;
+
+
+    waveSpawning = true;
+
+
+    const amount =
+        Math.min(
+            4 + wave * 2,
+            30
+        );
+
+
+    for (
+        let i = 0;
+        i < amount;
+        i++
+    ) {
+
+        setTimeout(
+            () => {
+
+                if (!running)
+                    return;
+
+                spawnEnemy();
+
+
+                if (
+                    i === amount - 1
+                ) {
+
+                    waveSpawning = false;
+
+                }
+
+            },
+            i * 250
+        );
+
+    }
+
+}
+
+
+/* =========================
+   SPAWN ENEMY
+========================= */
+
+function spawnEnemy() {
+
+    if (!running)
+        return;
+
+
+    const enemy =
+        document.createElement("div");
+
+    enemy.className =
+        "enemy";
+
+
+    let x;
+    let y;
+
+
+    const side =
+        Math.floor(
+            Math.random() * 4
+        );
+
+
+    if (side === 0) {
+
+        x = -50;
+
+        y =
+            Math.random() *
+            innerHeight;
+
+    }
+
+    else if (side === 1) {
+
+        x =
+            innerWidth + 50;
+
+        y =
+            Math.random() *
+            innerHeight;
+
+    }
+
+    else if (side === 2) {
+
+        x =
+            Math.random() *
+            innerWidth;
+
+        y = -50;
+
+    }
+
+    else {
+
+        x =
+            Math.random() *
+            innerWidth;
+
+        y =
+            innerHeight + 50;
+
+    }
+
+
+    game.appendChild(enemy);
+
+
+    enemies.push({
+
+        x,
+
+        y,
+
+        size: 38,
+
+        speed:
+            70 +
+            wave * 8,
+
+        element:
+            enemy
+
+    });
+
+}
+
+
+/* =========================
+   ENEMIES
+========================= */
+
+function updateEnemies(dt) {
+
+    for (
+        let i = enemies.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const e =
+            enemies[i];
+
+
+        const targetX =
+            playerX + 24;
+
+        const targetY =
+            playerY + 24;
+
+
+        const ex =
+            e.x +
+            e.size / 2;
+
+        const ey =
+            e.y +
+            e.size / 2;
+
+
+        const dx =
+            targetX - ex;
+
+        const dy =
+            targetY - ey;
+
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        if (distance > 0) {
+
+            e.x +=
+                (dx / distance) *
+                e.speed *
+                dt;
+
+            e.y +=
+                (dy / distance) *
+                e.speed *
+                dt;
+
+        }
+
+
+        e.element.style.left =
+            e.x + "px";
+
+        e.element.style.top =
+            e.y + "px";
+
+
+        if (
+            distance < 45
+        ) {
+
+            damagePlayer(20);
+
+            removeEnemy(i);
+
+        }
+
+    }
+
+}
+
+
+/* =========================
+   COLLISIONS
+========================= */
+
+function checkCollisions() {
+
+    for (
+        let i = bullets.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const b =
+            bullets[i];
+
+
+        for (
+            let j = enemies.length - 1;
+            j >= 0;
+            j--
+        ) {
+
+            const e =
+                enemies[j];
+
+
+            const dx =
+                b.x -
+                (e.x + 19);
+
+            const dy =
+                b.y -
+                (e.y + 19);
+
+
+            const distance =
+                Math.sqrt(
+                    dx * dx +
+                    dy * dy
+                );
+
+
+            if (
+                distance < 25
+            ) {
+
+                createHit(
+                    e.x + 19,
+                    e.y + 19
+                );
+
+
+                b.element.remove();
+
+                bullets.splice(i, 1);
+
+
+                removeEnemy(j);
+
+
+                score += 10;
+
+                updateHUD();
+
+                break;
+
+            }
+
+        }
+
+    }
+
+}
+
+
+/* =========================
+   REMOVE ENEMY
+========================= */
+
+function removeEnemy(index) {
+
+    const enemy =
+        enemies[index];
+
+
+    if (!enemy)
+        return;
+
+
+    enemy.element.remove();
+
+    enemies.splice(
+        index,
+        1
+    );
+
+}
+
+
+/* =========================
+   DAMAGE
+========================= */
+
+function damagePlayer(amount) {
+
+    if (!running)
+        return;
+
+
+    hp -= amount;
+
+    hp =
+        Math.max(
+            0,
+            hp
+        );
+
+
+    updateHUD();
+
+
+    if (hp <= 0) {
+
+        endGame();
+
+    }
+
+}
+
+
+/* =========================
+   HIT EFFECT
+========================= */
+
+function createHit(x, y) {
+
+    const hit =
+        document.createElement("div");
+
+
+    hit.className =
+        "hit";
+
+
+    hit.style.left =
+        x + "px";
+
+    hit.style.top =
+        y + "px";
+
+
+    game.appendChild(hit);
+
+
+    setTimeout(
+        () => hit.remove(),
+        250
+    );
+
+}
+
+
+/* =========================
+   WAVES
+========================= */
+
+function updateWave() {
+
+    /*
+       Только когда все враги
+       текущей волны уничтожены.
+    */
+
+    if (
+        running &&
+        !waveSpawning &&
+        enemies.length === 0
+    ) {
+
+        wave++;
+
+        waveText.textContent =
+            wave;
+
+
+        spawnWave();
+
+    }
+
+}
+
+
+/* =========================
+   HUD
+========================= */
+
+function updateHUD() {
+
+    hpText.textContent =
+        hp;
+
+    scoreText.textContent =
+        score;
+
+    waveText.textContent =
+        wave;
+
+}
+
+
+/* =========================
+   GAME OVER
+========================= */
+
+function endGame() {
+
+    if (!running)
+        return;
+
+
+    running = false;
+
+    mouseDown = false;
+
+
+    clearGameObjects();
+
+
+    finalText.innerHTML =
+        `Score: <b>${score}</b><br>
+         Reached wave: <b>${wave}</b>`;
+
+    if(window.GameHub)
+        GameHub.reportScore("shooter", score);
+
+    gameOver.style.display =
+        "flex";
+
+}
+
+
+/* =========================
+   CLEAR
+========================= */
+
+function clearGameObjects() {
+
+    enemies.forEach(
+        enemy => {
+
+            if (
+                enemy.element
+            ) {
+
+                enemy.element.remove();
+
+            }
+
+        }
+    );
+
+
+    bullets.forEach(
+        bullet => {
+
+            if (
+                bullet.element
+            ) {
+
+                bullet.element.remove();
+
+            }
+
+        }
+    );
+
+
+    enemies = [];
+
+    bullets = [];
+
+}
+
+
+/* =========================
+   EXIT
+========================= */
+
+function exitGame() {
+
+    running = false;
+
+    mouseDown = false;
+
+    keys = {};
+
+    clearGameObjects();
+
+
+    /*
+       Сначала пытаемся перейти
+       на Game Hub.
+    */
+
+    window.location.href =
+        "../index.html";
+
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+document.getElementById(
+    "startButton"
+).onclick =
+    startGame;
+
+
+document.getElementById(
+    "restartButton"
+).onclick =
+    startGame;
+
+
+document.getElementById(
+    "exitStart"
+).onclick =
+    exitGame;
+
+
+document.getElementById(
+    "exitGame"
+).onclick =
+    exitGame;
+
+
+/* =========================
+   RESIZE
+========================= */
+
+window.addEventListener(
+    "resize",
+    function() {
+
+        if (!running)
+            return;
+
+
+        playerX =
+            Math.max(
+                5,
+                Math.min(
+                    innerWidth - 53,
+                    playerX
+                )
+            );
+
+
+        playerY =
+            Math.max(
+                65,
+                Math.min(
+                    innerHeight - 53,
+                    playerY
+                )
+            );
+
+    }
+);
+
+
+/* =========================
+   MAIN LOOP
+========================= */
+
+function loop(time) {
+
+    if (!running)
+        return;
+
+
+    const dt =
+        Math.min(
+            (time - lastTime) / 1000,
+            0.03
+        );
+
+
+    lastTime =
+        time;
+
+
+    updatePlayer(dt);
+
+    updateGun();
+
+    shoot(dt);
+
+    updateBullets(dt);
+
+    updateEnemies(dt);
+
+    checkCollisions();
+
+    updateWave();
+
+
+    if (!running)
+        return;
+
+
+    requestAnimationFrame(
+        loop
+    );
+
+}
+
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,2319 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dodgeball</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+
+body{
+    background:#111;
+    font-family:"Courier New",monospace;
+    user-select:none;
+}
+
+#game{
+    position:relative;
+    width:100vw;
+    height:100vh;
+    background:linear-gradient(#62c8ff 0 70%,#62aa39 70%);
+}
+
+#arena{
+    position:absolute;
+    left:5%;
+    top:8%;
+    width:90%;
+    height:84%;
+    overflow:hidden;
+    background:#dca466;
+    border:8px solid #70451f;
+}
+
+#arena:after{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:0;
+    width:5px;
+    height:100%;
+    background:#ffffff66;
+    pointer-events:none;
+}
+
+#fence{
+    position:absolute;
+    inset:0;
+    border:8px solid #111;
+    z-index:8;
+    pointer-events:none;
+}
+
+#hud{
+    position:absolute;
+    z-index:100;
+    top:15px;
+    left:50%;
+    transform:translateX(-50%);
+    padding:12px 20px;
+    background:#111d;
+    border:3px solid #333;
+    color:white;
+    font-weight:bold;
+}
+
+.player{
+    position:absolute;
+    width:42px;
+    height:42px;
+    border:4px solid #222;
+    z-index:20;
+}
+
+#p1{background:#268cff}
+#p2{background:#ff4545}
+#p3{background:#39d353}
+#p4{background:#ffd83d}
+
+.name{
+    position:absolute;
+    top:-22px;
+    left:50%;
+    transform:translateX(-50%);
+    color:#fff;
+    font-size:11px;
+    font-weight:bold;
+    text-shadow:2px 2px #000;
+}
+
+.hp{
+    position:absolute;
+    left:0;
+    top:-8px;
+    width:100%;
+    height:5px;
+    background:#222;
+}
+
+.hpFill{
+    width:100%;
+    height:100%;
+    background:#39e05b;
+}
+
+.eyes{
+    position:absolute;
+    left:6px;
+    top:10px;
+    width:28px;
+    height:12px;
+}
+
+.eye{
+    position:absolute;
+    width:10px;
+    height:10px;
+    background:#fff;
+    border:2px solid #111;
+}
+
+.eye:first-child{left:0}
+.eye:last-child{right:0}
+
+.eyes.up .eye{
+    box-shadow:inset 0 3px #111;
+}
+
+.eyes.down .eye{
+    box-shadow:inset 0 -3px #111;
+}
+
+.eyes.left .eye{
+    box-shadow:inset 3px 0 #111;
+}
+
+.eyes.right .eye{
+    box-shadow:inset -3px 0 #111;
+}
+
+/* МЯЧ */
+
+.ball{
+    position:absolute;
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    background:#fff;
+    border:4px solid #222;
+    z-index:30;
+}
+
+/* ТАЙМЕР МЯЧА */
+
+.ballTimer{
+    position:absolute;
+    width:20px;
+    height:3px;
+    background:#222;
+    top:-7px;
+    left:0;
+}
+
+.ballTimerFill{
+    width:100%;
+    height:100%;
+    background:#39e05b;
+}
+
+/* ЭКРАНЫ */
+
+.screen{
+    position:absolute;
+    inset:0;
+    z-index:500;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#0009;
+}
+
+.hidden{
+    display:none!important;
+}
+
+.panel{
+    width:min(450px,90%);
+    padding:35px;
+    text-align:center;
+    color:#fff;
+    background:#79572f;
+    border:6px solid #382416;
+    box-shadow:8px 8px #000;
+}
+
+.panel h1{
+    margin-bottom:18px;
+    font-size:32px;
+    text-shadow:4px 4px #3a2415;
+}
+
+.controls{
+    text-align:left;
+    margin:15px 0;
+    padding:15px;
+    background:#0005;
+    line-height:1.8;
+}
+
+button{
+    width:100%;
+    padding:11px;
+    margin-top:7px;
+    border:3px solid #222;
+    background:#4b982c;
+    color:#fff;
+    font-family:inherit;
+    font-weight:bold;
+    cursor:pointer;
+    box-shadow:3px 3px #000;
+}
+
+button:hover{
+    filter:brightness(1.15);
+}
+
+.exit{
+    background:#843127;
+}
+
+/* ADMIN */
+
+#adminPanel{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:flex;
+    justify-content:flex-end;
+    align-items:flex-start;
+    padding:55px 20px;
+    background:#0005;
+}
+
+.adminBox{
+    width:360px;
+    max-height:90vh;
+    overflow:auto;
+    background:#20242b;
+    color:#fff;
+    border:4px solid #111;
+    box-shadow:8px 8px #000;
+}
+
+.adminHeader{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px;
+    background:#5865f2;
+    font-weight:bold;
+}
+
+.adminClose{
+    width:auto;
+    margin:0;
+    padding:3px 9px;
+    background:#d33;
+    box-shadow:none;
+}
+
+.adminSection{
+    padding:14px;
+    border-top:3px solid #111;
+}
+
+.adminSection h3{
+    color:#7ee7ff;
+    margin-bottom:10px;
+}
+
+.adminRow{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    margin:6px 0;
+    padding:8px;
+    background:#30353d;
+}
+
+.adminRow button{
+    width:62px;
+    margin:0;
+    padding:5px;
+    background:#555;
+    box-shadow:2px 2px #000;
+}
+
+.adminRow button.on{
+    background:#35b853;
+}
+
+.adminAction{
+    background:#3b414b;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+    <div id="hud">
+        🏐 DODGEBALL —
+        <span id="status">READY</span>
+    </div>
+
+    <div id="arena">
+
+        <div id="fence"></div>
+
+        <!-- PLAYER 1 -->
+
+        <div id="p1" class="player">
+
+            <div class="name">P1</div>
+
+            <div class="eyes right">
+                <div class="eye"></div>
+                <div class="eye"></div>
+            </div>
+
+            <div class="hp">
+                <div class="hpFill"></div>
+            </div>
+
+        </div>
+
+
+        <!-- PLAYER 2 -->
+
+        <div id="p2" class="player">
+
+            <div class="name">P2</div>
+
+            <div class="eyes left">
+                <div class="eye"></div>
+                <div class="eye"></div>
+            </div>
+
+            <div class="hp">
+                <div class="hpFill"></div>
+            </div>
+
+        </div>
+
+
+        <!-- PLAYER 3 -->
+
+        <div id="p3" class="player">
+
+            <div class="name">P3</div>
+
+            <div class="eyes right">
+                <div class="eye"></div>
+                <div class="eye"></div>
+            </div>
+
+            <div class="hp">
+                <div class="hpFill"></div>
+            </div>
+
+        </div>
+
+
+        <!-- PLAYER 4 -->
+
+        <div id="p4" class="player">
+
+            <div class="name">P4</div>
+
+            <div class="eyes left">
+                <div class="eye"></div>
+                <div class="eye"></div>
+            </div>
+
+            <div class="hp">
+                <div class="hpFill"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- START -->
+
+    <div id="startScreen" class="screen">
+
+        <div class="panel">
+
+            <h1>🏐 DODGEBALL</h1>
+
+            <p>
+                Последний игрок в живых побеждает!
+            </p>
+
+            <div class="controls">
+
+                🔵 P1 — WASD + SPACE<br>
+                🔴 P2 — ARROWS + ENTER<br>
+                🟢 P3 — IJKL + U<br>
+                🟡 P4 — G V B N + M
+
+                <br><br>
+
+                🏐 Мяч исчезает через 5 секунд,
+                если его никто не подобрал.
+
+                <br>
+
+                🧱 Касание забора = смерть.
+
+                <br>
+
+                🚪 ESC = EXIT
+
+            </div>
+
+            <button onclick="startGame()">
+                ▶ START
+            </button>
+
+            <button class="exit" onclick="exitGame()">
+                🚪 EXIT
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- GAME OVER -->
+
+    <div id="gameOver" class="screen hidden">
+
+        <div class="panel">
+
+            <h1 id="winnerText">
+                🏆 WINNER
+            </h1>
+
+            <button onclick="restartGame()">
+                🔄 RESTART
+            </button>
+
+            <button class="exit" onclick="exitGame()">
+                🚪 EXIT
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ADMIN -->
+
+    <div id="adminPanel" class="hidden">
+
+        <div class="adminBox">
+
+            <div class="adminHeader">
+
+                <span>🛡️ ADMIN PANEL</span>
+
+                <button
+                    class="adminClose"
+                    onclick="closeAdmin()"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+
+            <div class="adminSection">
+
+                <h3>PLAYER POWERS</h3>
+
+                <div id="powerRows"></div>
+
+            </div>
+
+
+            <div class="adminSection">
+
+                <h3>🏐 BALLS</h3>
+
+                <div class="adminRow">
+
+                    <span>♾️ Infinite Balls</span>
+
+                    <button
+                        id="infiniteBalls"
+                        class="on"
+                        onclick="toggleInfiniteBalls()"
+                    >
+                        ON
+                    </button>
+
+                </div>
+
+                <button
+                    class="adminAction"
+                    onclick="spawnBalls(5)"
+                >
+                    🏐 SPAWN 5 BALLS
+                </button>
+
+                <button
+                    class="adminAction"
+                    onclick="clearBalls()"
+                >
+                    🗑️ CLEAR BALLS
+                </button>
+
+            </div>
+
+
+            <div class="adminSection">
+
+                <h3>🎮 GAME</h3>
+
+                <button
+                    class="adminAction"
+                    onclick="healAll()"
+                >
+                    ❤️ HEAL ALL
+                </button>
+
+                <button
+                    class="adminAction"
+                    onclick="restartGame()"
+                >
+                    🔄 RESTART ROUND
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="gamehub-bridge.js"></script>
+<script>
+
+/* =====================================================
+   SETTINGS
+===================================================== */
+
+const MAX_HP = 3;
+
+const NORMAL_SPEED = 230;
+
+const BALL_SPEED = 550;
+
+const BALL_LIFETIME = 5;
+
+
+/* =====================================================
+   STATE
+===================================================== */
+
+let running = false;
+
+let keys = {};
+
+let balls = [];
+
+let lastTime = 0;
+
+let infiniteBalls = true;
+
+let respawnTimer = 0;
+
+let wave = 1;
+
+
+/* =====================================================
+   POWER
+===================================================== */
+
+const power = {
+
+    aimbot: [false,false,false,false],
+
+    automans: [false,false,false,false],
+
+    freeze: [false,false,false,false],
+
+    god: [false,false,false,false],
+
+    speed: [false,false,false,false]
+
+};
+
+
+/* =====================================================
+   PLAYERS
+===================================================== */
+
+const players = [
+
+    {
+        id:1,
+        element:document.getElementById("p1"),
+        x:50,
+        y:50,
+        hp:3,
+        balls:0,
+        direction:{x:1,y:0},
+
+        keys:{
+            up:"w",
+            down:"s",
+            left:"a",
+            right:"d",
+            shoot:" "
+        }
+    },
+
+    {
+        id:2,
+        element:document.getElementById("p2"),
+        x:400,
+        y:50,
+        hp:3,
+        balls:0,
+        direction:{x:-1,y:0},
+
+        keys:{
+            up:"ArrowUp",
+            down:"ArrowDown",
+            left:"ArrowLeft",
+            right:"ArrowRight",
+            shoot:"Enter"
+        }
+    },
+
+    {
+        id:3,
+        element:document.getElementById("p3"),
+        x:50,
+        y:350,
+        hp:3,
+        balls:0,
+        direction:{x:1,y:0},
+
+        keys:{
+            up:"i",
+            down:"k",
+            left:"j",
+            right:"l",
+            shoot:"u"
+        }
+    },
+
+    {
+        id:4,
+        element:document.getElementById("p4"),
+        x:400,
+        y:350,
+        hp:3,
+        balls:0,
+        direction:{x:-1,y:0},
+
+        keys:{
+            up:"g",
+            down:"b",
+            left:"v",
+            right:"n",
+            shoot:"m"
+        }
+    }
+
+];
+
+
+/* =====================================================
+   ADMIN
+===================================================== */
+
+function buildAdmin(){
+
+    const box =
+        document.getElementById("powerRows");
+
+    let html = "";
+
+    for(
+        const type of
+        ["aimbot","automans","freeze","god","speed"]
+    ){
+
+        for(
+            let i=0;
+            i<4;
+            i++
+        ){
+
+            const label = {
+
+                aimbot:"🎯 AutoAim",
+
+                automans:"🤖 Automans",
+
+                freeze:"🧊 Freeze",
+
+                god:"🛡️ God Mode",
+
+                speed:"⚡ Speed"
+
+            }[type];
+
+
+            html += `
+
+                <div class="adminRow">
+
+                    <span>
+                        ${label} P${i+1}
+                    </span>
+
+                    <button
+                        id="${type}${i}"
+                        onclick="togglePower('${type}',${i})"
+                    >
+                        OFF
+                    </button>
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
+    box.innerHTML = html;
+
+}
+
+buildAdmin();
+
+
+let secretClicks = 0;
+
+let secretTimer;
+
+
+document
+.getElementById("p1")
+.addEventListener(
+    "click",
+    () => {
+
+        secretClicks++;
+
+        clearTimeout(secretTimer);
+
+        secretTimer =
+            setTimeout(
+                () => {
+                    secretClicks = 0;
+                },
+                1500
+            );
+
+
+        if(secretClicks >= 5){
+
+            secretClicks = 0;
+
+            openAdmin();
+
+        }
+
+    }
+);
+
+
+function openAdmin(){
+
+    document
+    .getElementById("adminPanel")
+    .classList
+    .remove("hidden");
+
+}
+
+
+function closeAdmin(){
+
+    document
+    .getElementById("adminPanel")
+    .classList
+    .add("hidden");
+
+}
+
+
+/* =====================================================
+   INPUT
+===================================================== */
+
+document.addEventListener(
+    "keydown",
+    e => {
+
+        /* ESC ALWAYS WORKS */
+
+        if(
+            e.key === "Escape" ||
+            e.code === "Escape" ||
+            e.keyCode === 27
+        ){
+
+            e.preventDefault();
+
+            e.stopImmediatePropagation();
+
+            exitGame();
+
+            return;
+
+        }
+
+
+        keys[e.key] = true;
+
+
+        players.forEach(
+            p => {
+
+                if(
+                    e.key === p.keys.shoot
+                ){
+
+                    shoot(p);
+
+                }
+
+            }
+        );
+
+    },
+    true
+);
+
+
+document.addEventListener(
+    "keyup",
+    e => {
+
+        keys[e.key] = false;
+
+    }
+);
+
+
+/* =====================================================
+   START
+===================================================== */
+
+function startGame(){
+
+    clearBalls();
+
+    running = true;
+
+    wave = 1;
+
+    respawnTimer = 0;
+
+    resetPlayers();
+
+    spawnBalls(6);
+
+    document
+    .getElementById("startScreen")
+    .classList
+    .add("hidden");
+
+
+    document
+    .getElementById("gameOver")
+    .classList
+    .add("hidden");
+
+
+    document
+    .getElementById("status")
+    .textContent =
+        "FIGHT!";
+
+
+    lastTime =
+        performance.now();
+
+
+    requestAnimationFrame(loop);
+
+}
+
+
+function restartGame(){
+
+    startGame();
+
+}
+
+
+/* =====================================================
+   EXIT
+===================================================== */
+
+function exitGame(){
+
+    running = false;
+
+    keys = {};
+
+    clearBalls();
+
+    closeAdmin();
+
+
+    document
+    .getElementById("gameOver")
+    .classList
+    .add("hidden");
+
+
+    document
+    .getElementById("startScreen")
+    .classList
+    .remove("hidden");
+
+
+    document
+    .getElementById("status")
+    .textContent =
+        "READY";
+
+
+    /*
+       index.html лежит РЯДОМ
+       с dodgeball.html.
+    */
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+/* =====================================================
+   RESET PLAYERS
+===================================================== */
+
+function resetPlayers(){
+
+    const arena =
+        document.getElementById("arena");
+
+    const w =
+        arena.clientWidth;
+
+    const h =
+        arena.clientHeight;
+
+
+    players[0].x = 50;
+    players[0].y = 50;
+
+    players[1].x = w - 92;
+    players[1].y = 50;
+
+    players[2].x = 50;
+    players[2].y = h - 92;
+
+    players[3].x = w - 92;
+    players[3].y = h - 92;
+
+
+    players.forEach(
+        p => {
+
+            p.hp = MAX_HP;
+
+            p.balls = 0;
+
+            p.element.style.display =
+                "block";
+
+            updateHP(p);
+
+            updatePosition(p);
+
+            updateEyes(p);
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   POSITION
+===================================================== */
+
+function updatePosition(p){
+
+    p.element.style.left =
+        p.x + "px";
+
+    p.element.style.top =
+        p.y + "px";
+
+}
+
+
+/* =====================================================
+   HP
+===================================================== */
+
+function updateHP(p){
+
+    p.element
+    .querySelector(".hpFill")
+    .style.width =
+        Math.max(
+            0,
+            p.hp / MAX_HP * 100
+        ) + "%";
+
+}
+
+
+/* =====================================================
+   EYES
+===================================================== */
+
+function updateEyes(p){
+
+    const e =
+        p.element
+        .querySelector(".eyes");
+
+
+    e.classList.remove(
+        "up",
+        "down",
+        "left",
+        "right"
+    );
+
+
+    if(
+        Math.abs(p.direction.x) >=
+        Math.abs(p.direction.y)
+    ){
+
+        e.classList.add(
+            p.direction.x < 0
+                ? "left"
+                : "right"
+        );
+
+    }else{
+
+        e.classList.add(
+            p.direction.y < 0
+                ? "up"
+                : "down"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   PLAYER MOVEMENT
+===================================================== */
+
+function updatePlayers(dt){
+
+    const arena =
+        document.getElementById("arena");
+
+    const w =
+        arena.clientWidth;
+
+    const h =
+        arena.clientHeight;
+
+
+    players.forEach(
+        (p,i) => {
+
+            if(
+                p.hp <= 0 ||
+                power.freeze[i] ||
+                power.automans[i]
+            ){
+
+                return;
+
+            }
+
+
+            let dx = 0;
+
+            let dy = 0;
+
+
+            if(
+                keys[p.keys.up]
+            ){
+
+                dy = -1;
+
+                p.direction =
+                    {x:0,y:-1};
+
+            }
+
+
+            if(
+                keys[p.keys.down]
+            ){
+
+                dy = 1;
+
+                p.direction =
+                    {x:0,y:1};
+
+            }
+
+
+            if(
+                keys[p.keys.left]
+            ){
+
+                dx = -1;
+
+                p.direction =
+                    {x:-1,y:0};
+
+            }
+
+
+            if(
+                keys[p.keys.right]
+            ){
+
+                dx = 1;
+
+                p.direction =
+                    {x:1,y:0};
+
+            }
+
+
+            if(dx || dy){
+
+                const length =
+                    Math.hypot(dx,dy);
+
+                dx /= length;
+
+                dy /= length;
+
+            }
+
+
+            const speed =
+                NORMAL_SPEED *
+                (
+                    power.speed[i]
+                        ? 2
+                        : 1
+                );
+
+
+            p.x +=
+                dx *
+                speed *
+                dt;
+
+            p.y +=
+                dy *
+                speed *
+                dt;
+
+
+            /*
+               НЕ ЗАЖИМАЕМ игрока
+               в забор.
+
+               Если он касается
+               границы — смерть.
+            */
+
+            if(
+                p.x <= 8 ||
+                p.y <= 8 ||
+                p.x >= w - 50 ||
+                p.y >= h - 50
+            ){
+
+                killPlayer(p);
+
+                return;
+
+            }
+
+
+            /*
+               Небольшая защита
+               от выхода за карту.
+            */
+
+            p.x =
+                Math.max(
+                    0,
+                    Math.min(
+                        w - 42,
+                        p.x
+                    )
+                );
+
+            p.y =
+                Math.max(
+                    0,
+                    Math.min(
+                        h - 42,
+                        p.y
+                    )
+                );
+
+
+            updatePosition(p);
+
+            updateEyes(p);
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   KILL PLAYER
+===================================================== */
+
+function killPlayer(p){
+
+    if(p.hp <= 0){
+        return;
+    }
+
+
+    p.hp = 0;
+
+    p.balls = 0;
+
+    updateHP(p);
+
+    p.element.style.display =
+        "none";
+
+
+    checkWinner();
+
+}
+
+
+/* =====================================================
+   FIND ENEMY
+===================================================== */
+
+function closestEnemy(p){
+
+    let target = null;
+
+    let best = Infinity;
+
+
+    players.forEach(
+        other => {
+
+            if(
+                other === p ||
+                other.hp <= 0
+            ){
+
+                return;
+
+            }
+
+
+            const d =
+                Math.hypot(
+                    other.x - p.x,
+                    other.y - p.y
+                );
+
+
+            if(d < best){
+
+                best = d;
+
+                target = other;
+
+            }
+
+        }
+    );
+
+
+    return target;
+
+}
+
+
+/* =====================================================
+   SHOOT
+===================================================== */
+
+function shoot(p){
+
+    if(
+        !running ||
+        p.hp <= 0 ||
+        p.balls <= 0
+    ){
+
+        return;
+
+    }
+
+
+    p.balls--;
+
+
+    let dx =
+        p.direction.x;
+
+    let dy =
+        p.direction.y;
+
+
+    /*
+       AUTO AIM
+    */
+
+    if(
+        power.aimbot[p.id - 1]
+    ){
+
+        const target =
+            closestEnemy(p);
+
+
+        if(target){
+
+            const tx =
+                target.x - p.x;
+
+            const ty =
+                target.y - p.y;
+
+            const distance =
+                Math.hypot(tx,ty);
+
+
+            if(distance){
+
+                dx =
+                    tx / distance;
+
+                dy =
+                    ty / distance;
+
+            }
+
+        }
+
+    }
+
+
+    const arena =
+        document.getElementById("arena");
+
+
+    const element =
+        document.createElement("div");
+
+
+    element.className =
+        "ball";
+
+
+    arena.appendChild(element);
+
+
+    const x =
+        p.x + 11;
+
+    const y =
+        p.y + 11;
+
+
+    element.style.left =
+        x + "px";
+
+    element.style.top =
+        y + "px";
+
+
+    balls.push({
+
+        x:x,
+
+        y:y,
+
+        dx:dx * BALL_SPEED,
+
+        dy:dy * BALL_SPEED,
+
+        owner:p,
+
+        element:element,
+
+        age:0
+
+    });
+
+}
+
+
+/* =====================================================
+   SPAWN BALLS
+===================================================== */
+
+function spawnBalls(amount){
+
+    if(!running){
+        return;
+    }
+
+
+    const arena =
+        document.getElementById("arena");
+
+
+    const w =
+        arena.clientWidth;
+
+    const h =
+        arena.clientHeight;
+
+
+    for(
+        let i=0;
+        i<amount;
+        i++
+    ){
+
+        const element =
+            document.createElement("div");
+
+
+        element.className =
+            "ball";
+
+
+        const timer =
+            document.createElement("div");
+
+
+        timer.className =
+            "ballTimer";
+
+
+        const timerFill =
+            document.createElement("div");
+
+
+        timerFill.className =
+            "ballTimerFill";
+
+
+        timer.appendChild(
+            timerFill
+        );
+
+
+        element.appendChild(
+            timer
+        );
+
+
+        const x =
+            70 +
+            Math.random() *
+            Math.max(
+                1,
+                w - 140
+            );
+
+
+        const y =
+            70 +
+            Math.random() *
+            Math.max(
+                1,
+                h - 140
+            );
+
+
+        element.style.left =
+            x + "px";
+
+        element.style.top =
+            y + "px";
+
+
+        arena.appendChild(
+            element
+        );
+
+
+        balls.push({
+
+            x:x,
+
+            y:y,
+
+            dx:0,
+
+            dy:0,
+
+            owner:null,
+
+            element:element,
+
+            age:0
+
+        });
+
+    }
+
+}
+
+
+/* =====================================================
+   UPDATE BALLS
+===================================================== */
+
+function updateBalls(dt){
+
+    const arena =
+        document.getElementById("arena");
+
+
+    const w =
+        arena.clientWidth;
+
+    const h =
+        arena.clientHeight;
+
+
+    for(
+        let i=balls.length-1;
+        i>=0;
+        i--
+    ){
+
+        const b =
+            balls[i];
+
+
+        b.age += dt;
+
+
+        /*
+           НЕПОДОБРАННЫЙ МЯЧ
+           исчезает через 5 секунд.
+        */
+
+        if(
+            b.owner === null &&
+            b.age >= BALL_LIFETIME
+        ){
+
+            removeBall(i);
+
+            continue;
+
+        }
+
+
+        /*
+           ЛЕТЯЩИЙ МЯЧ
+        */
+
+        if(
+            b.dx !== 0 ||
+            b.dy !== 0
+        ){
+
+            b.x +=
+                b.dx *
+                dt;
+
+            b.y +=
+                b.dy *
+                dt;
+
+
+            /*
+               Отскок от внутренних
+               стенок арены.
+            */
+
+            if(
+                b.x <= 8 ||
+                b.x >= w - 28
+            ){
+
+                b.dx *= -1;
+
+            }
+
+
+            if(
+                b.y <= 8 ||
+                b.y >= h - 28
+            ){
+
+                b.dy *= -1;
+
+            }
+
+
+            b.x =
+                Math.max(
+                    8,
+                    Math.min(
+                        w - 28,
+                        b.x
+                    )
+                );
+
+            b.y =
+                Math.max(
+                    8,
+                    Math.min(
+                        h - 28,
+                        b.y
+                    )
+                );
+
+
+            b.element.style.left =
+                b.x + "px";
+
+            b.element.style.top =
+                b.y + "px";
+
+
+            /*
+               Проверяем попадание.
+            */
+
+            for(
+                const p of players
+            ){
+
+                if(
+                    p === b.owner ||
+                    p.hp <= 0
+                ){
+
+                    continue;
+
+                }
+
+
+                const distance =
+                    Math.hypot(
+                        b.x -
+                        (p.x + 21),
+
+                        b.y -
+                        (p.y + 21)
+                    );
+
+
+                if(
+                    distance < 38
+                ){
+
+                    hitPlayer(p);
+
+                    removeBall(i);
+
+                    break;
+
+                }
+
+            }
+
+
+            continue;
+
+        }
+
+
+        /*
+           ЛЕЖАЩИЙ МЯЧ
+           Проверяем подбор.
+        */
+
+        for(
+            const p of players
+        ){
+
+            if(
+                p.hp <= 0 ||
+                p.balls >= 1
+            ){
+
+                continue;
+
+            }
+
+
+            const distance =
+                Math.hypot(
+                    b.x -
+                    (p.x + 21),
+
+                    b.y -
+                    (p.y + 21)
+                );
+
+
+            if(
+                distance < 42
+            ){
+
+                /*
+                   Игрок получил мяч.
+                   ИМЕННО ЭТОТ мяч
+                   удаляется.
+                */
+
+                p.balls = 1;
+
+                removeBall(i);
+
+                break;
+
+            }
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   REMOVE BALL
+===================================================== */
+
+function removeBall(index){
+
+    if(
+        index < 0 ||
+        index >= balls.length
+    ){
+
+        return;
+
+    }
+
+
+    const ball =
+        balls[index];
+
+
+    if(
+        ball.element
+    ){
+
+        ball.element.remove();
+
+    }
+
+
+    balls.splice(
+        index,
+        1
+    );
+
+}
+
+
+/* =====================================================
+   CLEAR ALL BALLS
+===================================================== */
+
+function clearBalls(){
+
+    /*
+       Удаляем ВСЕ реальные элементы
+       мячей из DOM.
+    */
+
+    document
+    .querySelectorAll("#arena .ball")
+    .forEach(
+        ball => ball.remove()
+    );
+
+
+    balls = [];
+
+
+    players.forEach(
+        p => p.balls = 0
+    );
+
+}
+
+
+/* =====================================================
+   HIT PLAYER
+===================================================== */
+
+function hitPlayer(p){
+
+    if(
+        power.god[p.id - 1]
+    ){
+
+        return;
+
+    }
+
+
+    p.hp--;
+
+
+    updateHP(p);
+
+
+    if(
+        p.hp <= 0
+    ){
+
+        p.balls = 0;
+
+        p.element.style.display =
+            "none";
+
+    }
+
+
+    checkWinner();
+
+}
+
+
+/* =====================================================
+   WINNER
+===================================================== */
+
+function checkWinner(){
+
+    const alive =
+        players.filter(
+            p => p.hp > 0
+        );
+
+
+    if(
+        alive.length === 1
+    ){
+
+        running = false;
+
+        clearBalls();
+
+
+        document
+        .getElementById("winnerText")
+        .textContent =
+            "🏆 P" +
+            alive[0].id +
+            " WINS!";
+
+        if(window.GameHub)
+            GameHub.reportWin("dogeball", alive[0].id === 1);
+
+        document
+        .getElementById("gameOver")
+        .classList
+        .remove("hidden");
+
+    }
+
+
+    if(
+        alive.length === 0
+    ){
+
+        running = false;
+
+        clearBalls();
+
+
+        document
+        .getElementById("winnerText")
+        .textContent =
+            "💀 DRAW!";
+
+        if(window.GameHub)
+            GameHub.reportWin("dogeball", false);
+
+        document
+        .getElementById("gameOver")
+        .classList
+        .remove("hidden");
+
+    }
+
+}
+
+
+/* =====================================================
+   AUTOMANS
+===================================================== */
+
+function updateAutomans(dt){
+
+    const arena =
+        document.getElementById("arena");
+
+
+    const w =
+        arena.clientWidth;
+
+    const h =
+        arena.clientHeight;
+
+
+    players.forEach(
+        (p,i) => {
+
+            if(
+                !power.automans[i] ||
+                p.hp <= 0 ||
+                power.freeze[i]
+            ){
+
+                return;
+
+            }
+
+
+            let danger = null;
+
+            let nearest =
+                Infinity;
+
+
+            balls.forEach(
+                b => {
+
+                    if(
+                        b.owner === p ||
+                        (
+                            !b.dx &&
+                            !b.dy
+                        )
+                    ){
+
+                        return;
+
+                    }
+
+
+                    const d =
+                        Math.hypot(
+                            b.x -
+                            (p.x + 21),
+
+                            b.y -
+                            (p.y + 21)
+                        );
+
+
+                    if(
+                        d < nearest
+                    ){
+
+                        nearest = d;
+
+                        danger = b;
+
+                    }
+
+                }
+            );
+
+
+            let mx;
+
+            let my;
+
+
+            if(
+                danger &&
+                nearest < 220
+            ){
+
+                mx =
+                    -danger.dy;
+
+                my =
+                    danger.dx;
+
+
+            }else{
+
+                const angle =
+                    performance.now() /
+                    1000 +
+                    p.id;
+
+                mx =
+                    Math.cos(angle);
+
+                my =
+                    Math.sin(angle);
+
+            }
+
+
+            const length =
+                Math.hypot(
+                    mx,
+                    my
+                ) || 1;
+
+
+            mx /= length;
+
+            my /= length;
+
+
+            const speed =
+                power.speed[i]
+                    ? 120
+                    : 60;
+
+
+            p.x +=
+                mx *
+                speed *
+                dt;
+
+            p.y +=
+                my *
+                speed *
+                dt;
+
+
+            /*
+               Автоматический игрок
+               тоже умирает от забора.
+            */
+
+            if(
+                p.x <= 8 ||
+                p.y <= 8 ||
+                p.x >= w - 50 ||
+                p.y >= h - 50
+            ){
+
+                killPlayer(p);
+
+                return;
+
+            }
+
+
+            p.direction =
+                {
+                    x:mx,
+                    y:my
+                };
+
+
+            updatePosition(p);
+
+            updateEyes(p);
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   INFINITE BALLS
+===================================================== */
+
+function toggleInfiniteBalls(){
+
+    infiniteBalls =
+        !infiniteBalls;
+
+
+    const button =
+        document.getElementById(
+            "infiniteBalls"
+        );
+
+
+    button.textContent =
+        infiniteBalls
+            ? "ON"
+            : "OFF";
+
+
+    button.classList.toggle(
+        "on",
+        infiniteBalls
+    );
+
+}
+
+
+/* =====================================================
+   HEAL
+===================================================== */
+
+function healAll(){
+
+    players.forEach(
+        p => {
+
+            p.hp =
+                MAX_HP;
+
+            p.element.style.display =
+                "block";
+
+            updateHP(p);
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   POWERS
+===================================================== */
+
+function togglePower(
+    type,
+    i
+){
+
+    power[type][i] =
+        !power[type][i];
+
+
+    const button =
+        document.getElementById(
+            type + i
+        );
+
+
+    button.textContent =
+        power[type][i]
+            ? "ON"
+            : "OFF";
+
+
+    button.classList.toggle(
+        "on",
+        power[type][i]
+    );
+
+}
+
+
+/* =====================================================
+   GAME LOOP
+===================================================== */
+
+function loop(time){
+
+    if(!running){
+
+        return;
+
+    }
+
+
+    const dt =
+        Math.min(
+            (time - lastTime) /
+            1000,
+            0.03
+        );
+
+
+    lastTime =
+        time;
+
+
+    updatePlayers(dt);
+
+    updateAutomans(dt);
+
+    updateBalls(dt);
+
+
+    if(!running){
+
+        return;
+
+    }
+
+
+    /*
+       Если мячей вообще нет —
+       создаём новую пачку через 2 сек.
+
+       Это НЕ удаляет оставшиеся мячи,
+       если игрок подобрал один.
+    */
+
+    if(
+        infiniteBalls &&
+        balls.length === 0
+    ){
+
+        respawnTimer += dt;
+
+
+        if(
+            respawnTimer >= 2
+        ){
+
+            spawnBalls(6);
+
+            respawnTimer = 0;
+
+        }
+
+    }else{
+
+        respawnTimer = 0;
+
+    }
+
+
+    requestAnimationFrame(
+        loop
+    );
+
+}
+
+
+/* =====================================================
+   INITIAL
+===================================================== */
+
+resetPlayers();
+
+</script>
+
+</body>
+</html>

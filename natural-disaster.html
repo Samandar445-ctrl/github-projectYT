@@ -1,0 +1,1715 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Natural Disaster Survival</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+
+body{
+    background:#07101b;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+#game{
+    position:relative;
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+
+    background:
+        linear-gradient(#ffffff08 1px,transparent 1px),
+        linear-gradient(90deg,#ffffff08 1px,transparent 1px),
+        #0b1622;
+
+    background-size:40px 40px;
+}
+
+/* HUD */
+
+#hud{
+    position:absolute;
+    z-index:100;
+    top:15px;
+    left:50%;
+    transform:translateX(-50%);
+
+    display:flex;
+    gap:25px;
+    padding:13px 22px;
+
+    border:1px solid #ffffff20;
+    border-radius:15px;
+    background:#07101ee8;
+    backdrop-filter:blur(12px);
+
+    font-weight:900;
+}
+
+.stat{color:#78849b}
+.stat span{color:white}
+
+#timer{color:#62eaff}
+#round{color:#ffd45c}
+#survived{color:#5cff9b}
+
+/* EVENT */
+
+#event{
+    position:absolute;
+    z-index:150;
+    top:90px;
+    left:50%;
+    transform:translateX(-50%);
+
+    padding:12px 22px;
+
+    border-radius:12px;
+    background:#07101ee8;
+    border:1px solid #ffffff25;
+
+    font-size:18px;
+    font-weight:900;
+
+    opacity:0;
+    transition:.25s;
+    pointer-events:none;
+}
+
+#event.show{opacity:1}
+
+/* PLAYER */
+
+#player{
+    position:absolute;
+    width:38px;
+    height:38px;
+
+    border-radius:9px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #44eaff 45%,
+            #6356ff
+        );
+
+    border:2px solid white;
+
+    box-shadow:
+        0 0 15px #00eaff,
+        0 0 35px #5265ff;
+
+    z-index:50;
+}
+
+#player::after{
+    content:"";
+
+    position:absolute;
+
+    width:8px;
+    height:8px;
+
+    left:13px;
+    top:13px;
+
+    border-radius:50%;
+
+    background:white;
+    box-shadow:0 0 10px white;
+}
+
+/* SHIELD */
+
+#player.shield{
+    box-shadow:
+        0 0 15px #00eaff,
+        0 0 35px #5265ff,
+        0 0 70px #00ffb7,
+        0 0 100px #00ffb755;
+}
+
+/* BUILDINGS */
+
+.building{
+    position:absolute;
+
+    background:
+        linear-gradient(
+            135deg,
+            #394a60,
+            #182535
+        );
+
+    border:2px solid #7288a1;
+    border-radius:8px;
+
+    box-shadow:inset 0 0 20px #0006;
+}
+
+.roof{
+    position:absolute;
+
+    background:#50657c;
+    border:2px solid #8196aa;
+    border-radius:7px;
+}
+
+/* WATER */
+
+#water{
+    position:absolute;
+    left:0;
+    bottom:0;
+
+    width:100%;
+    height:0;
+
+    background:
+        linear-gradient(
+            180deg,
+            #42dfffaa,
+            #0873d9
+        );
+
+    box-shadow:0 -10px 30px #00cfff66;
+
+    z-index:30;
+    transition:height .25s;
+}
+
+/* LAVA */
+
+#lava{
+    position:absolute;
+    left:0;
+    bottom:0;
+
+    width:100%;
+    height:0;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ffdb32,
+            #ff4a00,
+            #a80000
+        );
+
+    box-shadow:0 -10px 40px #ff5b00;
+
+    z-index:31;
+    transition:height .2s;
+}
+
+/* METEOR */
+
+.meteor{
+    position:absolute;
+
+    width:18px;
+    height:18px;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #fff,
+            #ffcf3d 20%,
+            #ff5c00 55%,
+            #a70000
+        );
+
+    box-shadow:
+        0 0 12px #ff8a00,
+        0 0 35px #ff4500;
+
+    z-index:45;
+}
+
+/* FIRE */
+
+.fire{
+    position:absolute;
+
+    width:35px;
+    height:35px;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #fff,
+            #ffe044 20%,
+            #ff641c 55%,
+            #c00000
+        );
+
+    box-shadow:
+        0 0 15px #ff5b00,
+        0 0 35px #ff2d00;
+
+    z-index:40;
+
+    animation:firePulse .25s infinite alternate;
+}
+
+@keyframes firePulse{
+    from{transform:scale(.8)}
+    to{transform:scale(1.15)}
+}
+
+/* TORNADO */
+
+#tornado{
+    position:absolute;
+
+    width:130px;
+    height:130px;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle,
+            transparent 15%,
+            #b8d1df33 25%,
+            #d7e7f044 40%,
+            transparent 65%
+        );
+
+    box-shadow:0 0 50px #d7e7f033;
+
+    z-index:42;
+
+    display:none;
+
+    animation:tornadoSpin .45s linear infinite;
+}
+
+@keyframes tornadoSpin{
+    to{transform:rotate(360deg)}
+}
+
+/* EARTHQUAKE */
+
+.shake{
+    animation:shake .08s infinite;
+}
+
+@keyframes shake{
+    0%{transform:translate(0,0)}
+    25%{transform:translate(-7px,4px)}
+    50%{transform:translate(5px,-5px)}
+    75%{transform:translate(-4px,-3px)}
+    100%{transform:translate(0,0)}
+}
+
+/* OVERLAY */
+
+.overlay{
+    position:absolute;
+    inset:0;
+
+    z-index:500;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#02050bd9;
+    backdrop-filter:blur(10px);
+}
+
+.hidden{
+    display:none!important;
+}
+
+/* PANEL */
+
+.panel{
+    width:min(480px,90%);
+    padding:35px;
+
+    text-align:center;
+
+    border-radius:24px;
+    border:1px solid #ffffff20;
+
+    background:#0b1422f5;
+
+    box-shadow:0 30px 100px #000;
+}
+
+.panel h1{
+    font-size:38px;
+    margin-bottom:15px;
+}
+
+.panel p{
+    color:#8491a8;
+    line-height:1.7;
+    margin-bottom:20px;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    margin-top:8px;
+
+    border:0;
+    border-radius:11px;
+
+    color:white;
+    font-weight:900;
+    cursor:pointer;
+
+    background:
+        linear-gradient(
+            90deg,
+            #456cff,
+            #20dfff
+        );
+
+    transition:.2s;
+}
+
+button:hover{
+    transform:translateY(-3px);
+}
+
+.exit{
+    background:#171f2d;
+}
+
+/* =========================
+   ADMIN PANEL
+========================= */
+
+#admin{
+    position:absolute;
+
+    z-index:800;
+
+    top:75px;
+    right:20px;
+
+    width:285px;
+
+    padding:18px;
+
+    border:1px solid #b84cff66;
+    border-radius:18px;
+
+    background:#070b16f5;
+
+    box-shadow:
+        0 0 35px #8b2cff33,
+        0 20px 70px #000;
+
+    backdrop-filter:blur(15px);
+
+    display:none;
+}
+
+#admin.open{
+    display:block;
+}
+
+#admin h2{
+    color:#d477ff;
+    margin-bottom:5px;
+}
+
+.admin-info{
+    color:#69758e;
+    font-size:11px;
+    margin-bottom:12px;
+}
+
+.admin-btn{
+    padding:11px;
+    font-size:12px;
+    margin-top:7px;
+}
+
+.admin-green{
+    background:
+        linear-gradient(
+            90deg,
+            #0fcf88,
+            #00bfff
+        );
+}
+
+.admin-red{
+    background:
+        linear-gradient(
+            90deg,
+            #ff315d,
+            #ff713d
+        );
+}
+
+.admin-purple{
+    background:
+        linear-gradient(
+            90deg,
+            #8b42ff,
+            #d44cff
+        );
+}
+
+.admin-orange{
+    background:
+        linear-gradient(
+            90deg,
+            #ff9d32,
+            #ff4e32
+        );
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+    #hud{
+        gap:8px;
+        padding:9px 10px;
+        font-size:10px;
+    }
+
+    #admin{
+        width:240px;
+        right:10px;
+        top:70px;
+    }
+
+    .panel h1{
+        font-size:32px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+    <!-- HUD -->
+
+    <div id="hud">
+
+        <div class="stat">
+            ⏱ TIME:
+            <span id="timer">60</span>
+        </div>
+
+        <div class="stat">
+            🌊 ROUND:
+            <span id="round">1</span>
+        </div>
+
+        <div class="stat">
+            🏆 SURVIVED:
+            <span id="survived">0</span>
+        </div>
+
+    </div>
+
+    <div id="event"></div>
+
+    <!-- MAP -->
+
+    <div class="building"
+        style="left:8%;top:28%;width:210px;height:150px;">
+    </div>
+
+    <div class="building"
+        style="right:10%;top:25%;width:180px;height:180px;">
+    </div>
+
+    <div class="building"
+        style="left:38%;bottom:18%;width:230px;height:130px;">
+    </div>
+
+    <div class="roof"
+        style="left:11%;top:22%;width:150px;height:40px;">
+    </div>
+
+    <div class="roof"
+        style="right:13%;top:19%;width:120px;height:38px;">
+    </div>
+
+    <div id="water"></div>
+    <div id="lava"></div>
+    <div id="tornado"></div>
+
+    <div id="player"></div>
+
+    <!-- ADMIN -->
+
+    <div id="admin">
+
+        <h2>🛠️ ADMIN PANEL</h2>
+
+        <div class="admin-info">
+            F2 — открыть / закрыть
+        </div>
+
+        <button
+            class="admin-btn admin-green"
+            id="adminHeal">
+            ❤️ ПОЛНОЕ ЗДОРОВЬЕ
+        </button>
+
+        <button
+            class="admin-btn"
+            id="adminAddTime">
+            ⏱️ +30 СЕКУНД
+        </button>
+
+        <button
+            class="admin-btn"
+            id="adminScore">
+            🏆 +10 ОЧКОВ
+        </button>
+
+        <button
+            class="admin-btn admin-purple"
+            id="adminNextRound">
+            🌊 СЛЕДУЮЩИЙ РАУНД
+        </button>
+
+        <button
+            class="admin-btn admin-orange"
+            id="adminDisaster">
+            💥 ВЫЗВАТЬ КАТАСТРОФУ
+        </button>
+
+        <button
+            class="admin-btn"
+            id="adminClear">
+            🧹 УБРАТЬ КАТАСТРОФУ
+        </button>
+
+        <button
+            class="admin-btn"
+            id="adminTeleport">
+            🌀 ТЕЛЕПОРТИРОВАТЬ
+        </button>
+
+        <button
+            class="admin-btn admin-green"
+            id="adminShield">
+            🛡️ БЕССМЕРТИЕ: OFF
+        </button>
+
+        <button
+            class="admin-btn admin-red"
+            id="adminKill">
+            💀 УБИТЬ ИГРОКА
+        </button>
+
+    </div>
+
+    <!-- START -->
+
+    <div id="startScreen" class="overlay">
+
+        <div class="panel">
+
+            <h1>
+                🌪️ NATURAL DISASTER
+            </h1>
+
+            <p>
+                Добро пожаловать на остров!<br>
+                Переживи катастрофу и получи очко
+                за выживание.
+
+                <br><br>
+
+                <b>WASD / стрелки</b> — движение<br>
+                <b>SPACE</b> — прыжок<br>
+                <b>F2</b> — админ-панель<br>
+                <b>ESC</b> — выход
+            </p>
+
+            <button id="startButton">
+                ▶ START SURVIVAL
+            </button>
+
+            <button class="exit" id="exitStart">
+                🚪 EXIT
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- GAME OVER -->
+
+    <div id="gameOver" class="overlay hidden">
+
+        <div class="panel">
+
+            <h1>
+                💀 YOU DIDN'T SURVIVE
+            </h1>
+
+            <p id="finalText"></p>
+
+            <button id="restartButton">
+                🔄 TRY AGAIN
+            </button>
+
+            <button class="exit" id="exitGame">
+                🚪 EXIT
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="gamehub-bridge.js"></script>
+<script>
+"use strict";
+
+/* ELEMENTS */
+
+const game =
+    document.getElementById("game");
+
+const player =
+    document.getElementById("player");
+
+const water =
+    document.getElementById("water");
+
+const lava =
+    document.getElementById("lava");
+
+const tornado =
+    document.getElementById("tornado");
+
+const eventText =
+    document.getElementById("event");
+
+const timerText =
+    document.getElementById("timer");
+
+const roundText =
+    document.getElementById("round");
+
+const survivedText =
+    document.getElementById("survived");
+
+const startScreen =
+    document.getElementById("startScreen");
+
+const gameOver =
+    document.getElementById("gameOver");
+
+const finalText =
+    document.getElementById("finalText");
+
+const admin =
+    document.getElementById("admin");
+
+
+/* STATE */
+
+let running = false;
+
+let keys = {};
+
+let playerX =
+    innerWidth / 2 - 19;
+
+let playerY =
+    innerHeight / 2 - 19;
+
+let velocityY = 0;
+let onGround = true;
+
+let timer = 60;
+let round = 1;
+let survived = 0;
+
+let disaster = null;
+let disasterTime = 0;
+
+let lastTime = 0;
+
+let meteors = [];
+let fires = [];
+
+let adminShield = false;
+
+
+/* INPUT */
+
+document.addEventListener(
+    "keydown",
+    e => {
+
+        if(e.code === "Escape"){
+
+            e.preventDefault();
+            exitGame();
+
+            return;
+        }
+
+        if(e.code === "F2"){
+
+            e.preventDefault();
+
+            admin.classList.toggle("open");
+
+            return;
+        }
+
+        keys[e.code] = true;
+
+        if(
+            e.code === "Space" &&
+            onGround
+        ){
+
+            velocityY = -500;
+            onGround = false;
+        }
+
+    }
+);
+
+document.addEventListener(
+    "keyup",
+    e => {
+
+        keys[e.code] = false;
+
+    }
+);
+
+
+
+function exitGame(){
+
+    running = false;
+
+    keys = {};
+
+    clearDisasterObjects();
+
+    window.location.href = "index.html";
+}
+
+
+
+
+/* START */
+
+function startGame(){
+
+    clearDisasterObjects();
+
+    running = true;
+
+    timer = 60;
+    round = 1;
+    survived = 0;
+
+    disaster = null;
+    disasterTime = 0;
+
+    adminShield = false;
+
+    updateShieldButton();
+
+    playerX =
+        innerWidth / 2 - 19;
+
+    playerY =
+        innerHeight / 2 - 19;
+
+    velocityY = 0;
+    onGround = true;
+
+    startScreen.classList.add("hidden");
+    gameOver.classList.add("hidden");
+
+    player.style.display = "block";
+
+    updateHUD();
+
+    lastTime =
+        performance.now();
+
+    requestAnimationFrame(loop);
+}
+
+
+/* PLAYER */
+
+function updatePlayer(dt){
+
+    let dx = 0;
+    let dy = 0;
+
+    if(keys.KeyW || keys.ArrowUp) dy--;
+    if(keys.KeyS || keys.ArrowDown) dy++;
+    if(keys.KeyA || keys.ArrowLeft) dx--;
+    if(keys.KeyD || keys.ArrowRight) dx++;
+
+    const speed = 270;
+
+    playerX += dx * speed * dt;
+    playerY += dy * speed * dt;
+
+    velocityY += 1000 * dt;
+    playerY += velocityY * dt;
+
+    const ground =
+        innerHeight - 55;
+
+    if(playerY >= ground){
+
+        playerY = ground;
+        velocityY = 0;
+        onGround = true;
+    }
+
+    playerX =
+        Math.max(
+            5,
+            Math.min(
+                innerWidth - 43,
+                playerX
+            )
+        );
+
+    playerY =
+        Math.max(
+            80,
+            Math.min(
+                innerHeight - 43,
+                playerY
+            )
+        );
+
+    player.style.left =
+        playerX + "px";
+
+    player.style.top =
+        playerY + "px";
+}
+
+
+/* DISASTER */
+
+function chooseDisaster(){
+
+    if(!running) return;
+
+    const disasters = [
+        "EARTHQUAKE",
+        "FLOOD",
+        "METEOR",
+        "TORNADO",
+        "FIRE"
+    ];
+
+    disaster =
+        disasters[
+            Math.floor(
+                Math.random() *
+                disasters.length
+            )
+        ];
+
+    disasterTime = 0;
+
+    showEvent(
+        getDisasterName(disaster)
+    );
+
+    startDisaster(disaster);
+}
+
+
+/* START SPECIFIC DISASTER */
+
+function startDisaster(type){
+
+    if(type === "EARTHQUAKE"){
+
+        game.classList.add("shake");
+
+    }
+
+    if(type === "FLOOD"){
+
+        water.style.height = "8%";
+
+    }
+
+    if(type === "METEOR"){
+
+        spawnMeteorWave();
+
+    }
+
+    if(type === "TORNADO"){
+
+        tornado.style.display = "block";
+
+        tornado.style.left =
+            Math.random() *
+            Math.max(1,innerWidth - 130) +
+            "px";
+
+        tornado.style.top =
+            130 +
+            Math.random() *
+            Math.max(
+                1,
+                innerHeight - 260
+            ) +
+            "px";
+    }
+
+    if(type === "FIRE"){
+
+        spawnFires();
+
+    }
+}
+
+
+/* ADMIN DISASTER */
+
+function adminDisaster(){
+
+    if(!running){
+
+        showEvent("▶ СНАЧАЛА НАЖМИ START");
+
+        return;
+    }
+
+    clearDisaster();
+
+    chooseDisaster();
+}
+
+
+/* DISASTER NAME */
+
+function getDisasterName(type){
+
+    const names = {
+
+        EARTHQUAKE:"🌎 EARTHQUAKE!",
+        FLOOD:"🌊 FLASH FLOOD!",
+        METEOR:"☄️ METEOR SHOWER!",
+        TORNADO:"🌪️ TORNADO!",
+        FIRE:"🔥 FIRE!"
+
+    };
+
+    return names[type];
+}
+
+
+/* DISASTER UPDATE */
+
+function updateDisaster(dt){
+
+    if(!disaster)
+        return;
+
+    disasterTime += dt;
+
+
+    /* FLOOD */
+
+    if(disaster === "FLOOD"){
+
+        const height =
+            Math.min(
+                75,
+                8 + disasterTime * 5
+            );
+
+        water.style.height =
+            height + "%";
+
+        if(
+            !adminShield &&
+            playerY >
+            innerHeight -
+            height *
+            innerHeight /
+            100 -
+            30
+        ){
+
+            die("🌊 The flood got you!");
+
+            return;
+        }
+    }
+
+
+    /* EARTHQUAKE */
+
+    if(disaster === "EARTHQUAKE"){
+
+        if(
+            !adminShield &&
+            Math.random() < .015
+        ){
+
+            createHit(
+                playerX,
+                playerY
+            );
+        }
+    }
+
+
+    /* METEORS */
+
+    if(disaster === "METEOR"){
+
+        updateMeteors(dt);
+
+        if(!running) return;
+    }
+
+
+    /* TORNADO */
+
+    if(disaster === "TORNADO"){
+
+        const tx =
+            tornado.offsetLeft + 65;
+
+        const ty =
+            tornado.offsetTop + 65;
+
+        const px =
+            playerX + 19;
+
+        const py =
+            playerY + 19;
+
+        const distance =
+            Math.hypot(
+                tx-px,
+                ty-py
+            );
+
+        if(distance < 105){
+
+            const angle =
+                Math.atan2(
+                    py-ty,
+                    px-tx
+                );
+
+            playerX +=
+                Math.cos(angle) *
+                450 *
+                dt;
+
+            playerY +=
+                Math.sin(angle) *
+                450 *
+                dt;
+        }
+    }
+
+
+    /* FIRE */
+
+    if(disaster === "FIRE"){
+
+        updateFires();
+
+        if(!running) return;
+    }
+
+
+    if(disasterTime >= 12){
+
+        finishRound();
+    }
+}
+
+
+/* METEORS */
+
+function spawnMeteorWave(){
+
+    for(let i=0;i<15;i++){
+
+        const el =
+            document.createElement("div");
+
+        el.className = "meteor";
+
+        const x =
+            Math.random() * innerWidth;
+
+        const y =
+            -30 -
+            Math.random() * 400;
+
+        el.style.left = x + "px";
+        el.style.top = y + "px";
+
+        game.appendChild(el);
+
+        meteors.push({
+
+            element:el,
+            x,
+            y,
+            speed:
+                300 +
+                Math.random() * 250
+
+        });
+    }
+}
+
+
+function updateMeteors(dt){
+
+    for(
+        let i=meteors.length-1;
+        i>=0;
+        i--
+    ){
+
+        const m = meteors[i];
+
+        m.y += m.speed * dt;
+
+        m.element.style.top =
+            m.y + "px";
+
+        const dx =
+            m.x -
+            (playerX + 19);
+
+        const dy =
+            m.y -
+            (playerY + 19);
+
+        if(
+            !adminShield &&
+            Math.hypot(dx,dy) < 30
+        ){
+
+            die("☄️ A meteor hit you!");
+
+            return;
+        }
+
+        if(
+            m.y >
+            innerHeight + 50
+        ){
+
+            m.element.remove();
+
+            meteors.splice(i,1);
+        }
+    }
+}
+
+
+/* FIRE */
+
+function spawnFires(){
+
+    for(let i=0;i<9;i++){
+
+        const el =
+            document.createElement("div");
+
+        el.className = "fire";
+
+        const x =
+            Math.random() *
+            Math.max(
+                1,
+                innerWidth - 40
+            );
+
+        const y =
+            100 +
+            Math.random() *
+            Math.max(
+                1,
+                innerHeight - 150
+            );
+
+        el.style.left = x + "px";
+        el.style.top = y + "px";
+
+        game.appendChild(el);
+
+        fires.push(el);
+    }
+}
+
+
+function updateFires(){
+
+    if(adminShield)
+        return;
+
+    for(const fire of fires){
+
+        const fx =
+            fire.offsetLeft + 17;
+
+        const fy =
+            fire.offsetTop + 17;
+
+        const px =
+            playerX + 19;
+
+        const py =
+            playerY + 19;
+
+        if(
+            Math.hypot(
+                fx-px,
+                fy-py
+            ) < 30
+        ){
+
+            die(
+                "🔥 You walked into the fire!"
+            );
+
+            return;
+        }
+    }
+}
+
+
+/* ROUND */
+
+function finishRound(){
+
+    clearDisaster();
+
+    survived++;
+    round++;
+
+    timer = 60;
+    disaster = null;
+
+    updateHUD();
+
+    showEvent(
+        "🏆 YOU SURVIVED!"
+    );
+
+    setTimeout(
+        ()=>{
+            if(running)
+                chooseDisaster();
+        },
+        1800
+    );
+}
+
+
+/* DIE */
+
+function die(reason){
+
+    if(!running)
+        return;
+
+    if(adminShield)
+        return;
+
+    running = false;
+
+    clearDisasterObjects();
+
+    finalText.innerHTML =
+        reason +
+        "<br><br>" +
+        "🏆 Rounds survived: " +
+        "<b>" +
+        survived +
+        "</b>";
+
+    if(window.GameHub)
+        GameHub.reportScore("natural-disaster", survived);
+
+    gameOver.classList.remove(
+        "hidden"
+    );
+}
+
+
+/* CLEAR DISASTER */
+
+function clearDisaster(){
+
+    game.classList.remove("shake");
+
+    water.style.height = "0";
+    lava.style.height = "0";
+
+    tornado.style.display = "none";
+
+    clearDisasterObjects();
+
+    disaster = null;
+    disasterTime = 0;
+}
+
+
+function clearDisasterObjects(){
+
+    meteors.forEach(
+        m=>{
+            if(m.element)
+                m.element.remove();
+        }
+    );
+
+    meteors = [];
+
+    fires.forEach(
+        f=>{
+            if(f)
+                f.remove();
+        }
+    );
+
+    fires = [];
+}
+
+
+/* EVENT */
+
+function showEvent(text){
+
+    eventText.textContent = text;
+
+    eventText.classList.add("show");
+
+    setTimeout(
+        ()=>{
+            eventText.classList.remove("show");
+        },
+        1800
+    );
+}
+
+
+/* HUD */
+
+function updateHUD(){
+
+    timerText.textContent =
+        Math.ceil(timer);
+
+    roundText.textContent =
+        round;
+
+    survivedText.textContent =
+        survived;
+}
+
+
+/* TIMER */
+
+function updateTimer(dt){
+
+    timer -= dt;
+
+    if(timer <= 0){
+        timer = 0;
+    }
+
+    updateHUD();
+}
+
+
+/* HIT */
+
+function createHit(x,y){
+
+    const el =
+        document.createElement("div");
+
+    el.className = "fire";
+
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+
+    el.style.width = "20px";
+    el.style.height = "20px";
+
+    game.appendChild(el);
+
+    setTimeout(
+        ()=>{
+            el.remove();
+        },
+        300
+    );
+}
+
+
+/* LOOP */
+
+function loop(time){
+
+    if(!running)
+        return;
+
+    let dt =
+        (time-lastTime) / 1000;
+
+    lastTime = time;
+
+    dt = Math.min(dt,.04);
+
+    updatePlayer(dt);
+    updateTimer(dt);
+
+    if(!disaster){
+
+        if(timer <= 55){
+            chooseDisaster();
+        }
+
+    }else{
+
+        updateDisaster(dt);
+    }
+
+    requestAnimationFrame(loop);
+}
+
+
+/* ADMIN */
+
+document.getElementById("adminHeal").onclick =
+    ()=>{
+        if(!running){
+            showEvent("▶ НАЧНИ ИГРУ");
+            return;
+        }
+
+        showEvent("❤️ HP ВОССТАНОВЛЕНО");
+    };
+
+
+document.getElementById("adminAddTime").onclick =
+    ()=>{
+        if(!running) return;
+
+        timer += 30;
+
+        showEvent("⏱️ +30 СЕКУНД");
+        updateHUD();
+    };
+
+
+document.getElementById("adminScore").onclick =
+    ()=>{
+        if(!running) return;
+
+        survived += 10;
+
+        showEvent("🏆 +10 ОЧКОВ");
+        updateHUD();
+    };
+
+
+document.getElementById("adminNextRound").onclick =
+    ()=>{
+        if(!running) return;
+
+        clearDisaster();
+
+        round++;
+
+        timer = 60;
+
+        updateHUD();
+
+        showEvent(
+            "🌊 ADMIN: ROUND " +
+            round
+        );
+    };
+
+
+document.getElementById("adminDisaster").onclick =
+    adminDisaster;
+
+
+document.getElementById("adminClear").onclick =
+    ()=>{
+        if(!running) return;
+
+        clearDisaster();
+
+        showEvent(
+            "🧹 КАТАСТРОФА УДАЛЕНА"
+        );
+    };
+
+
+document.getElementById("adminTeleport").onclick =
+    ()=>{
+        if(!running) return;
+
+        playerX =
+            Math.random() *
+            Math.max(
+                1,
+                innerWidth - 43
+            );
+
+        playerY =
+            100 +
+            Math.random() *
+            Math.max(
+                1,
+                innerHeight - 150
+            );
+
+        player.style.left =
+            playerX + "px";
+
+        player.style.top =
+            playerY + "px";
+
+        showEvent(
+            "🌀 ТЕЛЕПОРТ!"
+        );
+    };
+
+
+document.getElementById("adminShield").onclick =
+    ()=>{
+        adminShield = !adminShield;
+
+        player.classList.toggle(
+            "shield",
+            adminShield
+        );
+
+        updateShieldButton();
+
+        showEvent(
+            adminShield
+            ? "🛡️ БЕССМЕРТИЕ ON"
+            : "🛡️ БЕССМЕРТИЕ OFF"
+        );
+    };
+
+
+document.getElementById("adminKill").onclick =
+    ()=>{
+        if(!running) return;
+
+        adminShield = false;
+
+        die(
+            "💀 ADMIN УНИЧТОЖИЛ ТЕБЯ"
+        );
+    };
+
+
+function updateShieldButton(){
+
+    const button =
+        document.getElementById(
+            "adminShield"
+        );
+
+    button.textContent =
+        adminShield
+        ? "🛡️ БЕССМЕРТИЕ: ON"
+        : "🛡️ БЕССМЕРТИЕ: OFF";
+}
+
+
+/* BUTTONS */
+
+document
+    .getElementById("startButton")
+    .onclick =
+    startGame;
+
+document
+    .getElementById("restartButton")
+    .onclick =
+    startGame;
+
+document
+    .getElementById("exitStart")
+    .onclick =
+    exitGame;
+
+document
+    .getElementById("exitGame")
+    .onclick =
+    exitGame;
+
+
+/* INITIAL */
+
+player.style.left =
+    playerX + "px";
+
+player.style.top =
+    playerY + "px";
+
+player.style.display =
+    "none";
+
+updateHUD();
+updateShieldButton();
+
+</script>
+
+</body>
+</html>
+
