@@ -1,362 +1,6555 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Hub</title>
 
-    <title>GameCalc 🎮</title>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-    <link rel="stylesheet" href="style.css">
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#050711;
+    color:#fff;
+    min-height:100vh;
+    overflow-x:hidden;
+    transition:.35s;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background:
+        radial-gradient(circle at 15% 20%,#4c35ff22,transparent 30%),
+        radial-gradient(circle at 85% 75%,#00d9ff1c,transparent 30%);
+    z-index:-2;
+}
+
+body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:.3;
+    background-image:
+        linear-gradient(#ffffff08 1px,transparent 1px),
+        linear-gradient(90deg,#ffffff08 1px,transparent 1px);
+    background-size:45px 45px;
+    z-index:-1;
+}
+
+/* THEMES */
+
+body.vip{
+    background:#090601;
+}
+
+body.vip::before{
+    background:
+        radial-gradient(circle at 15% 20%,#ffd43b30,transparent 32%),
+        radial-gradient(circle at 85% 75%,#ff9d0028,transparent 32%);
+}
+
+body.blue{
+    background:#04101a;
+}
+
+body.purple{
+    background:#0b0615;
+}
+
+body.green{
+    background:#041108;
+}
+
+body.red{
+    background:#100303;
+}
+
+body.red::before{
+    background:
+        radial-gradient(circle at 15% 20%,#ff2d2d30,transparent 32%),
+        radial-gradient(circle at 85% 75%,#ff000028,transparent 32%);
+}
+
+body.gold{
+    background:#0f0a02;
+}
+
+body.gold::before{
+    background:
+        radial-gradient(circle at 15% 20%,#ffd43b30,transparent 32%),
+        radial-gradient(circle at 85% 75%,#ffb70028,transparent 32%);
+}
+
+/* CONTAINER */
+
+.container{
+    width:min(1150px,92%);
+    margin:auto;
+    padding:25px 0 60px;
+}
+
+/* NAV */
+
+nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 20px;
+    margin-bottom:55px;
+    border:1px solid #ffffff18;
+    border-radius:18px;
+    background:#0b0f1ddd;
+    backdrop-filter:blur(15px);
+    box-shadow:0 15px 50px #0006;
+    position:sticky;
+    top:15px;
+    z-index:100;
+}
+
+.logo{
+    font-size:20px;
+    font-weight:900;
+    letter-spacing:2px;
+}
+
+.logo span{
+    color:#42eaff;
+    text-shadow:0 0 15px #00d9ff;
+}
+
+body.vip .logo span{
+    color:#ffd43b;
+    text-shadow:0 0 15px #ffd43b;
+}
+
+.nav-buttons{
+    display:flex;
+    gap:9px;
+    flex-wrap:wrap;
+    justify-content:center;
+}
+
+.nav-btn,
+.button{
+    display:inline-block;
+    border:1px solid #ffffff15;
+    background:#ffffff08;
+    color:#cbd2e9;
+    padding:9px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    text-decoration:none;
+    font-size:13px;
+    font-weight:700;
+    transition:.2s;
+}
+
+.nav-btn:hover,
+.button:hover{
+    transform:translateY(-2px);
+    background:#ffffff15;
+    color:#fff;
+}
+
+.vipNav{
+    border-color:#ffd43b55;
+    color:#ffd95c;
+}
+
+/* HERO */
+
+.hero{
+    text-align:center;
+    margin-bottom:65px;
+    scroll-margin-top:110px;
+}
+
+.badge,
+.vipTag{
+    display:inline-block;
+    padding:8px 14px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:2px;
+}
+
+.badge{
+    border:1px solid #42eaff44;
+    background:#42eaff0d;
+    color:#62eaff;
+    margin-bottom:18px;
+}
+
+h1{
+    font-size:clamp(55px,10vw,105px);
+    line-height:.9;
+    letter-spacing:-6px;
+    font-weight:1000;
+    color:#fff;
+    text-shadow:
+        0 0 10px #ffffff55,
+        0 0 25px #42eaff33;
+}
+
+body.vip h1{
+    color:#ffd43b;
+    text-shadow:
+        0 0 10px #ffd43b88,
+        0 0 30px #ffd43b44;
+}
+
+.subtitle{
+    max-width:650px;
+    margin:25px auto 0;
+    color:#8f99b8;
+    font-size:15px;
+    line-height:1.7;
+}
+
+.play{
+    display:inline-flex;
+    margin-top:30px;
+    padding:15px 35px;
+    border-radius:13px;
+    background:linear-gradient(90deg,#7657ff,#20dfff);
+    color:#fff;
+    text-decoration:none;
+    font-weight:900;
+    box-shadow:0 0 35px #4678ff55;
+    transition:.25s;
+}
+
+body.vip .play{
+    background:linear-gradient(90deg,#b47700,#ffd43b,#ff9d00);
+}
+
+.play:hover{
+    transform:translateY(-4px) scale(1.03);
+}
+
+/* SECTION */
+
+.section-title{
+    display:flex;
+    align-items:end;
+    justify-content:space-between;
+    margin-bottom:18px;
+    scroll-margin-top:110px;
+}
+
+.section-title h2{
+    font-size:28px;
+}
+
+.section-title p{
+    color:#68728f;
+    font-size:13px;
+}
+
+/* GAMES */
+
+.games{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
+}
+
+.card{
+    position:relative;
+    min-height:235px;
+    padding:24px;
+    overflow:hidden;
+    border:1px solid #ffffff16;
+    border-radius:20px;
+    background:linear-gradient(145deg,#10162aee,#090d1bea);
+    box-shadow:0 15px 40px #0005;
+    transition:.3s;
+}
+
+.card:hover{
+    transform:translateY(-7px);
+    border-color:#42eaff55;
+    box-shadow:
+        0 25px 55px #0008,
+        0 0 25px #42eaff12;
+}
+
+.card .icon{
+    width:58px;
+    height:58px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:20px;
+    border-radius:16px;
+    background:#ffffff0b;
+    border:1px solid #ffffff15;
+    font-size:30px;
+}
+
+.card h3{
+    font-size:20px;
+    margin-bottom:8px;
+}
+
+.card p{
+    color:#7e89a7;
+    font-size:13px;
+    line-height:1.6;
+    max-width:270px;
+}
+
+.card a{
+    position:absolute;
+    left:24px;
+    bottom:22px;
+    color:#62eaff;
+    text-decoration:none;
+    font-size:13px;
+    font-weight:900;
+}
+
+.disaster-card{
+    border-color:#ff9d2433;
+}
+
+.glitch-card{
+    border-color:#ff3cff33;
+}
+
+/* COMMON SECTIONS */
+
+.vip-section,
+.about,
+.account-section,
+.admin-section,
+.shop-section{
+    scroll-margin-top:110px;
+    margin-top:70px;
+    padding:35px;
+    border-radius:25px;
+    background:#0b0f1ddd;
+    border:1px solid #ffffff15;
+    box-shadow:0 20px 60px #0005;
+}
+
+/* VIP */
+
+.vip-section{
+    border-color:#ffd43b55;
+    background:linear-gradient(145deg,#171106f5,#090703f5);
+}
+
+.vipTitle{
+    color:#ffd43b;
+    font-size:32px;
+    text-shadow:0 0 20px #ffd43b55;
+}
+
+.vipDescription{
+    color:#9d936f;
+    line-height:1.7;
+    margin:20px 0;
+}
+
+.vipBenefits{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+    margin:25px 0;
+}
+
+.vipBenefit{
+    padding:20px;
+    border-radius:16px;
+    border:1px solid #ffd43b25;
+    background:#ffd43b08;
+}
+
+.vipBenefitIcon{
+    font-size:28px;
+    margin-bottom:10px;
+}
+
+.vipBenefit h3{
+    font-size:16px;
+    margin-bottom:7px;
+}
+
+.vipBenefit p{
+    color:#9a9070;
+    font-size:13px;
+    line-height:1.6;
+}
+
+.vipStatus{
+    padding:16px;
+    margin:20px 0;
+    border-radius:14px;
+    border:1px solid #ffffff12;
+    background:#ffffff06;
+    color:#9ba5bd;
+    line-height:1.6;
+}
+
+.vipStatus.active{
+    border-color:#ffd43b55;
+    background:#ffd43b0c;
+    color:#ffe58a;
+}
+
+/* INPUTS */
+
+.input,
+.select{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #ffffff18;
+    background:#050812;
+    color:#fff;
+    outline:none;
+    margin:5px 0;
+}
+
+.input:focus{
+    border-color:#42eaff77;
+}
+
+/* BUTTONS */
+
+.goldBtn,
+.dangerBtn,
+.adminBtn,
+.shopBtn{
+    border:0;
+    border-radius:10px;
+    padding:12px 16px;
+    font-weight:900;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.goldBtn{
+    background:linear-gradient(90deg,#b47700,#ffd43b,#ff9d00);
+    color:#171000;
+}
+
+.dangerBtn{
+    background:#7e2635;
+    color:#fff;
+}
+
+.adminBtn{
+    background:#293cff;
+    color:#fff;
+}
+
+.shopBtn{
+    background:linear-gradient(90deg,#7657ff,#20dfff);
+    color:#fff;
+}
+
+.goldBtn:hover,
+.dangerBtn:hover,
+.adminBtn:hover,
+.shopBtn:hover{
+    transform:translateY(-2px);
+}
+
+/* ACCOUNT */
+
+.auth-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+}
+
+.box{
+    padding:20px;
+    border:1px solid #ffffff12;
+    border-radius:16px;
+    background:#ffffff05;
+}
+
+.box h3{
+    margin-bottom:12px;
+}
+
+.muted{
+    color:#7e89a7;
+    font-size:13px;
+    line-height:1.6;
+}
+
+.balance{
+    font-size:28px;
+    font-weight:1000;
+    color:#ffd43b;
+    margin:10px 0;
+}
+
+.userInfo{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.avatarCircle{
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#172039;
+    border:1px solid #42eaff44;
+    font-size:22px;
+}
+
+.titleBadge{
+    display:inline-block;
+    padding:4px 8px;
+    margin-top:4px;
+    border-radius:6px;
+    background:#42eaff18;
+    border:1px solid #42eaff44;
+    color:#62eaff;
+    font-size:10px;
+    font-weight:900;
+}
+
+/* AVATAR PICKER */
+
+.avatarPicker{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:12px;
+}
+
+.avatarOption{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    background:#172039;
+    border:1px solid #ffffff18;
+    cursor:pointer;
+    transition:.15s;
+}
+
+.avatarOption:hover{
+    border-color:#42eaff88;
+    transform:scale(1.08);
+}
+
+.avatarOption.selected{
+    border-color:#47e0a7;
+    background:#47e0a722;
+}
+
+/* REFERRAL */
+
+.refCodeBox{
+    font-family:monospace;
+    font-size:15px;
+    font-weight:800;
+    letter-spacing:1px;
+    padding:8px 10px;
+    border-radius:8px;
+    background:#ffffff0a;
+    border:1px dashed #42eaff55;
+    color:#62eaff;
+    text-align:center;
+}
+
+/* ANNOUNCEMENT BANNER */
+
+.announceBanner{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    background:linear-gradient(90deg,#ffd43b22,#ff9d0022);
+    border-bottom:1px solid #ffd43b44;
+    color:#ffe27a;
+    padding:10px 16px;
+    font-size:13px;
+    font-weight:600;
+    text-align:center;
+}
+
+.announceBanner.hidden{
+    display:none;
+}
+
+.announceBanner button{
+    background:none;
+    border:none;
+    color:#ffe27a;
+    cursor:pointer;
+    font-size:14px;
+    opacity:.7;
+}
+
+.announceBanner button:hover{
+    opacity:1;
+}
+
+/* SITE STATS BAR */
+
+.siteStatsBar{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:22px;
+    margin-top:26px;
+    padding-top:20px;
+    border-top:1px solid #ffffff14;
+}
+
+.siteStatsBar .statItem{
+    text-align:center;
+    min-width:110px;
+}
+
+.siteStatsBar .statValue{
+    font-size:22px;
+    font-weight:900;
+    color:#47e0a7;
+}
+
+.siteStatsBar .statLabel{
+    font-size:11px;
+    color:#ffffff88;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+}
+
+/* GAME RATING STARS */
+
+.gameRating{
+    display:flex;
+    align-items:center;
+    gap:2px;
+    margin:8px 0;
+    font-size:15px;
+}
+
+.gameRating .star{
+    cursor:pointer;
+    color:#ffffff30;
+    transition:.1s;
+}
+
+.gameRating .star.filled{
+    color:#ffd43b;
+}
+
+.gameRating:hover .star{
+    color:#ffd43b88;
+}
+
+.gameRating .ratingCount{
+    font-size:10px;
+    color:#ffffff77;
+    margin-left:6px;
+}
+
+/* COSMETIC EFFECTS */
+
+#currentUser.effect-rainbow{
+    background:linear-gradient(90deg,#ff5f6d,#ffc371,#47e0a7,#42eaff,#a06bff,#ff5f6d);
+    background-size:400% 100%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    animation:rainbowShift 3s linear infinite;
+}
+
+@keyframes rainbowShift{
+    0%{background-position:0% 50%}
+    100%{background-position:400% 50%}
+}
+
+#currentUser.effect-fire{
+    color:#ff8a3d;
+    text-shadow:
+        0 0 6px #ff6a00,
+        0 0 14px #ff3d00,
+        0 0 22px #ff0000aa;
+    animation:fireFlicker 1.4s ease-in-out infinite;
+}
+
+@keyframes fireFlicker{
+    0%,100%{
+        text-shadow:
+            0 0 6px #ff6a00,
+            0 0 14px #ff3d00,
+            0 0 22px #ff0000aa;
+    }
+    50%{
+        text-shadow:
+            0 0 10px #ffb347,
+            0 0 20px #ff5e00,
+            0 0 30px #ff2200cc;
+    }
+}
+
+#currentUser.effect-ice{
+    color:#bdf1ff;
+    text-shadow:
+        0 0 6px #7fe9ff,
+        0 0 14px #37c7ffcc,
+        0 0 22px #0084ff88;
+    animation:iceShimmer 2.2s ease-in-out infinite;
+}
+
+@keyframes iceShimmer{
+    0%,100%{opacity:1}
+    50%{opacity:.75}
+}
+
+#currentUser.effect-neon{
+    color:#fff;
+    text-shadow:
+        0 0 4px #fff,
+        0 0 10px #ff2fe0,
+        0 0 18px #ff2fe0,
+        0 0 28px #7a2fff;
+    animation:neonPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes neonPulse{
+    0%,100%{
+        text-shadow:
+            0 0 4px #fff,
+            0 0 10px #ff2fe0,
+            0 0 18px #ff2fe0,
+            0 0 28px #7a2fff;
+    }
+    50%{
+        text-shadow:
+            0 0 2px #fff,
+            0 0 6px #ff2fe0,
+            0 0 10px #ff2fe0,
+            0 0 16px #7a2fff;
+    }
+}
+
+#currentUser.effect-shadow{
+    color:#9b9bb0;
+    text-shadow:
+        0 0 4px #000,
+        0 2px 6px #000c,
+        0 0 16px #00000099;
+}
+
+/* ACHIEVEMENTS */
+
+.achievementsGrid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:10px;
+    margin-top:10px;
+}
+
+.achCard{
+    background:#ffffff08;
+    border:1px solid #ffffff14;
+    border-radius:10px;
+    padding:12px;
+    text-align:center;
+    transition:.2s;
+}
+
+.achCard.locked{
+    opacity:.4;
+    filter:grayscale(1);
+}
+
+.achCard.unlocked{
+    border-color:#47e0a755;
+    background:#47e0a712;
+}
+
+.achIcon{
+    font-size:26px;
+    margin-bottom:4px;
+}
+
+.achName{
+    font-weight:800;
+    font-size:12px;
+}
+
+.achDesc{
+    font-size:10px;
+    color:#ffffff88;
+    margin:4px 0;
+}
+
+.achReward{
+    font-size:11px;
+    font-weight:700;
+    color:#ffd43b;
+}
+
+.achCard.unlocked .achReward{
+    color:#47e0a7;
+}
+
+/* LEADERBOARD */
+
+.lbRow{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 8px;
+    border-bottom:1px solid #ffffff10;
+    font-size:14px;
+}
+
+.lbRow:last-child{
+    border-bottom:none;
+}
+
+.lbRank{
+    width:32px;
+    font-weight:900;
+    color:#ffd43b;
+}
+
+.lbName{
+    flex:1;
+    text-align:left;
+    font-weight:600;
+    padding:0 8px;
+}
+
+.lbValue{
+    font-weight:900;
+    color:#42eaff;
+}
+
+/* SHOP */
+
+.shop-section{
+    border-color:#42eaff33;
+}
+
+.shopBalance{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.shopBalanceNumber{
+    font-size:28px;
+    font-weight:1000;
+    color:#ffd43b;
+}
+
+.shopCategories{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+
+.categoryBtn{
+    padding:9px 14px;
+    border-radius:10px;
+    border:1px solid #ffffff15;
+    background:#ffffff08;
+    color:#9ca7c3;
+    cursor:pointer;
+    font-weight:800;
+}
+
+.categoryBtn.active{
+    color:#fff;
+    border-color:#42eaff66;
+    background:#42eaff16;
+}
+
+.shopGrid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
+
+.shopItem{
+    position:relative;
+    padding:20px;
+    min-height:220px;
+    border:1px solid #ffffff14;
+    border-radius:17px;
+    background:linear-gradient(145deg,#11182b,#090d18);
+    transition:.25s;
+}
+
+.shopItem:hover{
+    transform:translateY(-5px);
+    border-color:#42eaff55;
+}
+
+.shopIcon{
+    font-size:38px;
+    margin-bottom:12px;
+}
+
+.shopItem h3{
+    font-size:17px;
+    margin-bottom:8px;
+}
+
+.shopItem p{
+    color:#7e89a7;
+    font-size:12px;
+    line-height:1.6;
+    min-height:55px;
+}
+
+.shopPrice{
+    color:#ffd43b;
+    font-size:16px;
+    font-weight:1000;
+    margin:12px 0;
+}
+
+.shopOwned{
+    color:#55e79b;
+    font-size:11px;
+    font-weight:900;
+}
+
+/* ADMIN */
+
+.admin-panel{
+    display:none;
+}
+
+.admin-panel.open{
+    display:block;
+}
+
+.admin-tools{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:18px;
+    margin-top:18px;
+}
+
+.user-row,
+.code-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:12px;
+    border-bottom:1px solid #ffffff0d;
+    font-size:13px;
+}
+
+.user-row:last-child,
+.code-row:last-child{
+    border-bottom:0;
+}
+
+.small{
+    font-size:11px;
+    color:#68728f;
+}
+
+.adminShopGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+    margin-top:15px;
+}
+
+/* MODAL */
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:#000b;
+    backdrop-filter:blur(8px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:500;
+    padding:20px;
+}
+
+.modal.open{
+    display:flex;
+}
+
+.modal-card{
+    width:min(500px,100%);
+    padding:28px;
+    border:1px solid #ffffff18;
+    border-radius:20px;
+    background:#0b0f1d;
+    box-shadow:0 30px 100px #000b;
+}
+
+.modal-card h2{
+    margin-bottom:15px;
+}
+
+.modal-actions{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+}
+
+.modal-actions>*{
+    flex:1;
+}
+
+/* FOOTER */
+
+footer{
+    margin-top:50px;
+    padding-top:22px;
+    border-top:1px solid #ffffff12;
+    display:flex;
+    justify-content:space-between;
+    color:#59637f;
+    font-size:12px;
+}
+
+.exit{
+    color:#ff718f;
+}
+
+.hidden{
+    display:none!important;
+}
+
+/* MOBILE */
+
+@media(max-width:850px){
+
+    .games{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .vipBenefits{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .admin-tools,
+    .adminShopGrid{
+        grid-template-columns:1fr;
+    }
+
+    .shopGrid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:570px){
+
+    nav{
+        flex-direction:column;
+        gap:15px;
+    }
+
+    .nav-buttons{
+        width:100%;
+    }
+
+    h1{
+        letter-spacing:-3px;
+    }
+
+    .games,
+    .vipBenefits,
+    .auth-grid,
+    .shopGrid{
+        grid-template-columns:1fr;
+    }
+
+    .vip-section,
+    .about,
+    .account-section,
+    .admin-section,
+    .shop-section{
+        padding:24px;
+    }
+
+    footer{
+        flex-direction:column;
+        gap:8px;
+    }
+}
+</style>
 </head>
 
 <body>
 
-<header>
-    <h1>🎮 GameCalc</h1>
-    <p>The Ultimate Gaming Calculator Hub</p>
-</header>
+<div class="container">
 
 <nav>
-    <button onclick="showPage('home')">🏠 Home</button>
-    <button onclick="showPage('blooket')">🟦 Blooket</button>
-    <button onclick="showPage('minecraft')">⛏️ Minecraft</button>
-    <button onclick="showPage('roblox')">🟩 Roblox</button>
-    <button onclick="showPage('brawl')">⭐ Brawl Stars</button>
-    <button onclick="showPage('universal')">🧮 Universal</button>
-    <button onclick="showPage('ai')">🤖 AI</button>
+
+<div class="logo">
+GAME<span>HUB</span>
+</div>
+
+<div class="nav-buttons">
+
+<a class="nav-btn" href="#home">🏠 Главная</a>
+<a class="nav-btn" href="#games">🎮 Игры</a>
+<a class="nav-btn" href="#shop">🛒 Магазин</a>
+<a class="nav-btn" href="#leaderboard">🏆 Лидеры</a>
+<a class="nav-btn vipNav" href="#vip">👑 VIP</a>
+<a class="nav-btn" href="#account">👤 Аккаунт</a>
+<a class="nav-btn" href="#about">ℹ️ О сайте</a>
+
+<button class="nav-btn" id="adminOpen">
+🛠️ Админка
+</button>
+
+</div>
 </nav>
+
+<div id="announceBanner" class="announceBanner hidden">
+    <span id="announceText"></span>
+    <button id="announceClose">✕</button>
+</div>
 
 <main>
 
-    <!-- HOME -->
-    <section id="home" class="page active">
+<section class="hero" id="home">
 
-        <h2>Welcome to GameCalc! 🎮</h2>
+<div class="badge">
+WELCOME TO THE HUB
+</div>
 
-        <p>
-            Calculate XP, coins, games, resources, coordinates,
-            percentages and more!
-        </p>
+<h1>
+GAME HUB
+</h1>
 
-        <div class="cards">
+<p class="subtitle">
+Добро пожаловать в Game Hub —
+место с небольшими браузерными играми.
+Выбирай игру, зарабатывай GH и покупай
+полезные предметы в магазине.
+</p>
 
-            <div onclick="showPage('blooket')">
-                <span>🟦</span>
-                <h3>Blooket</h3>
-                <p>Coins & games</p>
-            </div>
+<a class="play" href="#games">
+▶ ИГРАТЬ
+</a>
 
-            <div onclick="showPage('minecraft')">
-                <span>⛏️</span>
-                <h3>Minecraft</h3>
-                <p>Resources & coordinates</p>
-            </div>
+<div class="siteStatsBar" id="siteStatsBar"></div>
 
-            <div onclick="showPage('roblox')">
-                <span>🟩</span>
-                <h3>Roblox</h3>
-                <p>Goals & rewards</p>
-            </div>
+</section>
 
-            <div onclick="showPage('brawl')">
-                <span>⭐</span>
-                <h3>Brawl Stars</h3>
-                <p>Progress calculator</p>
-            </div>
 
-            <div onclick="showPage('universal')">
-                <span>🧮</span>
-                <h3>Universal</h3>
-                <p>Math calculator</p>
-            </div>
+<section id="games">
 
-            <div onclick="showPage('ai')">
-                <span>🤖</span>
-                <h3>GameCalc AI</h3>
-                <p>Ask the AI</p>
-            </div>
+<div class="section-title">
 
-        </div>
+<h2>Игры</h2>
 
-    </section>
+<p>Выбери игру</p>
 
+<button class="adminBtn" id="randomGameBtn" style="margin-top:10px">
+🎲 СЛУЧАЙНАЯ ИГРА
+</button>
 
-    <!-- BLOOKET -->
-    <section id="blooket" class="page">
+</div>
 
-        <h2>🟦 Blooket Calculator</h2>
+<div class="games">
 
-        <div class="calculator">
+<article class="card">
 
-            <h3>🎯 Games Needed</h3>
+<div class="icon">🐍</div>
 
-            <input
-                id="bCurrent"
-                type="number"
-                placeholder="Current coins"
-            >
+<h3>Snake</h3>
 
-            <input
-                id="bGoal"
-                type="number"
-                placeholder="Goal coins"
-            >
+<p>
+Классическая змейка.
+Собирай еду, расти
+и не врезайся в стены.
+</p>
 
-            <input
-                id="bEarn"
-                type="number"
-                placeholder="Coins earned per game"
-            >
+<div class="gameRating" data-game="snake"></div>
 
-            <button onclick="blooketCalculator()">
-                Calculate 🚀
-            </button>
+<a href="snake.html">
+ИГРАТЬ →
+</a>
 
-            <div id="bResult" class="result"></div>
+</article>
 
-        </div>
 
-    </section>
+<article class="card">
 
+<div class="icon">🧠</div>
 
-    <!-- MINECRAFT -->
-    <section id="minecraft" class="page">
+<h3>Memory Match</h3>
 
-        <h2>⛏️ Minecraft Calculator</h2>
+<p>
+Найди все пары карточек
+как можно быстрее и
+за меньшее число ходов.
+</p>
 
-        <div class="calculator">
+<div class="gameRating" data-game="memory-match"></div>
 
-            <h3>📦 Resource Calculator</h3>
+<a href="memory-match.html">
+ИГРАТЬ →
+</a>
 
-            <input
-                id="mNeed"
-                type="number"
-                placeholder="Items needed"
-            >
+</article>
 
-            <input
-                id="mHave"
-                type="number"
-                placeholder="Items you have"
-            >
 
-            <button onclick="minecraftResources()">
-                Calculate
-            </button>
+<article class="card">
 
-            <div id="mResult" class="result"></div>
+<div class="icon">🔵</div>
 
-        </div>
+<h3>Shooter</h3>
 
+<p>
+Управляй шариком,
+целься мышкой и
+переживай волны врагов.
+</p>
 
-        <div class="calculator">
+<div class="gameRating" data-game="shooter"></div>
 
-            <h3>🌋 Overworld → Nether</h3>
+<a href="shooter.html">
+ИГРАТЬ →
+</a>
 
-            <input
-                id="overworldX"
-                type="number"
-                placeholder="Overworld X"
-            >
+</article>
 
-            <input
-                id="overworldZ"
-                type="number"
-                placeholder="Overworld Z"
-            >
 
-            <button onclick="netherCoordinates()">
-                Convert
-            </button>
+<article class="card">
 
-            <div id="coordinateResult" class="result"></div>
+<div class="icon">🐦</div>
 
-        </div>
+<h3>Flappy Bird</h3>
 
-    </section>
+<p>
+Пролетай через деревья,
+избегай препятствий
+и побивай свой рекорд.
+</p>
 
+<div class="gameRating" data-game="flappy-bird"></div>
 
-    <!-- ROBLOX -->
-    <section id="roblox" class="page">
 
-        <h2>🟩 Roblox Calculator</h2>
+<a href="flappy-bird.html">
+ИГРАТЬ →
+</a>
 
-        <div class="calculator">
+</article>
 
-            <h3>🎯 Goal Calculator</h3>
 
-            <input
-                id="rCurrent"
-                type="number"
-                placeholder="Current amount"
-            >
+<article class="card">
 
-            <input
-                id="rGoal"
-                type="number"
-                placeholder="Goal amount"
-            >
+<div class="icon">🚗</div>
 
-            <input
-                id="rEarn"
-                type="number"
-                placeholder="Earned per game"
-            >
+<h3>Traffic Dodge</h3>
 
-            <button onclick="robloxCalculator()">
-                Calculate 🚀
-            </button>
+<p>
+Уворачивайся от машин,
+собирай монеты и
+побивай свой рекорд.
+</p>
 
-            <div id="rResult" class="result"></div>
+<div class="gameRating" data-game="traffic-dodge"></div>
 
-        </div>
+<a href="traffic-dodge.html">
+ИГРАТЬ →
+</a>
 
-    </section>
+</article>
 
 
-    <!-- BRAWL STARS -->
-    <section id="brawl" class="page">
+<article class="card">
 
-        <h2>⭐ Brawl Stars Calculator</h2>
+<div class="icon">🏐</div>
 
-        <div class="calculator">
+<h3>Dodgeball Chaos</h3>
 
-            <h3>🏆 Trophy Goal</h3>
+<p>
+Уклоняйся от мяча,
+атакуй соперников
+и постарайся победить.
+</p>
 
-            <input
-                id="bCurrent"
-                type="number"
-                placeholder="Current trophies"
-            >
+<div class="gameRating" data-game="dogeball"></div>
 
-            <input
-                id="bGoalTrophies"
-                type="number"
-                placeholder="Goal trophies"
-            >
+<a href="dogeball.html">
+ИГРАТЬ →
+</a>
 
-            <input
-                id="bTrophiesGame"
-                type="number"
-                placeholder="Average trophies per game"
-            >
+</article>
 
-            <button onclick="brawlCalculator()">
-                Calculate
-            </button>
 
-            <div id="brawlResult" class="result"></div>
+<article class="card disaster-card">
 
-        </div>
+<div class="icon">🌪️</div>
 
-    </section>
+<h3>Natural Disaster Survival</h3>
 
+<p>
+Переживай торнадо,
+землетрясения,
+метеоры, наводнения
+и другие катастрофы.
+</p>
 
-    <!-- UNIVERSAL -->
-    <section id="universal" class="page">
+<div class="gameRating" data-game="natural-disaster"></div>
 
-        <h2>🧮 Universal Calculator</h2>
+<a href="natural-disaster.html">
+ИГРАТЬ →
+</a>
 
-        <div class="calculator">
+</article>
 
-            <input
-                id="number1"
-                type="number"
-                placeholder="Number 1"
-            >
 
-            <input
-                id="number2"
-                type="number"
-                placeholder="Number 2"
-            >
+<article class="card glitch-card">
 
-            <select id="operation">
+<div class="icon">🌀</div>
 
-                <option value="+">
-                    Addition (+)
-                </option>
+<h3>Glitch Arena</h3>
 
-                <option value="-">
-                    Subtraction (-)
-                </option>
+<p>
+Попади на сломанную арену,
+переживай опасные глитчи
+и узнай, что произойдёт.
+</p>
 
-                <option value="*">
-                    Multiplication (×)
-                </option>
+<div class="gameRating" data-game="glitch-arena"></div>
 
-                <option value="/">
-                    Division (÷)
-                </option>
+<a href="glitch-arena.html">
+ИГРАТЬ →
+</a>
 
-                <option value="%">
-                    Percentage
-                </option>
+</article>
 
-            </select>
+</div>
+</section>
 
-            <button onclick="universalCalculator()">
-                Calculate
-            </button>
 
-            <div id="universalResult" class="result"></div>
+<!-- LEADERBOARD -->
 
-        </div>
+<section class="shop-section" id="leaderboard">
 
-    </section>
+<div class="section-title">
 
+<h2>🏆 Лидеры</h2>
 
-    <!-- AI -->
-    <section id="ai" class="page">
+<p>Лучшие игроки GameHub</p>
 
-        <h2>🤖 GameCalc AI</h2>
+</div>
 
-        <p>
-            Ask GameCalc AI about gaming calculations!
-        </p>
+<div class="shopCategories" id="lbTabs"></div>
 
-        <div class="calculator aiBox">
+<div id="leaderboardList" class="box" style="margin-top:14px"></div>
 
-            <div id="chat" class="chat">
+<div id="hallOfFameBox" class="box" style="margin-top:14px"></div>
 
-                <div class="aiMessage">
-                    🤖 AI: Hey! I'm GameCalc AI.
-                    Ask me about Blooket, Minecraft,
-                    Roblox, Brawl Stars or calculations!
-                </div>
+</section>
 
-            </div>
 
-            <div class="aiInputArea">
+<!-- SHOP -->
 
-                <input
-                    id="aiInput"
-                    type="text"
-                    placeholder="Ask GameCalc AI..."
-                    onkeydown="if(event.key === 'Enter') askAI()"
-                >
+<section class="shop-section" id="shop">
 
-                <button onclick="askAI()">
-                    Send 🚀
-                </button>
+<div class="section-title">
 
-            </div>
+<h2>🛒 Магазин</h2>
 
-        </div>
+<p>Трать GH с пользой</p>
 
-    </section>
+</div>
+
+
+<div class="shopBalance">
+
+<div>
+
+<div class="muted">
+Твой баланс
+</div>
+
+<div class="shopBalanceNumber">
+💰 <span id="shopBalance">0</span> GH
+</div>
+
+</div>
+
+<div id="shopUserStatus" class="muted">
+Войди в аккаунт, чтобы покупать.
+</div>
+
+</div>
+
+
+<input
+class="input"
+id="shopSearch"
+placeholder="🔍 Поиск товара..."
+style="margin-bottom:14px"
+>
+
+
+<div class="shopCategories">
+
+<button class="categoryBtn active" data-category="all">
+🌟 Всё
+</button>
+
+<button class="categoryBtn" data-category="title">
+🏷️ Титулы
+</button>
+
+<button class="categoryBtn" data-category="theme">
+🎨 Темы
+</button>
+
+<button class="categoryBtn" data-category="vip">
+👑 VIP
+</button>
+
+<button class="categoryBtn" data-category="effect">
+✨ Эффекты
+</button>
+
+</div>
+
+
+<div
+class="shopGrid"
+id="shopGrid"
+></div>
+
+</section>
+
+
+<!-- VIP -->
+
+<section class="vip-section" id="vip">
+
+<div class="vipTag">
+PREMIUM STATUS
+</div>
+
+<h2 class="vipTitle">
+👑 GAME HUB VIP
+</h2>
+
+<p class="vipDescription">
+VIP можно получить кодом или через магазин.
+Статус сохраняется в аккаунте.
+</p>
+
+<div class="vipBenefits">
+
+<div class="vipBenefit">
+
+<div class="vipBenefitIcon">
+👑
+</div>
+
+<h3>VIP-бейдж</h3>
+
+<p>
+Особый статус аккаунта.
+</p>
+
+</div>
+
+
+<div class="vipBenefit">
+
+<div class="vipBenefitIcon">
+✨
+</div>
+
+<h3>VIP-тема</h3>
+
+<p>
+Золотой внешний вид сайта.
+</p>
+
+</div>
+
+
+<div class="vipBenefit">
+
+<div class="vipBenefitIcon">
+💾
+</div>
+
+<h3>Сохранение</h3>
+
+<p>
+Статус сохраняется в браузере.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="vipStatus" id="vipStatus">
+🔒 VIP пока не активирован.
+</div>
+
+
+<div id="vipActivation">
+
+<input
+class="input"
+id="vipCode"
+type="password"
+placeholder="Введи VIP-код"
+>
+
+<button
+class="goldBtn"
+id="activateVip"
+>
+👑 АКТИВИРОВАТЬ VIP
+</button>
+
+</div>
+
+
+<button
+class="goldBtn hidden"
+id="removeVip"
+>
+🔓 ОТКЛЮЧИТЬ VIP
+</button>
+
+</section>
+
+
+<!-- ACCOUNT -->
+
+<section class="account-section" id="account">
+
+<div class="section-title">
+
+<h2>👤 Аккаунт</h2>
+
+<p id="accountHint">
+Войди или создай аккаунт
+</p>
+
+</div>
+
+
+<div id="loggedOut" class="auth-grid">
+
+<div class="box">
+
+<h3>
+Вход
+</h3>
+
+<input
+class="input"
+id="loginName"
+placeholder="Имя пользователя"
+>
+
+<input
+class="input"
+id="loginPass"
+type="password"
+placeholder="Пароль"
+>
+
+<button
+class="adminBtn"
+id="loginBtn"
+>
+ВОЙТИ
+</button>
+
+</div>
+
+
+<div class="box">
+
+<h3>
+Регистрация
+</h3>
+
+<input
+class="input"
+id="regName"
+placeholder="Имя пользователя"
+>
+
+<input
+class="input"
+id="regPass"
+type="password"
+placeholder="Пароль"
+>
+
+<input
+class="input"
+id="regRefCode"
+placeholder="Реферальный код (необязательно)"
+>
+
+<button
+class="goldBtn"
+id="registerBtn"
+>
+СОЗДАТЬ АККАУНТ
+</button>
+
+</div>
+
+</div>
+
+
+<div
+id="loggedIn"
+class="box hidden"
+>
+
+<div class="userInfo">
+
+<div class="avatarCircle" id="avatarCircle">
+🎮
+</div>
+
+<div>
+
+<b id="currentUser"></b>
+
+<div id="vipLabel" class="small"></div>
+
+<div id="titleLabel"></div>
+
+<div id="streakLabel" class="small"></div>
+
+<div id="securityLabel" class="small"></div>
+<button class="adminBtn" id="setup2FABtn" style="margin-top:8px">🔐 НАСТРОИТЬ 2FA</button>
+
+</div>
+
+</div>
+
+
+<div class="avatarPicker" id="avatarPicker"></div>
+
+
+<div class="balance">
+💰 <span id="balance">0</span> GH
+</div>
+
+
+<p class="muted">
+GH можно использовать в магазине для
+покупки титулов, тем, эффектов и VIP.
+</p>
+
+
+<div class="box" style="margin-top:12px">
+
+<h3>
+🤝 Реферальная программа
+</h3>
+
+<p class="muted" style="margin-bottom:8px">
+Поделись кодом с другом. Ты получишь 150 GH,
+он получит 100 GH при регистрации по коду.
+</p>
+
+<div class="refCodeBox" id="refCodeBox"></div>
+
+<button
+class="adminBtn"
+id="copyRefCode"
+style="margin-top:8px"
+>
+📋 СКОПИРОВАТЬ КОД
+</button>
+
+<p class="small" id="refStats" style="margin-top:8px"></p>
+
+</div>
+
+
+<div class="box" style="margin-top:12px">
+
+<h3>
+🎟️ Активировать код
+</h3>
+
+<input
+class="input"
+id="redeemCodeInput"
+placeholder="Введи код"
+>
+
+<button
+class="goldBtn"
+id="redeemCodeBtn"
+>
+АКТИВИРОВАТЬ
+</button>
+
+</div>
+
+
+<div class="box" style="margin-top:12px">
+
+<h3>
+🎖️ Достижения
+</h3>
+
+<div id="achievementsGrid" class="achievementsGrid"></div>
+
+</div>
+
+
+<div class="box" style="margin-top:12px">
+
+<h3>
+🔑 Сменить пароль
+</h3>
+
+<input
+class="input"
+id="curPassInput"
+type="password"
+placeholder="Текущий пароль"
+>
+
+<input
+class="input"
+id="newPassInput"
+type="password"
+placeholder="Новый пароль"
+>
+
+<input
+class="input"
+id="newPassConfirm"
+type="password"
+placeholder="Повтори новый пароль"
+>
+
+<button
+class="adminBtn"
+id="changePassBtn"
+>
+СМЕНИТЬ ПАРОЛЬ
+</button>
+
+</div>
+
+
+<div class="box" style="margin-top:12px">
+
+<h3>
+💾 Резервная копия
+</h3>
+
+<p class="muted" style="margin-bottom:8px">
+Сохрани данные аккаунта в файл или
+восстанови их на другом устройстве.
+</p>
+
+<button
+class="adminBtn"
+id="exportDataBtn"
+>
+📤 ЭКСПОРТ ДАННЫХ
+</button>
+
+<input
+type="file"
+id="importFileInput"
+accept="application/json"
+class="hidden"
+>
+
+<button
+class="goldBtn"
+id="importDataBtn"
+style="margin-top:6px"
+>
+📥 ИМПОРТ ДАННЫХ
+</button>
+
+</div>
+
+
+<div class="box" style="margin-top:12px">
+
+<h3>
+🎁 Подарить GH
+</h3>
+
+<input
+class="input"
+id="giftUserInput"
+placeholder="Имя игрока"
+>
+
+<input
+class="input"
+id="giftAmountInput"
+type="number"
+placeholder="Количество GH"
+>
+
+<button
+class="goldBtn"
+id="sendGiftBtn"
+>
+ПОДАРИТЬ
+</button>
+
+</div>
+
+
+<button
+class="dangerBtn"
+id="logoutBtn"
+>
+ВЫЙТИ
+</button>
+
+<button
+class="dangerBtn"
+id="deleteAccountBtn"
+style="margin-top:10px;opacity:.7"
+>
+🗑️ УДАЛИТЬ АККАУНТ
+</button>
+
+</div>
+
+</section>
+
+
+<!-- ABOUT -->
+
+
+<section class="about" id="about">
+
+<h2>
+О Game Hub
+</h2>
+
+<br>
+
+<p class="muted">
+Game Hub — коллекция браузерных игр.
+Здесь есть аккаунты, GH, магазин,
+VIP, SUPER VIP, титулы, коды,
+темы и панель администратора.
+</p>
+
+</section>
+
+
+<!-- ADMIN -->
+
+<section
+class="admin-section"
+id="adminSection"
+>
+
+<div class="section-title">
+
+<h2>
+🛠️ Админка
+</h2>
+
+<p>
+Только для владельца
+</p>
+
+</div>
+
+
+<div class="box">
+
+<p class="muted">
+Управление пользователями, GH,
+VIP, SUPER VIP, титулами, кодами,
+товарами магазина и темой сайта.
+</p>
+
+<br>
+
+<button
+class="adminBtn"
+id="adminLoginBtn"
+>
+🔐 ВОЙТИ В АДМИНКУ
+</button>
+
+</div>
+
+
+<div
+class="admin-panel"
+id="adminPanel"
+>
+
+<div class="admin-tools">
+
+
+<!-- THEME -->
+
+<div class="box">
+
+<h3>
+🎨 Тема
+</h3>
+
+<select
+class="select"
+id="themeSelect"
+>
+
+<option value="default">
+Neon
+</option>
+
+<option value="blue">
+Blue
+</option>
+
+<option value="purple">
+Purple
+</option>
+
+<option value="green">
+Green
+</option>
+
+<option value="vip">
+Gold VIP
+</option>
+
+</select>
+
+<button
+class="adminBtn"
+id="saveTheme"
+>
+СОХРАНИТЬ ТЕМУ
+</button>
+
+</div>
+
+
+<!-- ANNOUNCEMENT -->
+
+<div class="box">
+
+<h3>
+📢 Объявление
+</h3>
+
+<input
+class="input"
+id="announceInput"
+placeholder="Текст объявления для всех"
+>
+
+<button
+class="goldBtn"
+id="publishAnnounce"
+>
+ОПУБЛИКОВАТЬ
+</button>
+
+<button
+class="dangerBtn"
+id="clearAnnounce"
+style="margin-top:6px"
+>
+УБРАТЬ ОБЪЯВЛЕНИЕ
+</button>
+
+</div>
+
+
+<!-- HALL OF FAME -->
+
+<div class="box">
+
+<h3>
+📸 Зал славы
+</h3>
+
+<p class="muted" style="margin-bottom:8px">
+Сохранить текущий топ-3 по балансу
+как запись в Зале славы навсегда.
+</p>
+
+<button
+class="goldBtn"
+id="snapshotHallBtn"
+>
+СОХРАНИТЬ ТОП-3
+</button>
+
+</div>
+
+
+<!-- MONEY -->
+
+<div class="box">
+
+<h3>
+💰 Выдать GH
+</h3>
+
+<input
+class="input"
+id="moneyUser"
+placeholder="Имя пользователя"
+>
+
+<input
+class="input"
+id="moneyAmount"
+type="number"
+placeholder="Количество"
+>
+
+<button
+class="goldBtn"
+id="giveMoney"
+>
+ВЫДАТЬ
+</button>
+
+</div>
+
+
+<!-- RESET PASSWORD -->
+
+<div class="box">
+
+<h3>
+🔑 Сбросить пароль
+</h3>
+
+<p class="muted" style="margin-bottom:8px">
+Если игрок потерял пароль,
+задай ему новый вручную. Также
+здесь можно задать/сбросить пароль
+владельца (gnomxpro) или help-аккаунта
+(GameHubOfficial).
+</p>
+
+<input
+class="input"
+id="resetPassUser"
+placeholder="Имя пользователя"
+>
+
+<input
+class="input"
+id="resetPassNew"
+type="text"
+placeholder="Новый пароль (мин. 6 символов)"
+>
+
+<button
+class="dangerBtn"
+id="resetPassBtn"
+>
+СБРОСИТЬ ПАРОЛЬ
+</button>
+
+</div>
+
+
+<!-- CODE -->
+
+<div class="box">
+
+<h3>
+🎟️ Создать код GH
+</h3>
+
+<input
+class="input"
+id="newCode"
+placeholder="Код"
+>
+
+<input
+class="input"
+id="newCodeAmount"
+type="number"
+placeholder="Количество GH"
+>
+
+<button
+class="adminBtn"
+id="createCode"
+>
+СОЗДАТЬ КОД
+</button>
+
+</div>
+
+
+<!-- VIP CODE -->
+
+<div class="box">
+
+<h3>
+👑 Создать VIP-код
+</h3>
+
+<input
+class="input"
+id="newVipCode"
+placeholder="Код"
+>
+
+<button
+class="goldBtn"
+id="createVipCode"
+>
+СОЗДАТЬ VIP-КОД
+</button>
+
+</div>
+
+
+<!-- VIP -->
+
+<div class="box">
+
+<h3>
+👑 VIP
+</h3>
+
+<input
+class="input"
+id="vipUser"
+placeholder="Имя пользователя"
+>
+
+<button
+class="goldBtn"
+id="giveVip"
+>
+ВЫДАТЬ VIP
+</button>
+
+<button
+class="dangerBtn"
+id="removeUserVip"
+>
+ЗАБРАТЬ VIP
+</button>
+
+</div>
+
+
+<!-- TITLE -->
+
+<div class="box">
+
+<h3>
+🏷️ Выдать титул
+</h3>
+
+<input
+class="input"
+id="titleUser"
+placeholder="Имя пользователя"
+>
+
+<select
+class="select"
+id="titleSelect"
+>
+
+<option value="ADMIN">
+ADMIN
+</option>
+
+<option value="TEST">
+TEST
+</option>
+
+<option value="GAMER">
+GAMER
+</option>
+
+<option value="LEGEND">
+LEGEND
+</option>
+
+</select>
+
+<button
+class="adminBtn"
+id="giveTitle"
+>
+ВЫДАТЬ ТИТУЛ
+</button>
+
+</div>
+
+
+<!-- SUPER VIP -->
+
+<div class="box">
+
+<h3>
+💎 SUPER VIP
+</h3>
+
+<input
+class="input"
+id="superVipUser"
+placeholder="Имя пользователя"
+>
+
+<button
+class="goldBtn"
+id="giveSuperVip"
+>
+ВЫДАТЬ SUPER VIP
+</button>
+
+<button
+class="dangerBtn"
+id="removeSuperVip"
+>
+ЗАБРАТЬ SUPER VIP
+</button>
+
+</div>
+
+
+<!-- CREATE SHOP ITEM -->
+
+<div class="box">
+
+<h3>
+🛒 Создать товар
+</h3>
+
+<input
+class="input"
+id="shopName"
+placeholder="Название"
+>
+
+<input
+class="input"
+id="shopIcon"
+placeholder="Иконка, например 👑"
+>
+
+<input
+class="input"
+id="shopPrice"
+type="number"
+placeholder="Цена GH"
+>
+
+<select
+class="select"
+id="shopCategory"
+>
+
+<option value="title">
+Титул
+</option>
+
+<option value="theme">
+Тема
+</option>
+
+<option value="vip">
+VIP
+</option>
+
+<option value="effect">
+Эффект
+</option>
+
+</select>
+
+<input
+class="input"
+id="shopValue"
+placeholder="Значение товара"
+>
+
+<button
+class="adminBtn"
+id="createShopItem"
+>
+СОЗДАТЬ ТОВАР
+</button>
+
+</div>
+
+</div>
+
+
+<!-- USERS -->
+
+<div
+class="box"
+style="margin-top:18px"
+>
+
+<h3>
+👥 Пользователи
+</h3>
+
+<input
+class="input"
+id="adminUserSearch"
+placeholder="🔍 Поиск по имени..."
+style="margin-bottom:10px"
+>
+
+<div id="usersList"></div>
+
+</div>
+
+
+<!-- AUDIT LOG -->
+
+<div
+class="box"
+style="margin-top:18px"
+>
+
+<h3>
+📋 Журнал действий
+</h3>
+
+<div id="adminLogList" class="small" style="max-height:220px;overflow-y:auto"></div>
+
+</div>
+
+
+<!-- CODES -->
+
+<div
+class="box"
+style="margin-top:18px"
+>
+
+<h3>
+🎟️ Коды
+</h3>
+
+<div id="codesList"></div>
+
+</div>
+
+
+<!-- SHOP ADMIN -->
+
+<div
+class="box"
+style="margin-top:18px"
+>
+
+<h3>
+🛒 Товары магазина
+</h3>
+
+<div id="adminShopList"></div>
+
+</div>
+
+
+<button
+class="dangerBtn"
+id="adminLogout"
+style="margin-top:18px"
+>
+ВЫЙТИ ИЗ АДМИНКИ
+</button>
+
+</div>
+
+</section>
 
 </main>
 
 
 <footer>
-    🎮 GameCalc © 2026
-    <br>
-    Made with HTML + CSS + JavaScript
+
+<span>
+GAME HUB • Version 3.0
+</span>
+
+<span class="exit">
+ESC — ВВЕРХ
+</span>
+
 </footer>
 
+</div>
 
-<script src="script.js"></script>
+
+<!-- MODAL -->
+
+<div
+class="modal"
+id="messageModal"
+>
+
+<div class="modal-card">
+
+<h2 id="modalTitle">
+Game Hub
+</h2>
+
+<p
+class="muted"
+id="modalText"
+></p>
+
+<div class="modal-actions">
+
+<button
+class="adminBtn"
+id="modalClose"
+>
+OK
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script src="gamehub-bridge.js"></script>
+<script>
+"use strict";
+
+/* =========================
+   SETTINGS
+========================= */
+
+const VIP_CODE = "VIP2026";
+
+/* Admin password is stored as a SHA-256 hash rather than plain text.
+   The password itself is still "ADMIN2026" - only how it's checked changed. */
+const ADMIN_PASSWORD_HASH =
+    "64e48f3bf07307f751c02213b95e0b5e1e8351597dfbe12bce5cbf115591ce3f";
+
+const OWNER_USERNAME = "gnomxpro";
+const OWNER_DISPLAY = "gnomxpro";
+
+const HELPER_USERNAME = "gamehubofficial";
+const HELPER_DISPLAY = "GameHubOfficial";
+
+const DB_KEY = "gameHubDatabase";
+const SESSION_KEY = "gameHubSession";
+const THEME_KEY = "gameHubTheme";
+
+/* =========================
+   DATABASE
+========================= */
+
+let db;
+
+try{
+
+    db =
+        JSON.parse(
+            localStorage.getItem(DB_KEY)
+        ) ||
+        {
+            users:[],
+            codes:[],
+            shop:[]
+        };
+
+}catch{
+
+    db={
+        users:[],
+        codes:[],
+        shop:[]
+    };
+
+}
+
+if(!Array.isArray(db.users))
+    db.users=[];
+
+if(!Array.isArray(db.codes))
+    db.codes=[];
+
+if(!Array.isArray(db.shop))
+    db.shop=[];
+
+if(db.announcement === undefined)
+    db.announcement = null;
+
+if(!db.ratings || typeof db.ratings !== "object")
+    db.ratings = {};
+
+if(!Array.isArray(db.hallOfFame))
+    db.hallOfFame = [];
+
+if(!Array.isArray(db.adminLog))
+    db.adminLog = [];
+
+db.users.forEach(u => {
+    if(typeof u.twoFAEnabled !== "boolean") u.twoFAEnabled=false;
+    if(typeof u.twoFASecret !== "string") u.twoFASecret="";
+    if(typeof u.nickname !== "string") u.nickname=u.name;
+    if(!u.scores || typeof u.scores !== "object") u.scores={};
+    if(!u.wins || typeof u.wins !== "object") u.wins={};
+    if(!u.playsByGame || typeof u.playsByGame !== "object") u.playsByGame={};
+    if(typeof u.gamesPlayed !== "number") u.gamesPlayed=0;
+    if(typeof u.giftsSent !== "number") u.giftsSent=0;
+    if(typeof u.banned !== "boolean") u.banned=false;
+    if(!Array.isArray(u.achievements)) u.achievements=[];
+    if(typeof u.avatar !== "string" || !u.avatar) u.avatar="🎮";
+    if(typeof u.refCode !== "string" || !u.refCode) u.refCode="REF-"+u.name.toUpperCase();
+    if(typeof u.referredBy !== "string") u.referredBy="";
+    if(!Array.isArray(u.referrals)) u.referrals=[];
+    if(typeof u.loginStreak !== "number") u.loginStreak=0;
+    if(typeof u.lastLogin !== "string") u.lastLogin="";
+});
+
+
+let session =
+    localStorage.getItem(
+        SESSION_KEY
+    ) || "";
+
+let admin = false;
+
+
+/* =========================
+   DEFAULT SHOP
+========================= */
+
+function createDefaultShop(){
+
+    if(db.shop.length > 0)
+        return;
+
+    db.shop = [
+
+        {
+            id:"test-title",
+            name:"TEST",
+            icon:"🧪",
+            price:500,
+            category:"title",
+            value:"TEST"
+        },
+
+        {
+            id:"gamer-title",
+            name:"GAMER",
+            icon:"🎮",
+            price:750,
+            category:"title",
+            value:"GAMER"
+        },
+
+        {
+            id:"legend-title",
+            name:"LEGEND",
+            icon:"🔥",
+            price:2500,
+            category:"title",
+            value:"LEGEND"
+        },
+
+        {
+            id:"blue-theme",
+            name:"Blue Theme",
+            icon:"🔵",
+            price:750,
+            category:"theme",
+            value:"blue"
+        },
+
+        {
+            id:"purple-theme",
+            name:"Purple Theme",
+            icon:"🟣",
+            price:750,
+            category:"theme",
+            value:"purple"
+        },
+
+        {
+            id:"green-theme",
+            name:"Green Theme",
+            icon:"🟢",
+            price:750,
+            category:"theme",
+            value:"green"
+        },
+
+        {
+            id:"vip",
+            name:"VIP",
+            icon:"👑",
+            price:5000,
+            category:"vip",
+            value:"vip"
+        },
+
+        {
+            id:"super-vip",
+            name:"SUPER VIP",
+            icon:"💎",
+            price:10000,
+            category:"vip",
+            value:"supervip"
+        },
+
+        {
+            id:"rainbow",
+            name:"Rainbow Effect",
+            icon:"🌈",
+            price:2500,
+            category:"effect",
+            value:"rainbow"
+        },
+
+        {
+            id:"fire",
+            name:"Fire Effect",
+            icon:"🔥",
+            price:3500,
+            category:"effect",
+            value:"fire"
+        },
+
+        {
+            id:"noob-title",
+            name:"NOOB",
+            icon:"🤡",
+            price:100,
+            category:"title",
+            value:"NOOB"
+        },
+
+        {
+            id:"pro-title",
+            name:"PRO",
+            icon:"⭐",
+            price:1500,
+            category:"title",
+            value:"PRO"
+        },
+
+        {
+            id:"god-title",
+            name:"GOD",
+            icon:"⚡",
+            price:6000,
+            category:"title",
+            value:"GOD"
+        },
+
+        {
+            id:"red-theme",
+            name:"Red Theme",
+            icon:"🔴",
+            price:800,
+            category:"theme",
+            value:"red"
+        },
+
+        {
+            id:"gold-theme",
+            name:"Gold Theme",
+            icon:"🟡",
+            price:1500,
+            category:"theme",
+            value:"gold"
+        },
+
+        {
+            id:"ice",
+            name:"Ice Effect",
+            icon:"❄️",
+            price:2000,
+            category:"effect",
+            value:"ice"
+        },
+
+        {
+            id:"neon",
+            name:"Neon Effect",
+            icon:"💡",
+            price:3200,
+            category:"effect",
+            value:"neon"
+        },
+
+        {
+            id:"shadow",
+            name:"Shadow Effect",
+            icon:"🖤",
+            price:1800,
+            category:"effect",
+            value:"shadow"
+        }
+
+    ];
+
+    saveDB();
+}
+
+createDefaultShop();
+
+/* Merge in any new default items for databases saved before
+   this update, without touching items already owned/purchased. */
+(function mergeNewShopItems(){
+
+    const DEFAULTS = [
+        ["test-title","TEST","🧪",500,"title","TEST"],
+        ["gamer-title","GAMER","🎮",750,"title","GAMER"],
+        ["legend-title","LEGEND","🔥",2500,"title","LEGEND"],
+        ["blue-theme","Blue Theme","🔵",750,"theme","blue"],
+        ["purple-theme","Purple Theme","🟣",750,"theme","purple"],
+        ["green-theme","Green Theme","🟢",750,"theme","green"],
+        ["vip","VIP","👑",5000,"vip","vip"],
+        ["super-vip","SUPER VIP","💎",10000,"vip","supervip"],
+        ["rainbow","Rainbow Effect","🌈",2500,"effect","rainbow"],
+        ["fire","Fire Effect","🔥",3500,"effect","fire"],
+        ["noob-title","NOOB","🤡",100,"title","NOOB"],
+        ["pro-title","PRO","⭐",1500,"title","PRO"],
+        ["god-title","GOD","⚡",6000,"title","GOD"],
+        ["red-theme","Red Theme","🔴",800,"theme","red"],
+        ["gold-theme","Gold Theme","🟡",1500,"theme","gold"],
+        ["ice","Ice Effect","❄️",2000,"effect","ice"],
+        ["neon","Neon Effect","💡",3200,"effect","neon"],
+        ["shadow","Shadow Effect","🖤",1800,"effect","shadow"]
+    ];
+
+    let changed = false;
+
+    DEFAULTS.forEach(d => {
+
+        const exists =
+            db.shop.some(
+                x => x.id === d[0]
+            );
+
+        if(!exists){
+
+            db.shop.push({
+                id:d[0],
+                name:d[1],
+                icon:d[2],
+                price:d[3],
+                category:d[4],
+                value:d[5]
+            });
+
+            changed = true;
+
+        }
+
+    });
+
+    if(changed)
+        saveDB();
+
+})();
+
+
+/* =========================
+   SAVE
+========================= */
+
+function saveDB(){
+
+    localStorage.setItem(
+        DB_KEY,
+        JSON.stringify(db)
+    );
+
+}
+saveDB();
+
+
+
+/* =========================
+   ELEMENT
+========================= */
+
+const $ =
+    id =>
+        document.getElementById(id);
+
+
+/* =========================
+   MESSAGE
+========================= */
+
+function msg(title,text){
+
+    $("modalTitle").textContent =
+        title;
+
+    $("modalText").textContent =
+        text;
+
+    $("messageModal")
+        .classList
+        .add("open");
+
+}
+
+$("modalClose").onclick =
+    () => {
+
+        $("messageModal")
+            .classList
+            .remove("open");
+
+    };
+
+
+/* =========================
+   USER
+========================= */
+
+function user(){
+
+    return db.users.find(
+        u =>
+            u.name === session
+    );
+
+}
+
+
+/* =========================
+   NAME
+========================= */
+
+function normalizeName(name){
+
+    return name
+        .trim()
+        .replace(/\s+/g,"");
+
+}
+
+function validUserName(name){
+
+    return /^[A-Za-zА-Яа-я0-9_]{3,20}$/
+        .test(name);
+
+}
+
+
+/* =========================
+   ESCAPE HTML
+========================= */
+
+function escapeHTML(value){
+
+    return String(value)
+        .replace(
+            /[&<>"']/g,
+            char =>
+                ({
+                    "&":"&amp;",
+                    "<":"&lt;",
+                    ">":"&gt;",
+                    '"':"&quot;",
+                    "'":"&#039;"
+                }[char])
+        );
+
+}
+
+
+/* =========================
+   THEME
+========================= */
+
+function applyTheme(){
+
+    document.body.classList.remove(
+        "vip",
+        "blue",
+        "purple",
+        "green",
+        "red",
+        "gold"
+    );
+
+    const theme =
+        localStorage.getItem(
+            THEME_KEY
+        ) || "default";
+
+    if(theme !== "default"){
+
+        document.body.classList.add(
+            theme
+        );
+
+    }
+
+}
+
+applyTheme();
+
+
+/* =========================
+   ACCOUNT
+========================= */
+
+function updateAccount(){
+
+    const u =
+        user();
+
+    if(!u){
+
+        $("loggedOut")
+            .classList
+            .remove("hidden");
+
+        $("loggedIn")
+            .classList
+            .add("hidden");
+
+        $("accountHint")
+            .textContent =
+            "Войди или создай аккаунт";
+
+        updateShop();
+        renderLeaderboard();
+        renderAchievements();
+        renderSiteStats();
+        renderGameRatings();
+
+        return;
+
+    }
+
+    $("loggedOut")
+        .classList
+        .add("hidden");
+
+    $("loggedIn")
+        .classList
+        .remove("hidden");
+
+    $("accountHint")
+        .textContent =
+        "Аккаунт сохранён локально";
+
+    $("currentUser")
+        .textContent =
+        u.name;
+
+    ["rainbow","fire","ice","neon","shadow"].forEach(
+        fx => {
+
+            $("currentUser")
+                .classList
+                .toggle(
+                    "effect-" + fx,
+                    !!(u.effects && u.effects.includes(fx))
+                );
+
+        }
+    );
+
+    $("balance")
+        .textContent =
+        u.balance;
+
+    $("vipLabel")
+        .textContent =
+        u.superVip
+            ? "💎 SUPER VIP"
+            : u.vip
+            ? "👑 VIP АКТИВЕН"
+            : "Обычный аккаунт";
+
+    $("titleLabel")
+        .innerHTML =
+        u.title
+            ?
+            `<span class="titleBadge">
+                🏷️ ${escapeHTML(u.title)}
+            </span>`
+            :
+            "";
+
+    $("avatarCircle").textContent =
+        u.avatar || "🎮";
+
+    renderAvatarPicker(u);
+
+    $("refCodeBox").textContent =
+        u.refCode;
+
+    $("refStats").textContent =
+        `👥 Приглашено друзей: ${(u.referrals||[]).length}`;
+
+    checkDailyBonus(u);
+
+    updateSecurityLabel();
+    updateShop();
+
+    if(window.GameHub){
+
+        const unlocked =
+            GameHub.checkAchievements(u);
+
+        if(unlocked.length > 0){
+
+            saveDB();
+
+            msg(
+                "🎖️ Новое достижение!",
+                unlocked
+                    .map(
+                        a =>
+                            `${a.icon} ${a.name} (+${a.reward} GH)`
+                    )
+                    .join("  •  ")
+            );
+
+        }
+
+    }
+
+    renderAchievements();
+    renderLeaderboard();
+    renderSiteStats();
+    renderGameRatings();
+
+}
+
+
+/* =========================
+   ACHIEVEMENTS
+========================= */
+
+function renderAchievements(){
+
+    const grid = $("achievementsGrid");
+
+    if(!grid)
+        return;
+
+    if(!window.GameHub){
+
+        grid.innerHTML =
+            "<p class='muted'>Достижения недоступны.</p>";
+
+        return;
+
+    }
+
+    const u = user();
+
+    const owned =
+        (u && Array.isArray(u.achievements))
+            ? u.achievements
+            : [];
+
+    grid.innerHTML =
+        GameHub.ACHIEVEMENTS
+            .map(a => {
+
+                const unlocked =
+                    owned.includes(a.id);
+
+                return `
+                <div class="achCard ${unlocked ? "unlocked" : "locked"}">
+                    <div class="achIcon">${a.icon}</div>
+                    <div class="achName">${escapeHTML(a.name)}</div>
+                    <div class="achDesc">${escapeHTML(a.desc)}</div>
+                    <div class="achReward">
+                        ${unlocked ? "✅ Получено" : `+${a.reward} GH`}
+                    </div>
+                </div>
+                `;
+
+            })
+            .join("");
+
+}
+
+
+/* =========================
+   LEADERBOARD
+========================= */
+
+const LEADERBOARD_GAMES = [
+    { id:"balance", name:"💰 Баланс" },
+    { id:"snake", name:"🐍 Snake" },
+    { id:"memory-match", name:"🧠 Memory Match" },
+    { id:"flappy-bird", name:"🐦 Flappy Bird" },
+    { id:"traffic-dodge", name:"🚗 Traffic Dodge" },
+    { id:"shooter", name:"🔫 Shooter" },
+    { id:"glitch-arena", name:"🌀 Glitch Arena" },
+    { id:"natural-disaster", name:"🌪️ Natural Disaster" },
+    { id:"dogeball", name:"🏐 Dodgeball Wins" }
+];
+
+let currentLeaderboard = "balance";
+let lbTabsBuilt = false;
+
+function buildLeaderboardTabs(){
+
+    const box = $("lbTabs");
+
+    if(!box || lbTabsBuilt)
+        return;
+
+    box.innerHTML =
+        LEADERBOARD_GAMES
+            .map((g,i) => `
+                <button
+                    class="categoryBtn ${i===0 ? "active" : ""}"
+                    data-lb="${g.id}"
+                >
+                    ${g.name}
+                </button>
+            `)
+            .join("");
+
+    box.querySelectorAll("[data-lb]").forEach(btn => {
+
+        btn.onclick = () => {
+
+            box.querySelectorAll(".categoryBtn").forEach(
+                x => x.classList.remove("active")
+            );
+
+            btn.classList.add("active");
+
+            currentLeaderboard =
+                btn.getAttribute("data-lb");
+
+            renderLeaderboard();
+
+        };
+
+    });
+
+    lbTabsBuilt = true;
+
+}
+
+function renderLeaderboard(){
+
+    buildLeaderboardTabs();
+
+
+    const list = $("leaderboardList");
+
+    if(!list)
+        return;
+
+    const rows =
+        (db.users || [])
+            .map(u => {
+
+                let value = 0;
+
+                if(currentLeaderboard === "balance"){
+
+                    value = u.balance || 0;
+
+                }else if(currentLeaderboard === "dogeball"){
+
+                    value = (u.wins && u.wins.dogeball) || 0;
+
+                }else{
+
+                    value =
+                        (u.scores && u.scores[currentLeaderboard]) || 0;
+
+                }
+
+                return { name:u.name, vip:u.vip, superVip:u.superVip, value:value };
+
+            })
+            .filter(r => r.value > 0)
+            .sort((a,b) => b.value - a.value)
+            .slice(0,10);
+
+    if(rows.length === 0){
+
+        list.innerHTML =
+            "<p class='muted'>Пока никто не отметился в этой категории.</p>";
+
+        return;
+
+    }
+
+    const medals = ["🥇","🥈","🥉"];
+
+    list.innerHTML =
+        rows
+            .map((r,i) => `
+                <div class="lbRow">
+                    <span class="lbRank">${medals[i] || (i+1)}</span>
+                    <span class="lbName">
+                        ${escapeHTML(r.name)}
+                        ${r.superVip ? " 💎" : r.vip ? " 👑" : ""}
+                    </span>
+                    <span class="lbValue">${r.value}</span>
+                </div>
+            `)
+            .join("");
+
+}
+
+
+/* =========================
+   AVATAR PICKER
+========================= */
+
+const AVATAR_OPTIONS =
+    ["🎮","🕹️","👾","🐉","🔥","⚡","🌟","🦄","🐺","🎯","🏆","💀","🤖","🐸","🦊","😎"];
+
+function renderAvatarPicker(u){
+
+    const box = $("avatarPicker");
+
+    if(!box)
+        return;
+
+    box.innerHTML =
+        AVATAR_OPTIONS
+            .map(a => `
+                <div
+                    class="avatarOption ${u.avatar === a ? "selected" : ""}"
+                    data-avatar="${a}"
+                >${a}</div>
+            `)
+            .join("");
+
+    box.querySelectorAll("[data-avatar]").forEach(el => {
+
+        el.onclick = () => {
+
+            const cu = user();
+
+            if(!cu)
+                return;
+
+            cu.avatar =
+                el.getAttribute("data-avatar");
+
+            saveDB();
+            updateAccount();
+
+        };
+
+    });
+
+}
+
+
+/* =========================
+   DAILY LOGIN BONUS
+========================= */
+
+let dailyBonusCheckedUsers = new Set();
+
+function checkDailyBonus(u){
+
+    const today =
+        new Date().toISOString().slice(0,10);
+
+    if(!dailyBonusCheckedUsers.has(u.name)){
+
+        dailyBonusCheckedUsers.add(u.name);
+
+        if(u.lastLogin !== today){
+
+            const yesterday =
+                new Date(Date.now() - 86400000)
+                    .toISOString()
+                    .slice(0,10);
+
+            u.loginStreak =
+                (u.lastLogin === yesterday)
+                    ? (u.loginStreak||0) + 1
+                    : 1;
+
+            const bonus =
+                Math.min(
+                    20 + (u.loginStreak - 1) * 10,
+                    200
+                );
+
+            u.balance = (u.balance||0) + bonus;
+            u.lastLogin = today;
+
+            saveDB();
+
+            $("balance").textContent =
+                u.balance;
+
+            msg(
+                "🎁 Ежедневный бонус",
+                `День ${u.loginStreak} подряд! +${bonus} GH`
+            );
+
+        }
+
+    }
+
+    $("streakLabel").textContent =
+        u.loginStreak > 0
+            ? `🔥 Серия входов: ${u.loginStreak} дней`
+            : "";
+
+}
+
+
+/* =========================
+   ANNOUNCEMENT BANNER
+========================= */
+
+function renderAnnouncement(){
+
+    const banner = $("announceBanner");
+
+    if(!banner)
+        return;
+
+    if(!db.announcement || !db.announcement.text){
+
+        banner.classList.add("hidden");
+        return;
+
+    }
+
+    const dismissed =
+        sessionStorage.getItem("announceDismiss");
+
+    if(dismissed === String(db.announcement.ts)){
+
+        banner.classList.add("hidden");
+        return;
+
+    }
+
+    $("announceText").textContent =
+        "📢 " + db.announcement.text;
+
+    banner.classList.remove("hidden");
+
+}
+
+
+/* =========================
+   HALL OF FAME
+========================= */
+
+function renderHallOfFame(){
+
+    const box = $("hallOfFameBox");
+
+    if(!box)
+        return;
+
+    if(!db.hallOfFame || db.hallOfFame.length === 0){
+
+        box.innerHTML =
+            "<p class='muted'>Зал славы пока пуст.</p>";
+
+        return;
+
+    }
+
+    const medals = ["🥇","🥈","🥉"];
+
+    box.innerHTML =
+        `<h3 style="margin-bottom:10px">📸 Зал славы</h3>` +
+        [...db.hallOfFame]
+            .reverse()
+            .map(entry => `
+                <div style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #ffffff14">
+                    <div class="muted" style="font-size:11px;margin-bottom:6px">
+                        ${new Date(entry.ts).toLocaleDateString("ru-RU")}
+                    </div>
+                    ${
+                        entry.top
+                            .map((r,i) => `
+                                <div class="lbRow">
+                                    <span class="lbRank">${medals[i] || (i+1)}</span>
+                                    <span class="lbName">${escapeHTML(r.name)}</span>
+                                    <span class="lbValue">${r.value} GH</span>
+                                </div>
+                            `)
+                            .join("")
+                    }
+                </div>
+            `)
+            .join("");
+
+}
+
+$("snapshotHallBtn").onclick =
+    () => {
+
+        if(!admin)
+            return;
+
+        const top =
+            [...db.users]
+                .sort((a,b) => (b.balance||0) - (a.balance||0))
+                .slice(0,3)
+                .map(u => ({ name:u.name, value:u.balance||0 }));
+
+        if(top.length === 0 || top[0].value === 0){
+
+            return msg(
+                "Зал славы",
+                "Пока нет игроков с балансом для записи."
+            );
+
+        }
+
+        db.hallOfFame.push({
+            ts: Date.now(),
+            top: top
+        });
+
+        logAdminAction(
+            "Сохранён топ-3 в Зал славы",
+            top.map(r => r.name + " (" + r.value + " GH)").join(", ")
+        );
+
+        saveDB();
+
+        renderHallOfFame();
+
+        msg(
+            "Зал славы",
+            "Топ-3 сохранён в Зале славы."
+        );
+
+    };
+
+
+
+/* =========================
+   SITE STATS
+========================= */
+
+function renderSiteStats(){
+
+    const box = $("siteStatsBar");
+
+    if(!box)
+        return;
+
+    if(!window.GameHub){
+        box.innerHTML = "";
+        return;
+    }
+
+    const stats =
+        GameHub.getSiteStats(db);
+
+    const topGameName =
+        stats.topGame
+            ? (GameHub.GAME_NAMES[stats.topGame] || stats.topGame)
+            : "—";
+
+    box.innerHTML = `
+        <div class="statItem">
+            <div class="statValue">${stats.totalPlayers}</div>
+            <div class="statLabel">Игроков</div>
+        </div>
+        <div class="statItem">
+            <div class="statValue">${stats.totalBalance}</div>
+            <div class="statLabel">GH в экономике</div>
+        </div>
+        <div class="statItem">
+            <div class="statValue">${stats.totalGamesPlayed}</div>
+            <div class="statLabel">Игр сыграно</div>
+        </div>
+        <div class="statItem">
+            <div class="statValue">${topGameName}</div>
+            <div class="statLabel">Популярная игра</div>
+        </div>
+    `;
+
+}
+
+
+/* =========================
+   GAME RATINGS
+========================= */
+
+function renderGameRatings(){
+
+    document.querySelectorAll("[data-game]").forEach(box => {
+
+        if(!box.classList.contains("gameRating"))
+            return;
+
+        const gameId =
+            box.getAttribute("data-game");
+
+        const votes =
+            (db.ratings && db.ratings[gameId]) || {};
+
+        const values =
+            Object.values(votes);
+
+        const count = values.length;
+
+        const avg =
+            count > 0
+                ? values.reduce((a,b) => a+b, 0) / count
+                : 0;
+
+        const u = user();
+
+        const myVote =
+            (u && votes[u.name]) || 0;
+
+        const displayValue =
+            myVote || Math.round(avg);
+
+        let stars = "";
+
+        for(let i=1; i<=5; i++){
+
+            stars += `<span class="star ${i <= displayValue ? "filled" : ""}" data-star="${i}">★</span>`;
+
+        }
+
+        box.innerHTML =
+            stars +
+            `<span class="ratingCount">${avg > 0 ? avg.toFixed(1) : "—"} (${count})</span>`;
+
+        box.querySelectorAll("[data-star]").forEach(starEl => {
+
+            starEl.onclick = e => {
+
+                e.preventDefault();
+
+                rateGame(
+                    gameId,
+                    Number(starEl.getAttribute("data-star"))
+                );
+
+            };
+
+        });
+
+    });
+
+}
+
+function rateGame(gameId, stars){
+
+    const u = user();
+
+    if(!u){
+
+        return msg(
+            "Оценка",
+            "Войди в аккаунт, чтобы оценить игру."
+        );
+
+    }
+
+    if(!db.ratings[gameId])
+        db.ratings[gameId] = {};
+
+    db.ratings[gameId][u.name] = stars;
+
+    saveDB();
+
+    renderGameRatings();
+
+}
+
+
+/* =========================
+   BACKUP / RESTORE
+========================= */
+
+$("exportDataBtn").onclick =
+    () => {
+
+        const u = user();
+
+        if(!u){
+
+            return msg(
+                "Экспорт",
+                "Сначала войди в аккаунт."
+            );
+
+        }
+
+        const blob =
+            new Blob(
+                [JSON.stringify(u, null, 2)],
+                { type:"application/json" }
+            );
+
+        const url =
+            URL.createObjectURL(blob);
+
+        const a =
+            document.createElement("a");
+
+        a.href = url;
+        a.download = `gamehub-${u.name}-backup.json`;
+
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        URL.revokeObjectURL(url);
+
+        msg(
+            "Экспорт",
+            "Файл с резервной копией скачан."
+        );
+
+    };
+
+$("importDataBtn").onclick =
+    () => {
+
+        $("importFileInput").click();
+
+    };
+
+$("importFileInput").onchange =
+    e => {
+
+        const file =
+            e.target.files[0];
+
+        if(!file)
+            return;
+
+        const reader =
+            new FileReader();
+
+        reader.onload = () => {
+
+            let imported;
+
+            try{
+
+                imported =
+                    JSON.parse(
+                        reader.result
+                    );
+
+            }catch(err){
+
+                return msg(
+                    "Импорт",
+                    "Файл повреждён или не в формате JSON."
+                );
+
+            }
+
+            if(!imported || typeof imported.name !== "string" || !imported.name){
+
+                return msg(
+                    "Импорт",
+                    "Это не похоже на файл резервной копии Game Hub."
+                );
+
+            }
+
+            const existingIndex =
+                db.users.findIndex(
+                    x => x.name.toLowerCase() === imported.name.toLowerCase()
+                );
+
+            if(existingIndex !== -1){
+
+                const ok =
+                    confirm(
+                        `Аккаунт "${imported.name}" уже существует на этом устройстве. Перезаписать его данными из файла?`
+                    );
+
+                if(!ok)
+                    return;
+
+                db.users[existingIndex] = imported;
+
+            }else{
+
+                db.users.push(imported);
+
+            }
+
+            saveDB();
+
+            session = imported.name;
+
+            localStorage.setItem(
+                SESSION_KEY,
+                session
+            );
+
+            e.target.value = "";
+
+            updateAccount();
+            updateVIP();
+            renderAdmin();
+
+            msg(
+                "Импорт",
+                `Данные аккаунта "${imported.name}" восстановлены.`
+            );
+
+        };
+
+        reader.readAsText(file);
+
+    };
+
+
+/* =========================
+   CHANGE PASSWORD
+========================= */
+
+$("changePassBtn").onclick =
+    async () => {
+
+        const u = user();
+
+        if(!u){
+
+            return msg(
+                "Пароль",
+                "Сначала войди в аккаунт."
+            );
+
+        }
+
+        const cur =
+            $("curPassInput").value;
+
+        const next =
+            $("newPassInput").value;
+
+        const confirmNext =
+            $("newPassConfirm").value;
+
+        if(!(await verifyPassword(u, cur))){
+
+            return msg(
+                "Пароль",
+                "Текущий пароль указан неверно."
+            );
+
+        }
+
+        if(next.length < 6){
+
+            return msg(
+                "Пароль",
+                "Новый пароль должен быть минимум 6 символов."
+            );
+
+        }
+
+        if(next !== confirmNext){
+
+            return msg(
+                "Пароль",
+                "Пароли не совпадают."
+            );
+
+        }
+
+        await setPassword(u, next);
+
+        saveDB();
+
+        $("curPassInput").value = "";
+        $("newPassInput").value = "";
+        $("newPassConfirm").value = "";
+
+        msg(
+            "Пароль",
+            "Пароль успешно изменён."
+        );
+
+    };
+
+
+/* =========================
+   GIFT GH
+========================= */
+
+$("sendGiftBtn").onclick =
+    () => {
+
+        const u = user();
+
+        if(!u){
+
+            return msg(
+                "Подарок",
+                "Сначала войди в аккаунт."
+            );
+
+        }
+
+        const targetName =
+            $("giftUserInput")
+                .value
+                .trim();
+
+        const amount =
+            Math.floor(
+                Number($("giftAmountInput").value)
+            );
+
+        if(!targetName){
+
+            return msg(
+                "Подарок",
+                "Укажи имя игрока."
+            );
+
+        }
+
+        if(targetName.toLowerCase() === u.name.toLowerCase()){
+
+            return msg(
+                "Подарок",
+                "Нельзя подарить GH самому себе."
+            );
+
+        }
+
+        if(!amount || amount <= 0){
+
+            return msg(
+                "Подарок",
+                "Укажи корректное количество GH."
+            );
+
+        }
+
+        if(amount > (u.balance||0)){
+
+            return msg(
+                "Подарок",
+                "У тебя недостаточно GH."
+            );
+
+        }
+
+        const target =
+            db.users.find(
+                x => x.name.toLowerCase() === targetName.toLowerCase()
+            );
+
+        if(!target){
+
+            return msg(
+                "Подарок",
+                "Игрок с таким именем не найден."
+            );
+
+        }
+
+        u.balance -= amount;
+        target.balance = (target.balance||0) + amount;
+
+        if(typeof u.giftsSent !== "number")
+            u.giftsSent = 0;
+
+        u.giftsSent++;
+
+        saveDB();
+
+        $("giftUserInput").value = "";
+        $("giftAmountInput").value = "";
+
+        updateAccount();
+        renderAdmin();
+
+        msg(
+            "Подарок",
+            `Ты подарил ${amount} GH игроку ${target.name}.`
+        );
+
+    };
+
+
+/* =========================
+   DELETE ACCOUNT
+========================= */
+
+$("deleteAccountBtn").onclick =
+    () => {
+
+        const u = user();
+
+        if(!u)
+            return;
+
+        const ok =
+            confirm(
+                `Точно удалить аккаунт "${u.name}"? Это действие необратимо — весь прогресс, GH и покупки будут потеряны.`
+            );
+
+        if(!ok)
+            return;
+
+        db.users =
+            db.users.filter(
+                x => x.name !== u.name
+            );
+
+        saveDB();
+
+        session = "";
+
+        localStorage.removeItem(SESSION_KEY);
+
+        updateAccount();
+        updateVIP();
+        renderAdmin();
+
+        msg(
+            "Аккаунт удалён",
+            "Твой аккаунт был полностью удалён."
+        );
+
+    };
+
+
+/* =========================
+   RANDOM GAME
+========================= */
+
+const RANDOM_GAMES = [
+    "shooter.html",
+    "flappy-bird.html",
+    "traffic-dodge.html",
+    "dogeball.html",
+    "natural-disaster.html",
+    "glitch-arena.html",
+    "snake.html",
+    "memory-match.html"
+];
+
+$("randomGameBtn").onclick =
+    () => {
+
+        const pick =
+            RANDOM_GAMES[
+                Math.floor(Math.random() * RANDOM_GAMES.length)
+            ];
+
+        location.href = pick;
+
+    };
+
+
+/* =========================
+   VIP
+========================= */
+
+function updateVIP(){
+
+    const u =
+        user();
+
+    const active =
+        !!(u && (u.vip || u.superVip));
+
+    $("vipStatus")
+        .classList
+        .toggle(
+            "active",
+            active
+        );
+
+    $("vipStatus")
+        .innerHTML =
+        active
+        ?
+        `
+        👑 <b>${u.superVip ? "SUPER VIP" : "VIP"} АКТИВЕН</b><br>
+        ✨ Премиум статус включён.<br>
+        💾 Статус сохранён в аккаунте.
+        `
+        :
+        "🔒 VIP пока не активирован.";
+
+    $("vipActivation")
+        .classList
+        .toggle(
+            "hidden",
+            active
+        );
+
+    $("removeVip")
+        .classList
+        .toggle(
+            "hidden",
+            !active
+        );
+
+    if(active){
+
+        document.body
+            .classList
+            .add("vip");
+
+    }
+
+    updateAccount();
+
+}
+
+
+/* =========================
+   PASSWORD SECURITY
+========================= */
+
+async function sha256Hex(text){
+
+    const enc = new TextEncoder().encode(text);
+    const buf = await crypto.subtle.digest("SHA-256", enc);
+
+    return Array.from(new Uint8Array(buf))
+        .map(b => b.toString(16).padStart(2,"0"))
+        .join("");
+
+}
+
+/* Verifies a password against a user record. Supports the old
+   plain-text "pass" field from before hashing was added - the
+   first successful login on a legacy account silently upgrades
+   it to a hash and removes the plain-text copy. */
+async function verifyPassword(u, plain){
+
+    if(u.passHash)
+        return (await sha256Hex(plain)) === u.passHash;
+
+    if(typeof u.pass === "string" && u.pass === plain){
+
+        u.passHash = await sha256Hex(plain);
+        delete u.pass;
+        saveDB();
+
+        return true;
+
+    }
+
+    return false;
+
+}
+
+async function setPassword(u, plain){
+
+    u.passHash = await sha256Hex(plain);
+    delete u.pass;
+
+}
+
+/* Basic brute-force protection. Resets on page reload - this is a
+   client-side site with no server, so it slows down casual guessing
+   rather than providing real protection against a determined attacker. */
+const loginAttempts = {};
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOGIN_LOCK_MS = 60000;
+
+function checkLoginLock(name){
+
+    const rec = loginAttempts[name.toLowerCase()];
+
+    if(rec && rec.lockUntil && Date.now() < rec.lockUntil){
+
+        return Math.ceil((rec.lockUntil - Date.now()) / 1000);
+
+    }
+
+    return 0;
+
+}
+
+function registerFailedLogin(name){
+
+    const key = name.toLowerCase();
+
+    if(!loginAttempts[key])
+        loginAttempts[key] = { count:0, lockUntil:0 };
+
+    loginAttempts[key].count++;
+
+    if(loginAttempts[key].count >= MAX_LOGIN_ATTEMPTS){
+
+        loginAttempts[key].lockUntil = Date.now() + LOGIN_LOCK_MS;
+        loginAttempts[key].count = 0;
+
+    }
+
+}
+
+function clearLoginAttempts(name){
+
+    delete loginAttempts[name.toLowerCase()];
+
+}
+
+
+/* =========================
+   2FA / OWNER SECURITY
+========================= */
+
+function isOwner(u){
+    return !!(u && String(u.name).toLowerCase() === OWNER_USERNAME);
+}
+
+function isHelper(u){
+    return !!(u && String(u.name).toLowerCase() === HELPER_USERNAME);
+}
+
+const BASE32_ALPHABET="ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+function randomBase32(length=20){
+    const bytes=new Uint8Array(length);
+    crypto.getRandomValues(bytes);
+    let out="";
+    for(const b of bytes) out+=BASE32_ALPHABET[b % 32];
+    return out;
+}
+
+function base32ToBytes(input){
+    const clean=String(input).toUpperCase().replace(/[^A-Z2-7]/g,"");
+    let bits="";
+    for(const c of clean){
+        const n=BASE32_ALPHABET.indexOf(c);
+        if(n>=0) bits+=n.toString(2).padStart(5,"0");
+    }
+    const bytes=[];
+    for(let i=0;i+8<=bits.length;i+=8) bytes.push(parseInt(bits.slice(i,i+8),2));
+    return new Uint8Array(bytes);
+}
+
+async function totpCode(secret,drift=0){
+    const counter=Math.floor(Date.now()/1000/30)+drift;
+    const buffer=new ArrayBuffer(8);
+    const view=new DataView(buffer);
+    view.setUint32(0,Math.floor(counter/0x100000000));
+    view.setUint32(4,counter>>>0);
+    const key=await crypto.subtle.importKey("raw",base32ToBytes(secret),{name:"HMAC",hash:"SHA-1"},false,["sign"]);
+    const sig=new Uint8Array(await crypto.subtle.sign("HMAC",key,buffer));
+    const off=sig[sig.length-1]&15;
+    const bin=((sig[off]&127)<<24)|((sig[off+1]&255)<<16)|((sig[off+2]&255)<<8)|(sig[off+3]&255);
+    return String(bin%1000000).padStart(6,"0");
+}
+
+async function verifyTOTP(secret,code){
+    const clean=String(code||"").replace(/\D/g,"");
+    if(clean.length!==6) return false;
+    for(const d of [-1,0,1]) if(await totpCode(secret,d)===clean) return true;
+    return false;
+}
+
+function otpAuthURI(u,secret){
+    return "otpauth://totp/GameHub:"+encodeURIComponent(u.name)+"?secret="+secret+"&issuer=GameHub&digits=6&period=30";
+}
+
+async function setup2FA(u){
+    if(!u || isOwner(u)) return true;
+    if(!u.twoFASecret) u.twoFASecret=randomBase32();
+    saveDB();
+    msg("🔐 Настройка 2FA","Секрет для Google Authenticator/Authy:\n\n"+u.twoFASecret+"\n\nМожно также использовать URI:\n"+otpAuthURI(u,u.twoFASecret));
+    const code=prompt("Введи 6-значный код из приложения 2FA:");
+    if(!(await verifyTOTP(u.twoFASecret,code))) return false;
+    u.twoFAEnabled=true;
+    saveDB();
+    return true;
+}
+
+async function require2FA(u){
+    if(isOwner(u)) return true;
+    if(!u.twoFAEnabled || !u.twoFASecret) return await setup2FA(u);
+    return await verifyTOTP(u.twoFASecret,prompt("🔐 Введи 6-значный код 2FA:"));
+}
+
+function updateSecurityLabel(){
+    const u=user();
+    if(!u){
+        $("securityLabel").textContent="";
+        $("setup2FABtn").classList.add("hidden");
+        return;
+    }
+    if(isOwner(u)){
+        $("securityLabel").textContent="👑 OWNER • "+OWNER_DISPLAY+" • вход по паролю";
+        $("setup2FABtn").classList.add("hidden");
+        return;
+    }
+    if(isHelper(u)){
+        $("securityLabel").textContent=
+            "🛟 HELP ACCOUNT • "+HELPER_DISPLAY+" • "+
+            (u.twoFAEnabled?"🔐 2FA включена":"⚠️ 2FA ещё не настроена");
+        $("setup2FABtn").classList.remove("hidden");
+        return;
+    }
+    $("securityLabel").textContent=u.twoFAEnabled?"🔐 2FA включена":"⚠️ 2FA ещё не настроена";
+    $("setup2FABtn").classList.remove("hidden");
+}
+
+$("setup2FABtn").onclick=async()=>{
+    const u=user();
+    if(!u || isOwner(u)) return;
+    const ok=await setup2FA(u);
+    updateSecurityLabel();
+    msg("2FA",ok?"2FA успешно включена.":"Код неверный. 2FA не включена.");
+};
+
+/* =========================
+   REGISTER
+========================= */
+
+$("registerBtn").onclick =
+    async () => {
+
+        const name =
+            normalizeName(
+                $("regName").value
+            );
+
+        const pass =
+            $("regPass").value;
+
+        if(!validUserName(name)){
+
+            return msg(
+                "Ошибка",
+                "Имя должно содержать 3–20 букв, цифр или _."
+            );
+
+        }
+
+        if(name.toLowerCase() === OWNER_USERNAME){
+            return msg("Ошибка","Никнейм "+OWNER_DISPLAY+" зарезервирован владельцем Game Hub.");
+        }
+
+        if(name.toLowerCase() === HELPER_USERNAME){
+            return msg("Ошибка","Никнейм "+HELPER_DISPLAY+" зарезервирован службой поддержки Game Hub.");
+        }
+
+        if(pass.length < 6){
+
+            return msg(
+                "Ошибка",
+                "Пароль должен быть минимум 6 символов."
+            );
+
+        }
+
+        if(
+            db.users.some(
+                u =>
+                    u.name.toLowerCase() ===
+                    name.toLowerCase()
+            )
+        ){
+
+            return msg(
+                "Ошибка",
+                "Такой аккаунт уже существует."
+            );
+
+        }
+
+        const refCodeInput =
+            $("regRefCode")
+                .value
+                .trim()
+                .toUpperCase();
+
+        const referrer =
+            refCodeInput
+                ? db.users.find(
+                    u => u.refCode === refCodeInput
+                  )
+                : null;
+
+        const passHash =
+            await sha256Hex(pass);
+
+        db.users.push({
+
+            name:name,
+            nickname:name,
+            passHash:passHash,
+            balance: referrer ? 100 : 0,
+            vip:false,
+            twoFAEnabled:false,
+            twoFASecret:"",
+            superVip:false,
+            title:"",
+            owned:[],
+            effects:[],
+            scores:{},
+            wins:{},
+            gamesPlayed:0,
+            achievements:[],
+            avatar:"🎮",
+            refCode:"REF-"+name.toUpperCase(),
+            referredBy: referrer ? referrer.name : "",
+            referrals:[],
+            loginStreak:0,
+            lastLogin:""
+
+        });
+
+        if(referrer){
+
+            referrer.balance = (referrer.balance||0) + 150;
+
+            if(!Array.isArray(referrer.referrals))
+                referrer.referrals=[];
+
+            referrer.referrals.push(name);
+
+        }
+
+        saveDB();
+
+        session=name;
+
+        localStorage.setItem(
+            SESSION_KEY,
+            session
+        );
+
+        $("regName").value="";
+        $("regPass").value="";
+        $("regRefCode").value="";
+
+        updateAccount();
+        updateVIP();
+        renderAdmin();
+
+        msg(
+            "Готово",
+            referrer
+                ? "Аккаунт создан. Бонус за реферальный код: +100 GH!"
+                : "Аккаунт создан."
+        );
+
+    };
+
+
+/* =========================
+   LOGIN
+========================= */
+
+$("loginBtn").onclick =
+    async () => {
+
+        const name =
+            normalizeName(
+                $("loginName").value
+            );
+
+        const pass =
+            $("loginPass").value;
+
+        const lockedFor =
+            checkLoginLock(name);
+
+        if(lockedFor > 0){
+
+            return msg(
+                "Вход заблокирован",
+                `Слишком много неудачных попыток. Попробуй снова через ${lockedFor} сек.`
+            );
+
+        }
+
+        const candidate =
+            db.users.find(
+                x =>
+                    x.name.toLowerCase() ===
+                    name.toLowerCase()
+            );
+
+        const ok =
+            candidate
+                ? await verifyPassword(candidate, pass)
+                : false;
+
+        if(!ok){
+
+            registerFailedLogin(name);
+
+            return msg(
+                "Ошибка",
+                "Неверное имя пользователя или пароль."
+            );
+
+        }
+
+        clearLoginAttempts(name);
+
+        const u = candidate;
+
+        if(u.banned){
+
+            return msg(
+                "Доступ закрыт",
+                "Этот аккаунт заблокирован администратором."
+            );
+
+        }
+
+        session=u.name;
+
+        localStorage.setItem(
+            SESSION_KEY,
+            session
+        );
+
+        updateAccount();
+        updateVIP();
+        renderAdmin();
+
+        msg(
+            "Вход",
+            "Ты вошёл в аккаунт."
+        );
+
+    };
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+$("logoutBtn").onclick =
+    () => {
+
+        session="";
+
+        localStorage.removeItem(
+            SESSION_KEY
+        );
+
+        updateAccount();
+        updateVIP();
+
+    };
+
+
+/* =========================
+   VIP CODE
+========================= */
+
+$("activateVip").onclick =
+    () => {
+
+        const code =
+            $("vipCode")
+                .value
+                .trim()
+                .toUpperCase();
+
+        const generatedCode =
+            db.codes.find(
+                c =>
+                    c.code === code &&
+                    c.type === "vip" &&
+                    !c.used
+            );
+
+        if(
+            code !== VIP_CODE &&
+            !generatedCode
+        ){
+
+            return msg(
+                "VIP",
+                "Неверный VIP-код."
+            );
+
+        }
+
+        const u=user();
+
+        if(!u){
+
+            return msg(
+                "VIP",
+                "Сначала войди в аккаунт."
+            );
+
+        }
+
+        u.vip=true;
+
+        if(generatedCode)
+            generatedCode.used=true;
+
+        saveDB();
+
+        $("vipCode").value="";
+
+        updateVIP();
+        renderAdmin();
+
+        msg(
+            "VIP",
+            "VIP успешно активирован."
+        );
+
+    };
+
+
+$("vipCode")
+.addEventListener(
+    "keydown",
+    e => {
+
+        if(e.key==="Enter")
+            $("activateVip").click();
+
+    }
+);
+
+
+/* =========================
+   REMOVE VIP
+========================= */
+
+$("removeVip").onclick =
+    () => {
+
+        const u=user();
+
+        if(u){
+
+            u.vip=false;
+            u.superVip=false;
+
+            saveDB();
+
+        }
+
+        if(
+            localStorage.getItem(
+                THEME_KEY
+            ) === "vip"
+        ){
+
+            localStorage.setItem(
+                THEME_KEY,
+                "default"
+            );
+
+        }
+
+        applyTheme();
+        updateVIP();
+        renderAdmin();
+
+    };
+
+
+/* =========================
+   SHOP
+========================= */
+
+let currentCategory="all";
+
+
+function updateShop(){
+
+    const u=user();
+
+    $("shopBalance")
+        .textContent =
+        u ? u.balance : 0;
+
+    $("shopUserStatus")
+        .textContent =
+        u
+        ?
+        "Выбирай товар и покупай его за GH."
+        :
+        "Войди в аккаунт, чтобы покупать.";
+
+    renderShop();
+
+}
+
+
+function ownsItem(u,item){
+
+    return !!(
+        u &&
+        Array.isArray(u.owned) &&
+        u.owned.includes(item.id)
+    );
+
+}
+
+
+function renderShop(){
+
+    const u=user();
+
+    const searchEl = $("shopSearch");
+    const query = searchEl ? searchEl.value.trim().toLowerCase() : "";
+
+    let items =
+        db.shop.filter(
+            item =>
+                (currentCategory === "all" ||
+                item.category === currentCategory) &&
+                (query === "" ||
+                item.name.toLowerCase().includes(query))
+        );
+
+    if(items.length === 0){
+
+        $("shopGrid").innerHTML =
+            "<p class='muted'>Ничего не найдено.</p>";
+
+        return;
+
+    }
+
+    $("shopGrid").innerHTML =
+        items.map(
+            item => {
+
+                const owned =
+                    ownsItem(u,item);
+
+                return `
+                <div class="shopItem">
+
+                    <div class="shopIcon">
+                        ${escapeHTML(item.icon)}
+                    </div>
+
+                    <h3>
+                        ${escapeHTML(item.name)}
+                    </h3>
+
+                    <p>
+                        ${escapeHTML(
+                            item.category === "title"
+                            ? "Особый титул для твоего аккаунта."
+                            : item.category === "theme"
+                            ? "Тема оформления Game Hub."
+                            : item.category === "vip"
+                            ? "Премиум улучшение аккаунта."
+                            : "Косметический эффект."
+                        )}
+                    </p>
+
+                    ${
+                        owned
+                        ?
+                        `
+                        <div class="shopOwned">
+                            ✓ УЖЕ КУПЛЕНО
+                        </div>
+                        `
+                        :
+                        `
+                        <div class="shopPrice">
+                            💰 ${item.price} GH
+                        </div>
+
+                        <button
+                            class="shopBtn"
+                            onclick="buyItem('${escapeHTML(item.id)}')"
+                            ${
+                                !u
+                                ? "disabled"
+                                : ""
+                            }
+                        >
+                            КУПИТЬ
+                        </button>
+                        `
+                    }
+
+                </div>
+                `;
+
+            }
+        )
+        .join("");
+
+}
+
+
+window.buyItem =
+    id => {
+
+        const u=user();
+
+        if(!u){
+
+            return msg(
+                "Магазин",
+                "Сначала войди в аккаунт."
+            );
+
+        }
+
+        if(!Array.isArray(u.owned))
+            u.owned=[];
+
+        const item =
+            db.shop.find(
+                x =>
+                    x.id === id
+            );
+
+        if(!item)
+            return;
+
+        if(
+            u.owned.includes(item.id)
+        ){
+
+            return msg(
+                "Магазин",
+                "Ты уже купил этот товар."
+            );
+
+        }
+
+        if(
+            u.balance < item.price
+        ){
+
+            return msg(
+                "Магазин",
+                "Недостаточно GH."
+            );
+
+        }
+
+        u.balance -= item.price;
+
+        u.owned.push(item.id);
+
+
+        /* ITEM EFFECT */
+
+        if(item.category === "title"){
+
+            u.title =
+                item.value;
+
+        }
+
+
+        if(item.category === "theme"){
+
+            localStorage.setItem(
+                THEME_KEY,
+                item.value
+            );
+
+            applyTheme();
+
+        }
+
+
+        if(item.category === "vip"){
+
+            if(item.value === "vip")
+                u.vip=true;
+
+            if(item.value === "supervip"){
+
+                u.vip=true;
+                u.superVip=true;
+
+            }
+
+        }
+
+
+        if(item.category === "effect"){
+
+            if(!Array.isArray(u.effects))
+                u.effects=[];
+
+            if(
+                !u.effects.includes(
+                    item.value
+                )
+            ){
+
+                u.effects.push(
+                    item.value
+                );
+
+            }
+
+        }
+
+
+        saveDB();
+
+        updateAccount();
+        updateVIP();
+        renderAdmin();
+
+        msg(
+            "Покупка",
+            "Товар успешно куплен!"
+        );
+
+    };
+
+
+document.querySelectorAll(
+    ".categoryBtn"
+)
+.forEach(
+    button => {
+
+        button.onclick =
+            () => {
+
+                document.querySelectorAll(
+                    ".categoryBtn"
+                )
+                .forEach(
+                    x =>
+                        x.classList
+                        .remove("active")
+                );
+
+                button.classList
+                    .add("active");
+
+                currentCategory =
+                    button.dataset.category;
+
+                renderShop();
+
+            };
+
+    }
+);
+
+
+$("shopSearch").addEventListener(
+    "input",
+    () => renderShop()
+);
+
+$("adminUserSearch").addEventListener(
+    "input",
+    () => renderAdmin()
+);
+
+
+/* =========================
+   ADMIN OPEN
+========================= */
+
+$("adminOpen").onclick =
+    () => {
+
+        $("adminSection")
+            .scrollIntoView({
+                behavior:"smooth"
+            });
+
+    };
+
+
+/* =========================
+   ADMIN LOGIN
+========================= */
+
+$("adminLoginBtn").onclick =
+    async () => {
+
+        const lockedFor =
+            checkLoginLock("::admin::");
+
+        if(lockedFor > 0){
+
+            return msg(
+                "Админка",
+                `Слишком много неудачных попыток. Попробуй снова через ${lockedFor} сек.`
+            );
+
+        }
+
+        const password =
+            prompt(
+                "Введите пароль админки:"
+            );
+
+        if(password === null)
+            return;
+
+        const hash =
+            await sha256Hex(password);
+
+        if(hash !== ADMIN_PASSWORD_HASH){
+
+            registerFailedLogin("::admin::");
+
+            return msg(
+                "Админка",
+                "Неверный пароль."
+            );
+
+        }
+
+        clearLoginAttempts("::admin::");
+
+        admin=true;
+
+        $("adminPanel")
+            .classList
+            .add("open");
+
+        renderAdmin();
+
+    };
+
+
+/* =========================
+   ADMIN LOGOUT
+========================= */
+
+$("adminLogout").onclick =
+    () => {
+
+        admin=false;
+
+        $("adminPanel")
+            .classList
+            .remove("open");
+
+    };
+
+
+/* =========================
+   ADMIN RENDER
+========================= */
+
+/* =========================
+   ADMIN AUDIT LOG
+========================= */
+
+function logAdminAction(action, detail){
+
+    db.adminLog.unshift({
+        ts: Date.now(),
+        action: action,
+        detail: detail
+    });
+
+    if(db.adminLog.length > 50)
+        db.adminLog.length = 50;
+
+}
+
+function renderAdminLog(){
+
+    const box = $("adminLogList");
+
+    if(!box)
+        return;
+
+    if(!db.adminLog || db.adminLog.length === 0){
+
+        box.innerHTML =
+            "<p class='small'>Пока нет действий.</p>";
+
+        return;
+
+    }
+
+    box.innerHTML =
+        db.adminLog
+            .map(entry => `
+                <div style="padding:6px 0;border-bottom:1px solid #ffffff10">
+                    <span class="muted">
+                        ${new Date(entry.ts).toLocaleString("ru-RU")}
+                    </span>
+                    <br>
+                    ${escapeHTML(entry.action)}${entry.detail ? ": " + escapeHTML(entry.detail) : ""}
+                </div>
+            `)
+            .join("");
+
+}
+
+
+function renderAdmin(){
+
+    const searchEl = $("adminUserSearch");
+    const query = searchEl ? searchEl.value.trim().toLowerCase() : "";
+
+    const filteredUsers =
+        db.users.filter(
+            u => query === "" || u.name.toLowerCase().includes(query)
+        );
+
+    $("usersList").innerHTML =
+        filteredUsers.length
+        ?
+        filteredUsers
+        .map(
+            u =>
+            `
+            <div class="user-row" style="${u.banned ? "opacity:.55" : ""}">
+
+                <span>
+
+                    <b>
+                        ${escapeHTML(u.name)} ${isOwner(u) ? " 👑 OWNER" : isHelper(u) ? " 🛟 HELPER" : ""} ${u.banned ? " 🚫 ЗАБЛОКИРОВАН" : ""}
+                    </b>
+
+                    <br>
+
+                    <span class="small">
+
+                        ${
+                            u.superVip
+                            ? "💎 SUPER VIP"
+                            : u.vip
+                            ? "👑 VIP"
+                            : "👤 обычный"
+                        }
+
+                        •
+
+                        ${
+                            u.title
+                            ? "🏷️ " +
+                              escapeHTML(u.title)
+                            : "без титула"
+                        }
+
+                        •
+
+                        ${u.balance} GH
+
+                    </span>
+
+                </span>
+
+
+                <span>
+
+                    <button
+                        class="adminBtn"
+                        onclick="adminSetBalance('${escapeHTML(u.name)}')"
+                    >
+                        💰
+                    </button>
+
+                    <button
+                        class="goldBtn"
+                        onclick="adminToggleVip('${escapeHTML(u.name)}')"
+                    >
+                        👑
+                    </button>
+
+                    <button
+                        class="adminBtn"
+                        onclick="adminSetTitle('${escapeHTML(u.name)}')"
+                    >
+                        🏷️
+                    </button>
+
+                    <button
+                        class="${u.banned ? "goldBtn" : "dangerBtn"}"
+                        onclick="adminToggleBan('${escapeHTML(u.name)}')"
+                    >
+                        ${u.banned ? "✅" : "🚫"}
+                    </button>
+
+                    <button
+                        class="dangerBtn"
+                        onclick="adminDeleteUser('${escapeHTML(u.name)}')"
+                    >
+                        🗑️
+                    </button>
+
+                </span>
+
+            </div>
+            `
+        )
+        .join("")
+        :
+        `
+        <p class="small">
+            ${query ? "Ничего не найдено." : "Пользователей пока нет."}
+        </p>
+        `;
+
+
+    $("codesList").innerHTML =
+        db.codes.length
+        ?
+        db.codes
+        .map(
+            c =>
+            `
+            <div class="code-row">
+
+                <span>
+
+                    <b>
+                        ${escapeHTML(c.code)}
+                    </b>
+
+                    <br>
+
+                    <span class="small">
+
+                        ${
+                            c.type === "vip"
+                            ? "👑 VIP-код"
+                            : `+${c.amount} GH`
+                        }
+
+                        •
+
+                        ${
+                            c.used
+                            ? "использован"
+                            : "доступен"
+                        }
+
+                    </span>
+
+                </span>
+
+                <button
+                    class="dangerBtn"
+                    onclick="deleteCode('${escapeHTML(c.code)}')"
+                >
+                    🗑️
+                </button>
+
+            </div>
+            `
+        )
+        .join("")
+        :
+        `
+        <p class="small">
+            Кодов пока нет.
+        </p>
+        `;
+
+
+    $("adminShopList").innerHTML =
+        db.shop.length
+        ?
+        db.shop
+        .map(
+            item =>
+            `
+            <div class="code-row">
+
+                <span>
+
+                    <b>
+                        ${escapeHTML(item.icon)}
+                        ${escapeHTML(item.name)}
+                    </b>
+
+                    <br>
+
+                    <span class="small">
+
+                        ${item.price} GH
+                        •
+                        ${escapeHTML(item.category)}
+
+                    </span>
+
+                </span>
+
+                <button
+                    class="dangerBtn"
+                    onclick="deleteShopItem('${escapeHTML(item.id)}')"
+                >
+                    🗑️
+                </button>
+
+            </div>
+            `
+        )
+        .join("")
+        :
+        `
+        <p class="small">
+            Товаров нет.
+        </p>
+        `;
+
+    renderAdminLog();
+
+}
+
+
+/* =========================
+   ADMIN BALANCE
+========================= */
+
+window.adminSetBalance =
+    name => {
+
+        if(!admin)
+            return;
+
+        const u =
+            db.users.find(
+                x =>
+                    x.name === name
+            );
+
+        if(!u)
+            return;
+
+        const n =
+            Number(
+                prompt(
+                    "Новый баланс:",
+                    u.balance
+                )
+            );
+
+        if(
+            Number.isFinite(n) &&
+            n >= 0
+        ){
+
+            u.balance =
+                Math.floor(n);
+
+            logAdminAction("Изменён баланс", name + " -> " + u.balance + " GH");
+
+            saveDB();
+
+            renderAdmin();
+            updateAccount();
+
+        }
+
+    };
+
+
+/* =========================
+   ADMIN VIP
+========================= */
+
+window.adminToggleVip =
+    name => {
+
+        if(!admin)
+            return;
+
+        const u =
+            db.users.find(
+                x =>
+                    x.name === name
+            );
+
+        if(!u)
+            return;
+
+        u.vip =
+            !u.vip;
+
+        logAdminAction(u.vip ? "Выдан VIP" : "Снят VIP", name);
+
+        saveDB();
+
+        renderAdmin();
+        updateAccount();
+        updateVIP();
+
+    };
+
+
+/* =========================
+   ADMIN TITLE
+========================= */
+
+window.adminSetTitle =
+    name => {
+
+        if(!admin)
+            return;
+
+        const u =
+            db.users.find(
+                x =>
+                    x.name === name
+            );
+
+        if(!u)
+            return;
+
+        const title =
+            prompt(
+                "Введите новый титул:",
+                u.title || ""
+            );
+
+        if(title === null)
+            return;
+
+        u.title =
+            title.trim();
+
+        logAdminAction("Изменён титул", name + " -> " + (u.title || "(пусто)"));
+
+        saveDB();
+
+        renderAdmin();
+        updateAccount();
+
+        msg(
+            "Титул",
+            "Титул пользователя изменён."
+        );
+
+    };
+
+
+/* =========================
+   ADMIN DELETE USER
+========================= */
+
+window.adminDeleteUser =
+    name => {
+
+        if(!admin)
+            return;
+
+        const target =
+            db.users.find(x => x.name === name);
+
+        if(target && isOwner(target)){
+
+            return msg(
+                "Админка",
+                "Аккаунт владельца нельзя удалить отсюда."
+            );
+
+        }
+
+        if(
+            !confirm(
+                "Удалить аккаунт " +
+                name +
+                "?"
+            )
+        )
+            return;
+
+        db.users =
+            db.users.filter(
+                x =>
+                    x.name !== name
+            );
+
+        logAdminAction("Удалён аккаунт", name);
+
+        saveDB();
+
+        if(
+            session === name
+        ){
+
+            session="";
+
+            localStorage.removeItem(
+                SESSION_KEY
+            );
+
+        }
+
+        renderAdmin();
+        updateAccount();
+        updateVIP();
+
+    };
+
+
+/* =========================
+   ADMIN BAN / UNBAN
+========================= */
+
+window.adminToggleBan =
+    name => {
+
+        if(!admin)
+            return;
+
+        const u =
+            db.users.find(
+                x => x.name === name
+            );
+
+        if(!u)
+            return;
+
+        if(isOwner(u)){
+
+            return msg(
+                "Админка",
+                "Владельца нельзя заблокировать."
+            );
+
+        }
+
+        u.banned = !u.banned;
+
+        logAdminAction(
+            u.banned ? "Заблокирован пользователь" : "Разблокирован пользователь",
+            name
+        );
+
+        saveDB();
+
+        if(u.banned && session === u.name){
+
+            session="";
+
+            localStorage.removeItem(SESSION_KEY);
+
+        }
+
+        renderAdmin();
+        updateAccount();
+
+    };
+
+
+/* =========================
+   DELETE CODE
+========================= */
+
+window.deleteCode =
+    code => {
+
+        if(!admin)
+            return;
+
+        db.codes =
+            db.codes.filter(
+                c =>
+                    c.code !== code
+            );
+
+        logAdminAction("Удалён код", code);
+
+        saveDB();
+
+        renderAdmin();
+
+    };
+
+
+/* =========================
+   GIVE MONEY
+========================= */
+
+$("giveMoney").onclick =
+    () => {
+
+        if(!admin)
+            return;
+
+        const name =
+            normalizeName(
+                $("moneyUser").value
+            );
+
+        const amount =
+            Math.floor(
+                Number(
+                    $("moneyAmount").value
+                )
+            );
+
+        const u =
+            db.users.find(
+                x =>
+                    x.name.toLowerCase() ===
+                    name.toLowerCase()
+            );
+
+        if(
+            !u ||
+            !Number.isFinite(amount)
+        ){
+
+            return msg(
+                "Админка",
+                "Пользователь или сумма неверны."
+            );
+
+        }
+
+        if(
+            Math.abs(amount) > 5000 &&
+            !confirm(`Выдать ${amount} GH игроку ${u.name}?`)
+        ){
+
+            return;
+
+        }
+
+        u.balance =
+            Math.max(
+                0,
+                u.balance + amount
+            );
+
+        logAdminAction("Выдача GH", `${u.name}: ${amount > 0 ? "+" : ""}${amount} GH (итого ${u.balance})`);
+
+        saveDB();
+
+        renderAdmin();
+        updateAccount();
+
+        $("moneyUser").value="";
+        $("moneyAmount").value="";
+
+        msg(
+            "Валюта",
+            "Баланс обновлён."
+        );
+
+    };
+
+
+/* =========================
+   ADMIN PASSWORD RESET
+========================= */
+
+$("resetPassBtn").onclick =
+    async () => {
+
+        if(!admin)
+            return;
+
+        const name =
+            normalizeName(
+                $("resetPassUser").value
+            );
+
+        const newPass =
+            $("resetPassNew").value;
+
+        if(newPass.length < 6){
+
+            return msg(
+                "Админка",
+                "Новый пароль должен быть минимум 6 символов."
+            );
+
+        }
+
+        let u =
+            db.users.find(
+                x =>
+                    x.name.toLowerCase() ===
+                    name.toLowerCase()
+            );
+
+        if(!u && name.toLowerCase() === OWNER_USERNAME){
+
+            u = {
+
+                name: OWNER_DISPLAY,
+                nickname: OWNER_DISPLAY,
+                balance:0,
+                vip:true,
+                superVip:true,
+                twoFAEnabled:false,
+                twoFASecret:"",
+                title:"OWNER",
+                owned:[],
+                effects:[],
+                scores:{},
+                wins:{},
+                playsByGame:{},
+                gamesPlayed:0,
+                achievements:[],
+                avatar:"👑",
+                refCode:"REF-"+OWNER_DISPLAY.toUpperCase(),
+                referredBy:"",
+                referrals:[],
+                loginStreak:0,
+                lastLogin:"",
+                giftsSent:0,
+                banned:false
+
+            };
+
+            db.users.push(u);
+
+        }
+
+        if(!u && name.toLowerCase() === HELPER_USERNAME){
+
+            u = {
+
+                name: HELPER_DISPLAY,
+                nickname: HELPER_DISPLAY,
+                balance:0,
+                vip:true,
+                superVip:false,
+                twoFAEnabled:false,
+                twoFASecret:"",
+                title:"HELPER",
+                owned:[],
+                effects:[],
+                scores:{},
+                wins:{},
+                playsByGame:{},
+                gamesPlayed:0,
+                achievements:[],
+                avatar:"🛟",
+                refCode:"REF-"+HELPER_DISPLAY.toUpperCase(),
+                referredBy:"",
+                referrals:[],
+                loginStreak:0,
+                lastLogin:"",
+                giftsSent:0,
+                banned:false
+
+            };
+
+            db.users.push(u);
+
+        }
+
+        if(!u){
+
+            return msg(
+                "Админка",
+                "Пользователь не найден."
+            );
+
+        }
+
+        await setPassword(u, newPass);
+
+        logAdminAction("Сброшен пароль", u.name);
+
+        saveDB();
+
+        clearLoginAttempts(u.name);
+
+        $("resetPassUser").value = "";
+        $("resetPassNew").value = "";
+
+        renderAdmin();
+
+        msg(
+            "Пароль сброшен",
+            `Новый пароль для "${u.name}" установлен.`
+        );
+
+    };
+
+
+/* =========================
+   CREATE GH CODE
+========================= */
+
+$("createCode").onclick =
+    () => {
+
+        if(!admin)
+            return;
+
+        const code =
+            $("newCode")
+                .value
+                .trim()
+                .toUpperCase();
+
+        const amount =
+            Math.floor(
+                Number(
+                    $("newCodeAmount")
+                        .value
+                )
+            );
+
+        if(
+            code.length < 3 ||
+            !Number.isFinite(amount) ||
+            amount <= 0
+        ){
+
+            return msg(
+                "Код",
+                "Укажи код и положительную сумму."
+            );
+
+        }
+
+        if(
+            db.codes.some(
+                c =>
+                    c.code === code
+            )
+        ){
+
+            return msg(
+                "Код",
+                "Такой код уже существует."
+            );
+
+        }
+
+        db.codes.push({
+
+            code:code,
+            amount:amount,
+            type:"money",
+            used:false
+
+        });
+
+        logAdminAction("Создан GH-код", code + " (+" + amount + " GH)");
+
+        saveDB();
+
+        renderAdmin();
+
+        $("newCode").value="";
+        $("newCodeAmount").value="";
+
+        msg(
+            "Код",
+            "Код создан."
+        );
+
+    };
+
+
+/* =========================
+   CREATE VIP CODE
+========================= */
+
+$("createVipCode").onclick =
+    () => {
+
+        if(!admin)
+            return;
+
+        const code =
+            $("newVipCode")
+                .value
+                .trim()
+                .toUpperCase();
+
+        if(code.length < 3){
+
+            return msg(
+                "Код",
+                "Укажи код (минимум 3 символа)."
+            );
+
+        }
+
+        if(
+            db.codes.some(
+                c =>
+                    c.code === code
+            )
+        ){
+
+            return msg(
+                "Код",
+                "Такой код уже существует."
+            );
+
+        }
+
+        db.codes.push({
+
+            code:code,
+            type:"vip",
+            used:false
+
+        });
+
+        logAdminAction("Создан VIP-код", code);
+
+        saveDB();
+
+        renderAdmin();
+
+        $("newVipCode").value="";
+
+        msg(
+            "Код",
+            "VIP-код создан."
+        );
+
+    };
+
+
+/* =========================
+   REDEEM CODE (GH or VIP)
+========================= */
+
+$("redeemCodeBtn").onclick =
+    () => {
+
+        const u=user();
+
+        if(!u){
+
+            return msg(
+                "Код",
+                "Сначала войди в аккаунт."
+            );
+
+        }
+
+        const code =
+            $("redeemCodeInput")
+                .value
+                .trim()
+                .toUpperCase();
+
+        if(!code){
+
+            return msg(
+                "Код",
+                "Введи код."
+            );
+
+        }
+
+        if(code === VIP_CODE){
+
+            u.vip=true;
+
+            saveDB();
+
+            $("redeemCodeInput").value="";
+
+            updateAccount();
+            updateVIP();
+            renderAdmin();
+
+            return msg(
+                "Код",
+                "VIP успешно активирован."
+            );
+
+        }
+
+        const found =
+            db.codes.find(
+                c =>
+                    c.code === code &&
+                    !c.used
+            );
+
+        if(!found){
+
+            return msg(
+                "Код",
+                "Неверный или уже использованный код."
+            );
+
+        }
+
+        if(found.type === "vip"){
+
+            u.vip=true;
+
+        }else{
+
+            u.balance =
+                (u.balance || 0) +
+                found.amount;
+
+        }
+
+        found.used=true;
+
+        saveDB();
+
+        $("redeemCodeInput").value="";
+
+        updateAccount();
+        updateVIP();
+        renderAdmin();
+
+        msg(
+            "Код",
+            found.type === "vip"
+            ? "VIP успешно активирован."
+            : `Код активирован: +${found.amount} GH`
+        );
+
+    };
+
+
+$("redeemCodeInput")
+.addEventListener(
+    "keydown",
+    e => {
+
+        if(e.key==="Enter")
+            $("redeemCodeBtn").click();
+
+    }
+);
+
+
+/* =========================
+   GIVE VIP
+========================= */
+
+$("giveVip").onclick =
+    () => {
+
+        if(!admin)
+            return;
+
+        const name =
+            normalizeName(
+                $("vipUser").value
+            );
+
+        const u =
+            db.users.find(
+                x =>
+                    x.name.toLowerCase() ===
+                    name.toLowerCase()
+            );
+
+        if(!u){
+
+            return msg(
+                "VIP",
+                "Пользователь не найден."
+            );
+
+        }
+
+        u.vip=true;
+
+        saveDB();
+
+        renderAdmin();
+
+        if(u.name===session)
+            updateVIP();
+
+        msg(
+            "VIP",
+            "VIP выдан."
+        );
+
+    };
+
+
+/* =========================
+   REMOVE VIP
+========================= */
+
+$("removeUserVip").onclick =
+    () => {
+
+        if(!admin)
+            return;
+
+        const name =
+            normalizeName(
+                $("vipUser").value
+            );
+
+        const u =
+            db.users.find(
+                x =>
+                    x.name.toLowerCase() ===
+                    name.toLowerCase()
+            );
+
+        if(!u){
+
+            return msg(
+                "VIP",
+                "Пользователь не найден."
+            );
+
+        }
+
+        u.vip=false;
+        u.superVip=false;
+
+        saveDB();
+
+        renderAdmin();
+
+        if(u.name===session)
+            updateVIP();
+
+        msg(
+            "VIP",
+            "VIP снят."
+        );
+
+    };
+
+
+/* =========================
+   GIVE TITLE
+========================= */
+
+$("giveTitle").onclick =
+    () => {
+
+        if(!admin)
+            return;
+
+        const name =
+            normalizeName(
+                $("titleUser").value
+            );
+
+        const title =
+            $("titleSelect").value;
+
+        const u =
+            db.users.find(
+                x =>
+                    x.name.toLowerCase() ===
+                    name.toLowerCase()
+            );
+
+        if(!u){
+
+            return msg(
+                "Титул",
+                "Пользователь не найден."
+            );
+
+        }
+
+        u.title=title;
+
+        saveDB();
+
+        renderAdmin();
+        updateAccount();
+
+        msg(
+            "Титул",
+            "Титул выдан."
+        );
+
+    };
+
+
+/* =========================
+   SUPER VIP
+========================= */
+
+$("giveSuperVip").onclick =
+    () => {
+
+        if(!admin)
+            return;
+
+        const name =
+            normalizeName(
+                $("superVipUser").value
+            );
+
+        const u =
+            db.users.find(
+                x =>
+                    x.name.toLowerCase() ===
+                    name.toLowerCase()
+            );
+
+        if(!u){
+
+            return msg(
+                "SUPER VIP",
+                "Пользователь не найден."
+            );
+
+        }
+
+        u.vip=true;
+        u.superVip=true;
+
+        saveDB();
+
+        renderAdmin();
+
+        if(u.name===session)
+            updateVIP();
+
+        msg(
+            "SUPER VIP",
+            "SUPER VIP выдан."
+        );
+
+    };
+
+
+/* =========================
+   REMOVE SUPER VIP
+========================= */
+
+$("removeSuperVip").onclick =
+    () => {
+
+        if(!admin)
+            return;
+
+        const name =
+            normalizeName(
+                $("superVipUser").value
+            );
+
+        const u =
+            db.users.find(
+                x =>
+                    x.name.toLowerCase() ===
+                    name.toLowerCase()
+            );
+
+        if(!u){
+
+            return msg(
+                "SUPER VIP",
+                "Пользователь не найден."
+            );
+
+        }
+
+        u.superVip=false;
+
+        saveDB();
+
+        renderAdmin();
+
+        if(u.name===session)
+            updateVIP();
+
+        msg(
+            "SUPER VIP",
+            "SUPER VIP снят."
+        );
+
+    };
+
+
+/* =========================
+   CREATE SHOP ITEM
+========================= */
+
+$("createShopItem").onclick =
+    () => {
+
+        if(!admin)
+            return;
+
+        const name =
+            $("shopName")
+                .value
+                .trim();
+
+        const icon =
+            $("shopIcon")
+                .value
+                .trim() || "🎁";
+
+        const price =
+            Math.floor(
+                Number(
+                    $("shopPrice").value
+                )
+            );
+
+        const category =
+            $("shopCategory")
+                .value;
+
+        const value =
+            $("shopValue")
+                .value
+                .trim();
+
+        if(
+            name.length < 2 ||
+            !Number.isFinite(price) ||
+            price <= 0 ||
+            !value
+        ){
+
+            return msg(
+                "Магазин",
+                "Заполни название, цену и значение товара."
+            );
+
+        }
+
+        const id =
+            "item-" +
+            Date.now();
+
+        db.shop.push({
+
+            id:id,
+            name:name,
+            icon:icon,
+            price:price,
+            category:category,
+            value:value
+
+        });
+
+        saveDB();
+
+        renderAdmin();
+        renderShop();
+
+        $("shopName").value="";
+        $("shopIcon").value="";
+        $("shopPrice").value="";
+        $("shopValue").value="";
+
+        msg(
+            "Магазин",
+            "Товар добавлен."
+        );
+
+    };
+
+
+/* =========================
+   DELETE SHOP ITEM
+========================= */
+
+window.deleteShopItem =
+    id => {
+
+        if(!admin)
+            return;
+
+        const item =
+            db.shop.find(
+                x =>
+                    x.id === id
+            );
+
+        if(!item)
+            return;
+
+        if(
+            !confirm(
+                "Удалить товар " +
+                item.name +
+                "?"
+            )
+        )
+            return;
+
+        db.shop =
+            db.shop.filter(
+                x =>
+                    x.id !== id
+            );
+
+        saveDB();
+
+        renderAdmin();
+        renderShop();
+
+    };
+
+
+/* =========================
+   SAVE THEME
+========================= */
+
+$("saveTheme").onclick =
+    () => {
+
+        if(!admin)
+            return;
+
+        const theme =
+            $("themeSelect")
+                .value;
+
+        localStorage.setItem(
+            THEME_KEY,
+            theme
+        );
+
+        applyTheme();
+
+        msg(
+            "Тема",
+            "Тема сохранена."
+        );
+
+    };
+
+
+/* =========================
+   ESC
+========================= */
+
+document.addEventListener(
+    "keydown",
+    e => {
+
+        if(e.key==="Escape"){
+
+            e.preventDefault();
+
+            window.scrollTo({
+                top:0,
+                behavior:"smooth"
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================
+   INITIAL
+========================= */
+
+updateAccount();
+updateVIP();
+updateSecurityLabel();
+renderAdmin();
+renderShop();
+renderAnnouncement();
+renderHallOfFame();
+
+
+/* =========================
+   REFERRAL COPY
+========================= */
+
+$("copyRefCode").onclick =
+    () => {
+
+        const u = user();
+
+        if(!u)
+            return;
+
+        const code = u.refCode;
+
+        if(navigator.clipboard && navigator.clipboard.writeText){
+
+            navigator.clipboard
+                .writeText(code)
+                .then(() => {
+
+                    msg(
+                        "Скопировано",
+                        `Код ${code} скопирован в буфер обмена.`
+                    );
+
+                })
+                .catch(() => {
+
+                    msg("Твой код", code);
+
+                });
+
+        }else{
+
+            msg("Твой код", code);
+
+        }
+
+    };
+
+
+/* =========================
+   ANNOUNCEMENT ADMIN CONTROLS
+========================= */
+
+$("publishAnnounce").onclick =
+    () => {
+
+        if(!admin)
+            return;
+
+        const text =
+            $("announceInput")
+                .value
+                .trim();
+
+        if(!text){
+
+            return msg(
+                "Объявление",
+                "Введи текст объявления."
+            );
+
+        }
+
+        db.announcement = {
+            text: text,
+            ts: Date.now()
+        };
+
+        logAdminAction("Опубликовано объявление", text);
+
+        saveDB();
+
+        $("announceInput").value = "";
+
+        renderAnnouncement();
+
+        msg(
+            "Объявление",
+            "Объявление опубликовано для всех."
+        );
+
+    };
+
+$("clearAnnounce").onclick =
+    () => {
+
+        if(!admin)
+            return;
+
+        db.announcement = null;
+
+        logAdminAction("Убрано объявление", "");
+
+        saveDB();
+
+        renderAnnouncement();
+
+        msg(
+            "Объявление",
+            "Объявление убрано."
+        );
+
+    };
+
+$("announceClose").onclick =
+    () => {
+
+        if(db.announcement){
+
+            sessionStorage.setItem(
+                "announceDismiss",
+                String(db.announcement.ts)
+            );
+
+        }
+
+        $("announceBanner")
+            .classList
+            .add("hidden");
+
+    };
+
+</script>
 
 </body>
 </html>
